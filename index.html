@@ -5,76 +5,110 @@
   <title>Section Sportive - Lycée Louis de Cormontaigne</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
   <style>
     body, html {
-      margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; background: #222;
+      margin: 0; padding: 0; height: 100%; overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg, #89aaff 0%, #2f4f7f 100%);
       color: #eee;
+      user-select: none;
     }
     #app {
       position: relative; width: 100%; height: 100%;
     }
-    /* Accueil page */
+    /* Accueil */
     #welcome {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      max-width: 600px; padding: 30px; background: #004a99cc; border-radius: 12px; text-align: center;
-      box-shadow: 0 0 20px #0066ccaa;
+      max-width: 600px; padding: 30px 40px;
+      background: rgba(0, 74, 153, 0.9);
+      border-radius: 14px; text-align: center;
+      box-shadow: 0 0 25px rgba(0, 102, 204, 0.7);
       z-index: 10;
     }
     #welcome h1 {
-      margin-bottom: 20px;
-      font-size: 2.5rem;
-      color: #fff;
+      margin-bottom: 18px;
+      font-size: 2.7rem;
+      font-weight: 700;
+      color: #eef6ff;
+      text-shadow: 1px 1px 5px #003366;
     }
     #welcome p {
       font-size: 1.2rem;
-      margin-bottom: 30px;
+      line-height: 1.4;
+      margin-bottom: 35px;
+      color: #dbeaff;
     }
     #enterBtn {
-      background: #00aaff;
-      border: none;
-      padding: 15px 30px;
-      font-size: 1.3rem;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    #enterBtn:hover {
       background: #0088cc;
+      border: none;
+      padding: 16px 34px;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #fff;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: background-color 0.25s ease;
+      box-shadow: 0 4px 12px rgba(0,136,204,0.6);
+      user-select: none;
     }
-
-    /* Masquer la scène VR au départ */
+    #enterBtn:hover, #enterBtn:focus {
+      background: #005f8a;
+      outline: none;
+    }
+    /* Masquer scène au départ */
     #scene-container {
       width: 100%; height: 100%; display: none;
     }
-
-    /* Menu VR simple */
+    /* Menu VR */
     #vr-menu {
       position: fixed;
-      bottom: 20px;
+      bottom: 16px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0,0,0,0.6);
-      padding: 8px 15px;
-      border-radius: 12px;
+      background: rgba(20, 35, 60, 0.85);
+      padding: 10px 18px;
+      border-radius: 14px;
       display: flex;
-      gap: 12px;
-      z-index: 15;
-      font-size: 1rem;
+      gap: 14px;
+      z-index: 20;
+      font-size: 1.05rem;
       user-select: none;
+      box-shadow: 0 0 15px rgba(0,0,0,0.7);
+      flex-wrap: wrap;
+      max-width: 90vw;
     }
     #vr-menu button {
-      background: #0088cc;
+      background: #0a72bb;
       border: none;
-      padding: 10px 18px;
+      padding: 12px 24px;
       color: white;
-      border-radius: 8px;
+      font-weight: 600;
+      border-radius: 10px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background-color 0.3s ease;
+      flex-grow: 1;
+      min-width: 110px;
+      text-align: center;
     }
-    #vr-menu button:hover {
-      background: #005f8a;
+    #vr-menu button:hover, #vr-menu button:focus {
+      background: #064a72;
+      outline: none;
+    }
+
+    /* Loading message */
+    #loading-msg {
+      position: fixed;
+      top: 15px; right: 15px;
+      background: #004080cc;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #cce6ff;
+      box-shadow: 0 0 10px #004080cc;
+      z-index: 30;
+      user-select: none;
+      display: none;
     }
   </style>
 </head>
@@ -82,28 +116,32 @@
 
 <div id="app">
   <!-- Page accueil -->
-  <section id="welcome">
+  <section id="welcome" role="main" aria-label="Page d'accueil Section sportive">
     <h1>Bienvenue à la Section Sportive</h1>
-    <p>Lycée Louis de Cormontaigne - Metz<br/>
-       Découvrez nos sports : Football, Basket, Handball, Athlétisme<br/>
-       Visitez notre espace en réalité virtuelle immersive !</p>
-    <button id="enterBtn">Entrer dans la visite VR</button>
+    <p>
+      Lycée Louis de Cormontaigne - Metz<br/>
+      Découvrez nos sports : Football, Basket, Handball, Athlétisme<br/>
+      Visitez notre espace en réalité virtuelle immersive !
+    </p>
+    <button id="enterBtn" aria-label="Entrer dans la visite VR">Entrer dans la visite VR</button>
   </section>
 
   <!-- Conteneur scène VR -->
-  <div id="scene-container">
-    <a-scene background="color: #a0c8f0" shadow="type:pcfsoft" vr-mode-ui="enabled: true" embedded>
+  <div id="scene-container" role="main" aria-label="Visite virtuelle Section sportive">
+    <a-scene background="color: #a0c8f0" shadow="type:pcfsoft" vr-mode-ui="enabled: true" embedded
+             renderer="logarithmicDepthBuffer: true; antialias: true" 
+             loading-screen="enabled: false">
 
       <!-- Sol -->
       <a-plane rotation="-90 0 0" width="50" height="50" color="#3a7d44" receive-shadow="true"></a-plane>
 
       <!-- Lumières -->
-      <a-light type="ambient" color="#666"></a-light>
-      <a-light type="directional" color="#fff" intensity="1" position="5 15 5" cast-shadow="true"></a-light>
+      <a-light type="ambient" color="#777"></a-light>
+      <a-light type="directional" color="#fff" intensity="1.2" position="8 15 8" cast-shadow="true"></a-light>
 
       <!-- Caméra et contrôles -->
       <a-entity id="cameraRig" position="0 1.6 12">
-        <a-entity camera look-controls wasd-controls="acceleration:50" position="0 0 0">
+        <a-entity camera look-controls wasd-controls="acceleration:50" position="0 0 0" wasd-controls-enabled="true">
           <a-entity cursor="fuse:true; fuseTimeout:1000"
                     position="0 0 -1"
                     geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
@@ -115,62 +153,51 @@
       <!-- Zones sportives -->
 
       <!-- Football -->
-      <a-entity id="zone-foot" position="-10 0 -10" rotation="0 20 0">
+      <a-entity id="zone-foot" position="-10 0 -10" rotation="0 20 0" shadow="cast: true">
         <a-text value="Football" color="#005500" align="center" position="0 3 0" width="6" shader="msdf"></a-text>
-        <!-- Terrain foot (rectangle vert clair) -->
         <a-plane width="10" height="6" color="#228822" rotation="-90 0 0" position="0 0 0" shadow="receive:true"></a-plane>
-        <!-- Joueur Foot (modèle animé) -->
-        <a-gltf-model src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf" 
-                      position="0 0 0" scale="0.75 0.75 0.75" animation-mixer></a-gltf-model>
-        <!-- Ballon Foot -->
-        <a-gltf-model src="https://cdn.jsdelivr.net/gh/pmndrs/drei-assets@master/football/scene.gltf" 
-                      position="1 0.3 0" scale="0.3 0.3 0.3" rotation="0 45 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 4000"></a-gltf-model>
+        <a-gltf-model id="foot-player" scale="0.7 0.7 0.7" position="0 0 0" shadow="cast:true"></a-gltf-model>
+        <a-gltf-model id="foot-ball" scale="0.3 0.3 0.3" position="1 0.3 0" rotation="0 45 0" shadow="cast:true"
+                      animation="property: rotation; to: 0 360 0; loop: true; dur: 4000"></a-gltf-model>
       </a-entity>
 
       <!-- Basket -->
-      <a-entity id="zone-basket" position="10 0 -10" rotation="0 -30 0">
+      <a-entity id="zone-basket" position="10 0 -10" rotation="0 -30 0" shadow="cast: true">
         <a-text value="Basketball" color="#aa5500" align="center" position="0 3 0" width="6" shader="msdf"></a-text>
-        <!-- Terrain basket -->
         <a-plane width="8" height="8" color="#cc7722" rotation="-90 0 0" position="0 0 0" shadow="receive:true"></a-plane>
-        <!-- Joueur Basket -->
-        <a-gltf-model src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/BrainStem/glTF/BrainStem.gltf" 
-                      position="0 0 0" scale="0.7 0.7 0.7" animation-mixer></a-gltf-model>
-        <!-- Ballon Basket -->
-        <a-gltf-model src="https://cdn.jsdelivr.net/gh/pmndrs/drei-assets@master/basketball/scene.gltf" 
-                      position="1 0.3 0" scale="0.3 0.3 0.3" rotation="0 45 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 3500"></a-gltf-model>
+        <a-gltf-model id="basket-player" scale="0.65 0.65 0.65" position="0 0 0" shadow="cast:true"></a-gltf-model>
+        <a-gltf-model id="basket-ball" scale="0.28 0.28 0.28" position="1 0.3 0" rotation="0 45 0" shadow="cast:true"
+                      animation="property: rotation; to: 0 360 0; loop: true; dur: 3500"></a-gltf-model>
       </a-entity>
 
       <!-- Handball -->
-      <a-entity id="zone-handball" position="-10 0 10" rotation="0 45 0">
+      <a-entity id="zone-handball" position="-10 0 10" rotation="0 45 0" shadow="cast: true">
         <a-text value="Handball" color="#aa0044" align="center" position="0 3 0" width="6" shader="msdf"></a-text>
-        <!-- Terrain handball -->
         <a-plane width="8" height="6" color="#aa0055" rotation="-90 0 0" position="0 0 0" shadow="receive:true"></a-plane>
-        <!-- Joueur Handball -->
-        <a-gltf-model src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Monster/glTF/Monster.gltf" 
-                      position="0 0 0" scale="0.6 0.6 0.6" animation-mixer></a-gltf-model>
-        <!-- Ballon Handball -->
-        <a-sphere position="1 0.4 0" radius="0.25" color="#ff3366" animation="property: rotation; to: 0 360 0; loop: true; dur: 4000" shadow="cast:true"></a-sphere>
+        <a-gltf-model id="handball-player" scale="0.6 0.6 0.6" position="0 0 0" shadow="cast:true"></a-gltf-model>
+        <a-sphere id="handball-ball" position="1 0.4 0" radius="0.25" color="#ff3366" shadow="cast:true"
+                  animation="property: rotation; to: 0 360 0; loop: true; dur: 4000"></a-sphere>
       </a-entity>
 
       <!-- Athlétisme -->
-      <a-entity id="zone-athle" position="10 0 10" rotation="0 -15 0">
+      <a-entity id="zone-athle" position="10 0 10" rotation="0 -15 0" shadow="cast: true">
         <a-text value="Athlétisme" color="#0044aa" align="center" position="0 3 0" width="6" shader="msdf"></a-text>
-        <!-- Piste athlé -->
         <a-plane width="10" height="3" color="#4444aa" rotation="-90 0 0" position="0 0 0" shadow="receive:true"></a-plane>
-        <!-- Coureur Athlé -->
-        <a-gltf-model src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/WalkingLady/glTF/WalkingLady.gltf" 
-                      position="0 0 0" scale="0.7 0.7 0.7" animation-mixer></a-gltf-model>
+        <a-gltf-model id="athle-player" scale="0.7 0.7 0.7" position="0 0 0" shadow="cast:true"></a-gltf-model>
       </a-entity>
 
     </a-scene>
 
     <!-- Menu VR téléportation -->
-    <div id="vr-menu">
-      <button data-target="zone-foot">Football</button>
-      <button data-target="zone-basket">Basketball</button>
-      <button data-target="zone-handball">Handball</button>
-      <button data-target="zone-athle">Athlétisme</button>
-    </div>
+    <nav id="vr-menu" role="navigation" aria-label="Menu navigation sportive">
+      <button data-target="zone-foot" type="button">Football</button>
+      <button data-target="zone-basket" type="button">Basketball</button>
+      <button data-target="zone-handball" type="button">Handball</button>
+      <button data-target="zone-athle" type="button">Athlétisme</button>
+    </nav>
+
+    <!-- Loading message -->
+    <div id="loading-msg" aria-live="polite">Chargement des modèles…</div>
   </div>
 </div>
 
@@ -180,23 +207,90 @@
   const enterBtn = document.getElementById('enterBtn');
   const vrMenu = document.getElementById('vr-menu');
   const cameraRig = document.querySelector('#cameraRig');
+  const loadingMsg = document.getElementById('loading-msg');
 
-  // Affiche la scène et masque l'accueil
-  enterBtn.onclick = () => {
-    welcome.style.display = 'none';
-    sceneContainer.style.display = 'block';
+  // Modèles URL (libres, légers)
+  const models = {
+    footPlayer: 'https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf',
+    footBall: 'https://cdn.jsdelivr.net/gh/pmndrs/drei-assets@master/football/scene.gltf',
+    basketPlayer: 'https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/BrainStem/glTF/BrainStem.gltf',
+    basketBall: 'https://cdn.jsdelivr.net/gh/pmndrs/drei-assets@master/basketball/scene.gltf',
+    handballPlayer: 'https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Monster/glTF/Monster.gltf',
+    athlePlayer: 'https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/WalkingLady/glTF/WalkingLady.gltf'
   };
 
-  // Téléportation dans la scène
+  // Fonction chargement asynchrone modèles dans la scène
+  function loadModel(id, src) {
+    return new Promise((resolve, reject) => {
+      const el = document.getElementById(id);
+      el.setAttribute('gltf-model', src);
+      el.addEventListener('model-loaded', () => resolve(id));
+      el.addEventListener('model-error', (e) => reject(e));
+    });
+  }
+
+  // Chargement de tous les modèles
+  async function loadAllModels() {
+    loadingMsg.style.display = 'block';
+    try {
+      await Promise.all([
+        loadModel('foot-player', models.footPlayer),
+        loadModel('foot-ball', models.footBall),
+        loadModel('basket-player', models.basketPlayer),
+        loadModel('basket-ball', models.basketBall),
+        loadModel('handball-player', models.handballPlayer),
+        loadModel('athle-player', models.athlePlayer)
+      ]);
+    } catch (err) {
+      console.warn('Erreur chargement modèle:', err);
+      loadingMsg.textContent = 'Erreur lors du chargement des modèles.';
+    }
+    loadingMsg.style.display = 'none';
+  }
+
+  // Démarrer la visite VR
+  enterBtn.onclick = async () => {
+    welcome.style.display = 'none';
+    sceneContainer.style.display = 'block';
+    await loadAllModels();
+    // Position caméra initiale (face au foot)
+    cameraRig.setAttribute('position', {x: -10, y: 1.6, z: -6});
+  };
+
+  // Téléportation caméra avec animation fluide
+  function teleportCamera(pos) {
+    const startPos = cameraRig.getAttribute('position');
+    const endPos = {x: pos.x, y: 1.6, z: pos.z + 4};
+    const duration = 600;
+    let startTime = null;
+
+    function animate(time) {
+      if (!startTime) startTime = time;
+      const elapsed = time - startTime;
+      const t = Math.min(elapsed / duration, 1);
+
+      const lerp = (a, b) => a + (b - a) * t;
+      cameraRig.setAttribute('position', {
+        x: lerp(startPos.x, endPos.x),
+        y: lerp(startPos.y, endPos.y),
+        z: lerp(startPos.z, endPos.z)
+      });
+
+      if (t < 1) {
+        requestAnimationFrame(animate);
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+
+  // Menu VR click
   vrMenu.addEventListener('click', e => {
     if(e.target.tagName !== 'BUTTON') return;
     const targetId = e.target.getAttribute('data-target');
     const target = document.getElementById(targetId);
     if (target) {
-      // Téléporte caméraRig devant la zone ciblée
       const pos = target.getAttribute('position');
-      const offset = {x: pos.x, y: 1.6, z: pos.z + 4};
-      cameraRig.setAttribute('position', offset);
+      teleportCamera(pos);
     }
   });
 </script>
