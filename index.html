@@ -193,11 +193,7 @@
       console.warn('Pas de mesh chargé.');
       return;
     }
-    console.log('Footballer bones:');
-    mesh.traverse(node => {
-      if (node.isBone) console.log(node.name);
-    });
-    attachBallToBone(footPlayerEntity, footBall, 'RightFoot'); // Remplacer 'RightFoot' selon ta console
+    attachBallToBone(footPlayerEntity, footBall, 'RightFoot'); // Ajuste le nom si besoin
   });
 
   // HANDBALL
@@ -214,11 +210,7 @@
       console.warn('Pas de mesh chargé.');
       return;
     }
-    console.log('Handballer bones:');
-    mesh.traverse(node => {
-      if (node.isBone) console.log(node.name);
-    });
-    attachBallToBone(handPlayerEntity, handBall, 'RightFoot'); // Change 'RightFoot' si nécessaire
+    attachBallToBone(handPlayerEntity, handBall, 'RightHand'); // Ici on attache à la main droite
   });
 
   // Fonction commune pour attacher ballon à os
@@ -239,8 +231,7 @@
     const ballPivot = new THREE.Object3D();
     bone.add(ballPivot);
 
-    ballPivot.position.set(0.1, -0.15, 0.1); // Ajuster position locale selon besoin
-
+    ballPivot.position.set(0, 0, 0); // Ajuster la position locale du ballon par rapport à l'os
     ballPivot.add(ballEntity.object3D);
     ballEntity.object3D.position.set(0, 0, 0);
 
@@ -307,7 +298,7 @@
     requestAnimationFrame(animateBall);
   }
 
-  // Tir hand
+  // Tir hand (jeté de balle réaliste)
   function shootHandBall() {
     if (isHandShooting) return;
     isHandShooting = true;
@@ -315,8 +306,14 @@
     const mixerComp = handPlayerEntity.components['animation-mixer'];
     if (mixerComp) {
       mixerComp.stopAllAction();
-      const shootClipName = mixerComp.clips.find(c => c.name.toLowerCase().includes('shoot'))?.name || mixerComp.clips[0].name;
-      mixerComp.playAction(shootClipName, 0, 1);
+      const throwClipName = mixerComp.clips.find(c =>
+        c.name.toLowerCase().includes('throw') ||
+        c.name.toLowerCase().includes('jeté') ||
+        c.name.toLowerCase().includes('throw_ball') ||
+        c.name.toLowerCase().includes('shoot')
+      )?.name || mixerComp.clips[0].name;
+
+      mixerComp.playAction(throwClipName, 0, 1);
     }
 
     if (handPlayerEntity.ballPivot && handBall.object3D.parent === handPlayerEntity.ballPivot) {
@@ -364,7 +361,7 @@
     requestAnimationFrame(animateBall);
   }
 
-  // Événements clic + barre espace
+  // Clics et touches clavier
 
   footPlayerEntity.addEventListener('click', shootBall);
   handPlayerEntity.addEventListener('click', shootHandBall);
