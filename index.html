@@ -76,12 +76,11 @@
 <a-scene embedded background="color: #181818" shadow="type: pcfsoft" style="width:100vw; height:100vh; display:none" id="scene">
 
   <a-assets>
-    <!-- Modèles humains animés pour chaque sport -->
-    <!-- Foot : CesiumMan (anim marche) -->
-    <a-asset-item id="footPlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/CesiumMan/glTF/CesiumMan.gltf"></a-asset-item>
-    <!-- Basket : Soldier en animation de marche (remplace Fox) -->
+    <!-- FOOTBALL : ton modèle footballeur animé -->
+    <a-asset-item id="footPlayer" src="personnage/goal.glb"></a-asset-item>
+    <!-- Basket : Soldier en animation de marche -->
     <a-asset-item id="basketPlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Soldier/glTF/Soldier.glb"></a-asset-item>
-    <!-- Handball : Animated Soldier avec animation simple -->
+    <!-- Handball : Soldier animé -->
     <a-asset-item id="handPlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Soldier/glTF/Soldier.glb"></a-asset-item>
     <!-- Athlétisme : Running Man -->
     <a-asset-item id="athlePlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/RunningMan/glTF/RunningMan.glb"></a-asset-item>
@@ -108,9 +107,12 @@
   <a-entity id="foot" position="-20 0 -15">
     <a-text value="Football" position="0 3 0" align="center" color="#00ff00" width="6"></a-text>
     <a-box color="#1a3d1a" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
-    <!-- Ballon foot -->
-    <a-sphere color="#fff" radius="0.4" position="1 0.4 0" segments-height="8" segments-width="8" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"></a-sphere>
-    <!-- Joueur foot animé -->
+    <!-- Ballon foot réaliste (placeholder sphère) -->
+    <a-sphere color="#fff" radius="0.4" position="1 0.4 0" segments-height="8" segments-width="8" 
+              rotation="0 0 0" 
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear">
+    </a-sphere>
+    <!-- Footballeur animé avec ton modèle -->
     <a-entity gltf-model="#footPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer></a-entity>
   </a-entity>
 
@@ -118,9 +120,7 @@
   <a-entity id="basket" position="20 0 -15">
     <a-text value="Basketball" position="0 3 0" align="center" color="#ff8000" width="6"></a-text>
     <a-box color="#4a2e00" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
-    <!-- Ballon basket orange -->
     <a-sphere color="#e67e22" radius="0.45" position="1 0.45 0" segments-height="8" segments-width="8" animation="property: rotation; to: 0 360 0; loop: true; dur: 6000; easing: linear"></a-sphere>
-    <!-- Joueur basket animé -->
     <a-entity gltf-model="#basketPlayer" position="-2 0 0" scale="0.03 0.03 0.03" animation-mixer></a-entity>
   </a-entity>
 
@@ -128,9 +128,7 @@
   <a-entity id="hand" position="-20 0 15">
     <a-text value="Handball" position="0 3 0" align="center" color="#cc3399" width="6"></a-text>
     <a-box color="#3b0f3b" width="8" height="0.1" depth="14" position="0 0 0"></a-box>
-    <!-- Ballon handball rose -->
     <a-sphere color="#cc3366" radius="0.35" position="1 0.35 0" segments-height="8" segments-width="8" animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"></a-sphere>
-    <!-- Joueur handball animé -->
     <a-entity gltf-model="#handPlayer" position="-2 0 0" scale="0.03 0.03 0.03" animation-mixer></a-entity>
   </a-entity>
 
@@ -138,8 +136,6 @@
   <a-entity id="athle" position="20 0 15">
     <a-text value="Athlétisme" position="0 3 0" align="center" color="#3399cc" width="6"></a-text>
     <a-box color="#111111" width="16" height="0.1" depth="4" position="0 0 0"></a-box>
-    <!-- Pas de ballon pour athlé -->
-    <!-- Coureur animé -->
     <a-entity gltf-model="#athlePlayer" position="-4 0 0" scale="1.3 1.3 1.3" animation-mixer></a-entity>
   </a-entity>
 
