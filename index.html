@@ -107,13 +107,24 @@
   <a-entity id="foot" position="-20 0 -15">
     <a-text value="Football" position="0 3 0" align="center" color="#00ff00" width="6"></a-text>
     <a-box color="#1a3d1a" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
-    <!-- Ballon foot réaliste (placeholder sphère) -->
-    <a-sphere color="#fff" radius="0.4" position="1 0.4 0" segments-height="8" segments-width="8"
-              rotation="0 0 0"
-              animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear">
-    </a-sphere>
-    <!-- Footballeur animé avec ton modèle -->
-    <a-entity gltf-model="#footPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer="clip: *; loop: repeat; crossFadeDuration: 1.0"></a-entity>
+
+    <!-- Footballeur animé avec ballon attaché -->
+    <a-entity id="footPlayerEntity" position="-2 0 0" scale="1.5 1.5 1.5" 
+              gltf-model="#footPlayer" 
+              animation-mixer="clip: *; loop: repeat; crossFadeDuration: 1.0" 
+              class="clickable">
+      <!-- Ballon de foot attaché au joueur (position pied droit approximative) -->
+      <a-sphere id="footBall" 
+                color="#fff" 
+                radius="0.35" 
+                position="0.7 0.2 0.3" 
+                segments-height="12" 
+                segments-width="12" 
+                rotation="0 0 0"
+                shadow="cast: true; receive: false"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear">
+      </a-sphere>
+    </a-entity>
   </a-entity>
 
   <!-- BASKETBALL -->
@@ -166,6 +177,113 @@
     const pos = target.getAttribute('position');
     cameraRig.setAttribute('position', { x: pos.x, y: 1.6, z: pos.z + 7 });
   }
+
+  // --- Script tir ballon ---
+
+  // On récupère les éléments footPlayerEntity et ballon
+  const footPlayerEntity = document.getElementById('footPlayerEntity');
+  const footBall = document.getElementById('footBall');
+
+  // Variables pour gérer le tir
+  let isShooting = false;
+  const shootDuration = 2000; // durée du tir en ms
+  const shootDistance = 8;    // distance que parcourt le ballon
+
+  // Position initiale relative du ballon (par rapport au joueur)
+  const initialBallPosition = footBall.getAttribute('position');
+
+  // Fonction pour lancer l'animation tir + déplacement du ballon
+  function shootBall() {
+    if (isShooting) return; // éviter de spammer
+
+    isShooting = true;
+
+    // 1. Lance l'animation "shoot" du joueur (si nom exact clip: "shoot" à ajuster)
+    // Ici on force l'animation à clip 1 (exemple), adapte selon ton glb.
+    const mixerComp = footPlayerEntity.components['animation-mixer'];
+    if (mixerComp) {
+      // Si tu connais le nom du clip tir (shoot, kick, etc.) remplace '*'
+      mixerComp.stopAllAction();
+      mixerComp.playAction('shoot' || mixerComp.clips[0].name, 0, 1); // Essaie clip "shoot" sinon premier clip
+    }
+
+    // 2. Détache le ballon du joueur pour qu'on puisse l'animer indépendamment
+    footPlayerEntity.removeChild(footBall);
+    scene.appendChild(footBall);
+
+    // Calcule la position monde initiale du ballon
+    const ballWorldPos = new THREE.Vector3();
+    footBall.object3D.getWorldPosition(ballWorldPos);
+
+    // Place le ballon à la position monde actuelle
+    footBall.setAttribute('position', ballWorldPos);
+
+    // Variables pour animation déplacement
+    const startTime = performance.now();
+
+    // Position de départ en 3D (monde)
+    const startPos = ballWorldPos.clone();
+    // Direction devant joueur : vers Z négatif car joueur regarde vers Z positif (à vérifier)
+    // Ici on récupère la rotation du joueur sur Y pour tirer dans sa direction
+    const playerRotation = footPlayerEntity.object3D.rotation.y;
+
+    // Calcul vecteur direction tir sur XZ
+    const dirX = -Math.sin(playerRotation);
+    const dirZ = -Math.cos(playerRotation);
+
+    // Fonction animation frame déplacement du ballon
+    function animateBall(time) {
+      const elapsed = time - startTime;
+      if (elapsed > shootDuration) {
+        // Fin animation
+
+        // Re-attach ballon au joueur à sa position initiale
+        footBall.setAttribute('position', initialBallPosition);
+        footPlayerEntity.appendChild(footBall);
+
+        // Remet ballon avec rotation animée (petite rotation sur lui-même)
+        footBall.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear');
+
+        // Remet animation joueur en loop idle/walk
+        if (mixerComp) {
+          mixerComp.stopAllAction();
+          mixerComp.playAction(mixerComp.clips[0].name, 0, Infinity);
+        }
+
+        isShooting = false;
+        return;
+      }
+
+      // Progression 0..1
+      const progress = elapsed / shootDuration;
+
+      // Nouvelle position du ballon = start + dir * dist * progress + légère élévation (arc de parabole simplifié)
+      const height = 1.5 * Math.sin(Math.PI * progress); // arc de saut du ballon
+
+      footBall.setAttribute('position', {
+        x: startPos.x + dirX * shootDistance * progress,
+        y: startPos.y + height,
+        z: startPos.z + dirZ * shootDistance * progress
+      });
+
+      requestAnimationFrame(animateBall);
+    }
+
+    requestAnimationFrame(animateBall);
+  }
+
+  // Pour le test, on écoute un click sur le footPlayerEntity (le joueur)
+  footPlayerEntity.addEventListener('click', () => {
+    shootBall();
+  });
+
+  // Aussi au clavier : barre espace tire
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+      shootBall();
+    }
+  });
+
 </script>
 
 </body>
