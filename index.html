@@ -108,14 +108,14 @@
     <a-text value="Football" position="0 3 0" align="center" color="#00ff00" width="6"></a-text>
     <a-box color="#1a3d1a" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
 
-    <!-- Footballeur animé avec ballon attaché au bone RightFoot -->
+    <!-- Footballeur -->
     <a-entity id="footPlayerEntity" position="-2 0 0" scale="1.5 1.5 1.5" 
               gltf-model="#footPlayer" 
               animation-mixer="clip: *; loop: repeat; crossFadeDuration: 1.0" 
               class="clickable">
-      <a-sphere id="footBall" radius="0.2" color="#fff" shadow="cast: true; receive: false"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"
-                attach-to-bone="modelSelector: #footPlayerEntity; boneName: RightFoot">
+      <!-- Ballon positionné manuellement proche pied droit -->
+      <a-sphere id="footBall" radius="0.18" color="#fff" position="0.35 0.15 0.25" shadow="cast: true; receive: false"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear">
       </a-sphere>
     </a-entity>
   </a-entity>
@@ -171,67 +171,36 @@
     cameraRig.setAttribute('position', { x: pos.x, y: 1.6, z: pos.z + 7 });
   }
 
-
-  // Composant attach-to-bone
-  AFRAME.registerComponent('attach-to-bone', {
-    schema: {
-      modelSelector: {type: 'selector'},
-      boneName: {type: 'string'}
-    },
-    init() {
-      this.model = this.data.modelSelector.getObject3D('mesh') || this.data.modelSelector.getObject3D('gltf');
-      if (!this.model) {
-        console.warn('Modèle non chargé ou incorrect');
-        return;
-      }
-      this.bone = null;
-      this.el.object3D.visible = false;
-    },
-    tick() {
-      if (!this.bone) {
-        this.bone = null;
-        this.data.modelSelector.getObject3D('mesh').traverse((obj) => {
-          if (obj.isBone && obj.name === this.data.boneName) {
-            this.bone = obj;
-          }
-        });
-        if (!this.bone) return;
-        this.el.object3D.visible = true;
-      }
-      // Copier position et rotation os dans ballon
-      this.el.object3D.position.copy(this.bone.getWorldPosition(new THREE.Vector3()));
-      this.el.object3D.quaternion.copy(this.bone.getWorldQuaternion(new THREE.Quaternion()));
-    }
-  });
-
-  // Gestion tir ballon
-
+  // Variables tir
   const footPlayerEntity = document.getElementById('footPlayerEntity');
   const footBall = document.getElementById('footBall');
   let isShooting = false;
-  const shootDuration = 2000; // Durée du tir en ms
-  const shootDistance = 8;    // Distance parcourue par le ballon
+  const shootDuration = 2000; // Durée en ms
+  const shootDistance = 8;    // Distance tir
 
-  // Fonction pour lancer le tir
+  // Ballon est enfant du joueur, position initiale locale (déjà défini dans HTML)
+  // Quand on tire, on le détache et on l’anime dans la scène.
+
   function shootBall() {
     if (isShooting) return;
     isShooting = true;
 
-    // Récupérer animation mixer du joueur
+    // Animation tir du joueur (adapter nom animation)
     const mixerComp = footPlayerEntity.components['animation-mixer'];
     if (mixerComp) {
       mixerComp.stopAllAction();
-      // Adapte le nom du clip "shoot" au tien
-      mixerComp.playAction('shoot' || mixerComp.clips[0].name, 0, 1);
+      // Ici le nom 'shoot' est à adapter selon ton .glb
+      const shootClipName = mixerComp.clips.find(c => c.name.toLowerCase().includes('shoot'))?.name || mixerComp.clips[0].name;
+      mixerComp.playAction(shootClipName, 0, 1);
     }
 
-    // Détache le ballon du joueur pour l'animer
+    // Détache ballon du joueur
     if (footBall.parentElement === footPlayerEntity) {
       footPlayerEntity.removeChild(footBall);
       scene.appendChild(footBall);
     }
 
-    // Position monde initiale du ballon
+    // Position mondiale du ballon (à partir de sa position locale)
     const ballWorldPos = new THREE.Vector3();
     footBall.object3D.getWorldPosition(ballWorldPos);
     footBall.setAttribute('position', ballWorldPos);
@@ -245,19 +214,18 @@
 
     const startTime = performance.now();
 
-    // Enlever animation rotation ballon pendant tir
+    // Retire la rotation pendant tir
     footBall.removeAttribute('animation');
 
-    // Animation déplacement du ballon
     function animateBall(time) {
       const elapsed = time - startTime;
       if (elapsed > shootDuration) {
-        // Fin tir, rattacher ballon au joueur
+        // Fin tir : rattacher ballon
         footBall.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear');
-        footBall.setAttribute('position', {x: 0, y: 0, z: 0}); // reset position locale
-
+        footBall.setAttribute('position', {x: 0.35, y: 0.15, z: 0.25});
         footPlayerEntity.appendChild(footBall);
 
+        // Remet animation joueur par défaut
         if (mixerComp) {
           mixerComp.stopAllAction();
           mixerComp.playAction(mixerComp.clips[0].name, 0, Infinity);
@@ -282,10 +250,8 @@
     requestAnimationFrame(animateBall);
   }
 
-  // Événement click sur joueur
-  footPlayerEntity.addEventListener('click', () => {
-    shootBall();
-  });
+  // Tir au clic sur joueur
+  footPlayerEntity.addEventListener('click', shootBall);
 
   // Tir barre espace
   window.addEventListener('keydown', e => {
