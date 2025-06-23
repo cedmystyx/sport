@@ -1,100 +1,151 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Section Sportive - Lycée Louis de Cormontaigne</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
   <style>
-    html, body { margin: 0; height: 100%; overflow: hidden; font-family: sans-serif; }
+    html, body {
+      margin: 0; height: 100%; overflow: hidden;
+      background: #222;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
     #startScreen {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(to bottom right, #004080, #00aaff);
+      background: linear-gradient(135deg, #111, #222);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      color: white; text-align: center; z-index: 10;
+      z-index: 10; text-align: center;
     }
     #startButton {
-      margin-top: 20px; padding: 12px 24px; font-size: 1.2em; background: #00aaff;
-      border: none; border-radius: 8px; cursor: pointer;
+      margin-top: 20px;
+      padding: 14px 30px;
+      font-size: 1.3em;
+      background: #007acc;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #startButton:hover {
+      background: #005f99;
     }
     #menu {
       position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 10px;
-      display: flex; gap: 10px; z-index: 5;
+      background: rgba(0,0,0,0.7);
+      padding: 12px 25px;
+      border-radius: 10px;
+      display: none;
+      gap: 15px;
+      z-index: 5;
+      user-select: none;
     }
     #menu button {
-      padding: 10px 15px; font-size: 1em; border: none; border-radius: 6px;
-      background: #007acc; color: white; cursor: pointer;
+      background: #007acc;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 18px;
+      font-size: 1em;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #menu button:hover {
+      background: #005f99;
     }
   </style>
 </head>
 <body>
+
 <div id="startScreen">
   <h1>Section Sportive - Lycée Louis de Cormontaigne</h1>
-  <p>Découvrez les sports en réalité virtuelle !</p>
+  <p>Entrez dans une expérience sportive immersive en réalité virtuelle</p>
   <button id="startButton">Entrer</button>
 </div>
-<div id="menu" style="display:none">
+
+<div id="menu">
   <button onclick="teleportTo('foot')">Football</button>
   <button onclick="teleportTo('basket')">Basketball</button>
   <button onclick="teleportTo('hand')">Handball</button>
   <button onclick="teleportTo('athle')">Athlétisme</button>
 </div>
-<a-scene id="scene" background="color: #e0f7fa" shadow="type: pcfsoft" embedded style="display:none">
+
+<a-scene embedded background="color: #181818" shadow="type: pcfsoft" style="width:100vw; height:100vh; display:none" id="scene">
+
   <a-assets>
-    <!-- Modèles 3D stylisés et optimisés -->
+    <!-- Modèles humains animés pour chaque sport -->
+    <!-- Foot : CesiumMan (anim marche) -->
     <a-asset-item id="footPlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/CesiumMan/glTF/CesiumMan.gltf"></a-asset-item>
-    <a-asset-item id="basketPlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Fox/glTF/Fox.gltf"></a-asset-item>
-    <a-asset-item id="athlePlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf"></a-asset-item>
-    <a-asset-item id="handPlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Monster/glTF/Monster.gltf"></a-asset-item>
+    <!-- Basket : Soldier en animation de marche (remplace Fox) -->
+    <a-asset-item id="basketPlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Soldier/glTF/Soldier.glb"></a-asset-item>
+    <!-- Handball : Animated Soldier avec animation simple -->
+    <a-asset-item id="handPlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Soldier/glTF/Soldier.glb"></a-asset-item>
+    <!-- Athlétisme : Running Man -->
+    <a-asset-item id="athlePlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/RunningMan/glTF/RunningMan.glb"></a-asset-item>
+
+    <!-- Sons ambiance stade -->
+    <audio id="ambiance" src="https://cdn.pixabay.com/audio/2022/03/15/audio_c7a7c2f4e0.mp3"></audio>
   </a-assets>
 
-  <!-- Caméra -->
-  <a-entity id="cameraRig" position="0 1.6 10">
-    <a-entity camera look-controls wasd-controls></a-entity>
+  <!-- Caméra avec son ambiant -->
+  <a-entity id="cameraRig" position="0 1.6 15">
+    <a-entity camera look-controls wasd-controls>
+      <a-entity sound="src: #ambiance; autoplay: false; loop: true; positional: true; volume: 0.3"></a-entity>
+    </a-entity>
   </a-entity>
 
-  <!-- Lumière -->
-  <a-light type="ambient" color="#888"></a-light>
-  <a-light type="directional" position="1 3 2" intensity="1.2" castShadow="true"></a-light>
+  <!-- Lumières -->
+  <a-light type="ambient" color="#555"></a-light>
+  <a-light type="directional" color="#fff" position="5 10 7" intensity="0.8" cast-shadow="true"></a-light>
 
-  <!-- Sol -->
-  <a-plane rotation="-90 0 0" width="100" height="100" color="#a2d5a2" shadow="receive: true"></a-plane>
+  <!-- Sol global gris béton -->
+  <a-plane rotation="-90 0 0" width="100" height="100" color="#2b2b2b" shadow="receive: true"></a-plane>
 
-  <!-- Terrain FOOTBALL -->
-  <a-entity id="foot" position="-15 0 -10">
-    <a-text value="Football" position="0 3 0" align="center" color="#005500"></a-text>
-    <a-box color="#ffffff" width="6" height="0.1" depth="10" position="0 0 0"></a-box>
-    <a-sphere position="0 0.25 0" radius="0.25" color="#ffffff" segments-height="6"></a-sphere>
-    <a-entity gltf-model="#footPlayer" scale="1.2 1.2 1.2" position="-1 0 1" animation-mixer></a-entity>
+  <!-- FOOTBALL -->
+  <a-entity id="foot" position="-20 0 -15">
+    <a-text value="Football" position="0 3 0" align="center" color="#00ff00" width="6"></a-text>
+    <a-box color="#1a3d1a" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
+    <!-- Ballon foot -->
+    <a-sphere color="#fff" radius="0.4" position="1 0.4 0" segments-height="8" segments-width="8" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"></a-sphere>
+    <!-- Joueur foot animé -->
+    <a-entity gltf-model="#footPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer></a-entity>
   </a-entity>
 
-  <!-- Terrain BASKET -->
-  <a-entity id="basket" position="15 0 -10">
-    <a-text value="Basketball" position="0 3 0" align="center" color="#aa4400"></a-text>
-    <a-box color="#ffcc80" width="5" height="0.1" depth="8" position="0 0 0"></a-box>
-    <a-sphere position="0 0.25 0" radius="0.24" color="#e67e22"></a-sphere>
-    <a-entity gltf-model="#basketPlayer" scale="0.03 0.03 0.03" position="-1 0 1" animation-mixer></a-entity>
+  <!-- BASKETBALL -->
+  <a-entity id="basket" position="20 0 -15">
+    <a-text value="Basketball" position="0 3 0" align="center" color="#ff8000" width="6"></a-text>
+    <a-box color="#4a2e00" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
+    <!-- Ballon basket orange -->
+    <a-sphere color="#e67e22" radius="0.45" position="1 0.45 0" segments-height="8" segments-width="8" animation="property: rotation; to: 0 360 0; loop: true; dur: 6000; easing: linear"></a-sphere>
+    <!-- Joueur basket animé -->
+    <a-entity gltf-model="#basketPlayer" position="-2 0 0" scale="0.03 0.03 0.03" animation-mixer></a-entity>
   </a-entity>
 
-  <!-- Terrain HANDBALL -->
-  <a-entity id="hand" position="-15 0 10">
-    <a-text value="Handball" position="0 3 0" align="center" color="#660033"></a-text>
-    <a-box color="#ff99cc" width="4" height="0.1" depth="6" position="0 0 0"></a-box>
-    <a-sphere position="0 0.2 0" radius="0.2" color="#cc3366"></a-sphere>
-    <a-entity gltf-model="#handPlayer" scale="0.6 0.6 0.6" position="-1 0 1" animation-mixer></a-entity>
+  <!-- HANDBALL -->
+  <a-entity id="hand" position="-20 0 15">
+    <a-text value="Handball" position="0 3 0" align="center" color="#cc3399" width="6"></a-text>
+    <a-box color="#3b0f3b" width="8" height="0.1" depth="14" position="0 0 0"></a-box>
+    <!-- Ballon handball rose -->
+    <a-sphere color="#cc3366" radius="0.35" position="1 0.35 0" segments-height="8" segments-width="8" animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"></a-sphere>
+    <!-- Joueur handball animé -->
+    <a-entity gltf-model="#handPlayer" position="-2 0 0" scale="0.03 0.03 0.03" animation-mixer></a-entity>
   </a-entity>
 
-  <!-- Terrain ATHLETISME -->
-  <a-entity id="athle" position="15 0 10">
-    <a-text value="Athlétisme" position="0 3 0" align="center" color="#003366"></a-text>
-    <a-box color="#ccccff" width="8" height="0.1" depth="2" position="0 0 0"></a-box>
-    <a-entity gltf-model="#athlePlayer" scale="1.5 1.5 1.5" position="-1 0 1" animation-mixer></a-entity>
+  <!-- ATHLÉTISME -->
+  <a-entity id="athle" position="20 0 15">
+    <a-text value="Athlétisme" position="0 3 0" align="center" color="#3399cc" width="6"></a-text>
+    <a-box color="#111111" width="16" height="0.1" depth="4" position="0 0 0"></a-box>
+    <!-- Pas de ballon pour athlé -->
+    <!-- Coureur animé -->
+    <a-entity gltf-model="#athlePlayer" position="-4 0 0" scale="1.3 1.3 1.3" animation-mixer></a-entity>
   </a-entity>
 
-  <!-- Public immobile -->
-  <a-entity geometry="primitive: box" position="0 0 -20" scale="20 2 1" material="color: #444" shadow></a-entity>
+  <!-- Tribune simplifiée -->
+  <a-box position="0 0 -30" width="40" height="3" depth="3" color="#111111" shadow></a-box>
+
 </a-scene>
 
 <script>
@@ -108,14 +159,18 @@
     startScreen.style.display = 'none';
     scene.style.display = 'block';
     menu.style.display = 'flex';
+    // Play ambiance sound
+    const soundComp = scene.querySelector('[sound]').components.sound;
+    if (soundComp) soundComp.playSound();
   });
 
   function teleportTo(zoneId) {
     const target = document.getElementById(zoneId);
     if (!target) return;
     const pos = target.getAttribute('position');
-    cameraRig.setAttribute('position', { x: pos.x, y: 1.6, z: pos.z + 6 });
+    cameraRig.setAttribute('position', { x: pos.x, y: 1.6, z: pos.z + 7 });
   }
 </script>
+
 </body>
 </html>
