@@ -2,138 +2,204 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Section Sportive - Lycée Louis de Cormontaigne à Metz</title>
+  <title>Section Sportive - Lycée Louis de Cormontaigne</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: #111;
-      font-family: Arial, sans-serif;
+    body, html {
+      margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; background: #222;
       color: #eee;
     }
-    #instructions {
+    #app {
+      position: relative; width: 100%; height: 100%;
+    }
+    /* Accueil page */
+    #welcome {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      max-width: 600px; padding: 30px; background: #004a99cc; border-radius: 12px; text-align: center;
+      box-shadow: 0 0 20px #0066ccaa;
+      z-index: 10;
+    }
+    #welcome h1 {
+      margin-bottom: 20px;
+      font-size: 2.5rem;
+      color: #fff;
+    }
+    #welcome p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+    }
+    #enterBtn {
+      background: #00aaff;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.3rem;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #enterBtn:hover {
+      background: #0088cc;
+    }
+
+    /* Masquer la scène VR au départ */
+    #scene-container {
+      width: 100%; height: 100%; display: none;
+    }
+
+    /* Menu VR simple */
+    #vr-menu {
       position: fixed;
-      bottom: 10px;
-      width: 100%;
-      text-align: center;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      padding: 8px 15px;
+      border-radius: 12px;
+      display: flex;
+      gap: 12px;
+      z-index: 15;
       font-size: 1rem;
-      background: rgba(0,0,0,0.5);
-      padding: 8px 10px;
-      z-index: 9999;
       user-select: none;
     }
-    @media (max-width: 600px) {
-      #instructions {
-        font-size: 1.3rem;
-        padding: 12px 10px;
-      }
+    #vr-menu button {
+      background: #0088cc;
+      border: none;
+      padding: 10px 18px;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #vr-menu button:hover {
+      background: #005f8a;
     }
   </style>
 </head>
 <body>
 
-  <div id="instructions">
-    Utilisez la souris (ordinateur) ou bougez votre téléphone (mobile) pour regarder autour. <br />
-    Sur ordinateur, déplacez-vous avec ZQSD ou flèches. <br />
-    Sur mobile ou VR, touchez pour interagir et activez le mode VR si disponible.
-  </div>
+<div id="app">
+  <!-- Page accueil -->
+  <section id="welcome">
+    <h1>Bienvenue à la Section Sportive</h1>
+    <p>Lycée Louis de Cormontaigne - Metz<br/>
+       Découvrez nos sports : Football, Basket, Handball, Athlétisme<br/>
+       Visitez notre espace en réalité virtuelle immersive !</p>
+    <button id="enterBtn">Entrer dans la visite VR</button>
+  </section>
 
-  <a-scene 
-    background="color: #a0c8f0" 
-    shadow="type:pcfsoft" 
-    vr-mode-ui="enabled: true" 
-    embedded>
+  <!-- Conteneur scène VR -->
+  <div id="scene-container">
+    <a-scene background="color: #a0c8f0" shadow="type:pcfsoft" vr-mode-ui="enabled: true" embedded>
 
-    <!-- Sol -->
-    <a-plane rotation="-90 0 0" width="30" height="30" color="#3a7d44" receive-shadow="true"></a-plane>
+      <!-- Sol -->
+      <a-plane rotation="-90 0 0" width="50" height="50" color="#3a7d44" receive-shadow="true"></a-plane>
 
-    <!-- Lumières -->
-    <a-light type="ambient" color="#666"></a-light>
-    <a-light type="directional" color="#fff" intensity="1" position="5 10 5" cast-shadow="true"></a-light>
+      <!-- Lumières -->
+      <a-light type="ambient" color="#666"></a-light>
+      <a-light type="directional" color="#fff" intensity="1" position="5 15 5" cast-shadow="true"></a-light>
 
-    <!-- Texte accueil -->
-    <a-entity position="0 5 -8" 
-              text="value: Section sportive du lycée Louis de Cormontaigne à Metz; align: center; width: 10; color: #222; shader: msdf">
-    </a-entity>
-
-    <!-- Ballon de foot (texture approximative) -->
-    <a-entity position="-6 0.5 -4" rotation="0 45 0">
-      <a-sphere radius="0.5" segments-height="32" segments-width="32" 
-                material="color: white; roughness: 0.7; metalness: 0.2" 
-                shadow="cast: true">
-      </a-sphere>
-      <!-- Simulations de pentagones noires -->
-      <a-ring position="0 0.45 0" rotation="-90 0 0" radius-inner="0.09" radius-outer="0.12" color="black"></a-ring>
-      <a-ring position="0 0.4 0" rotation="-90 36 0" radius-inner="0.09" radius-outer="0.12" color="black"></a-ring>
-      <a-ring position="0 0.35 0" rotation="-90 72 0" radius-inner="0.09" radius-outer="0.12" color="black"></a-ring>
-      <a-ring position="0 0.3 0" rotation="-90 108 0" radius-inner="0.09" radius-outer="0.12" color="black"></a-ring>
-      <a-ring position="0 0.25 0" rotation="-90 144 0" radius-inner="0.09" radius-outer="0.12" color="black"></a-ring>
-      <!-- Animation de rebond -->
-      <a-animation attribute="position" direction="alternate" dur="1800" repeat="indefinite" to="0 0.65 0"></a-animation>
-    </a-entity>
-
-    <!-- Ballon de handball orange -->
-    <a-sphere position="0 0.4 -4" radius="0.4" color="#f58426" roughness="0.5" metalness="0.1" shadow="cast: true">
-      <a-animation attribute="position" direction="alternate" dur="1000" repeat="indefinite" to="0 0.8 -4"></a-animation>
-    </a-sphere>
-
-    <!-- Coureur stylisé -->
-    <a-entity position="5 0 -4" rotation="0 20 0" shadow="cast: true">
-      <a-cylinder height="1.5" radius="0.3" color="#cc9966" position="0 1 0"></a-cylinder> <!-- Corps -->
-      <a-sphere radius="0.3" color="#f1c27d" position="0 2 0"></a-sphere> <!-- Tête -->
-      <a-box color="#3366cc" height="0.8" width="0.2" depth="0.2" position="-0.55 1.5 0" rotation="0 0 10" id="brasG"></a-box> <!-- Bras gauche -->
-      <a-box color="#3366cc" height="0.8" width="0.2" depth="0.2" position="0.55 1.5 0" rotation="0 0 -10" id="brasD"></a-box> <!-- Bras droit -->
-      <a-box color="#223366" height="1" width="0.25" depth="0.25" position="-0.2 0.3 0" rotation="0 0 15" id="jambeG"></a-box> <!-- Jambe gauche -->
-      <a-box color="#223366" height="1" width="0.25" depth="0.25" position="0.2 0.3 0" rotation="0 0 -15" id="jambeD"></a-box> <!-- Jambe droite -->
-    </a-entity>
-
-    <!-- Professeur animé -->
-    <a-entity position="8 0 -4" rotation="0 -20 0" shadow="cast: true">
-      <a-box height="1.8" width="0.6" depth="0.4" color="#4caf50" position="0 0.9 0"></a-box> <!-- Corps -->
-      <a-sphere radius="0.35" color="#f1c27d" position="0 2 0"></a-sphere> <!-- Tête -->
-      <a-box color="#2e7d32" height="0.9" width="0.2" depth="0.2" position="-0.55 1.3 0" rotation="0 0 20" id="profBrasG"></a-box> <!-- Bras gauche -->
-      <a-box color="#2e7d32" height="0.9" width="0.2" depth="0.2" position="0.55 1.3 0" rotation="0 0 -20" id="profBrasD"></a-box> <!-- Bras droit -->
-    </a-entity>
-
-    <!-- Caméra avec contrôle souris/clavier et gyroscope mobile -->
-    <a-entity camera position="0 1.6 10" look-controls wasd-controls>
-      <a-entity cursor="fuse: true; fuseTimeout: 1000"
-                position="0 0 -1"
-                geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
-                material="color: white; shader: flat">
+      <!-- Caméra et contrôles -->
+      <a-entity id="cameraRig" position="0 1.6 12">
+        <a-entity camera look-controls wasd-controls="acceleration:50" position="0 0 0">
+          <a-entity cursor="fuse:true; fuseTimeout:1000"
+                    position="0 0 -1"
+                    geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                    material="color: white; shader: flat">
+          </a-entity>
+        </a-entity>
       </a-entity>
-    </a-entity>
 
-    <script>
-      // Animation bras et jambes coureur + bras professeur
-      const scene = document.querySelector('a-scene');
-      scene.addEventListener('loaded', () => {
-        const brasG = document.getElementById('brasG');
-        const brasD = document.getElementById('brasD');
-        const jambeG = document.getElementById('jambeG');
-        const jambeD = document.getElementById('jambeD');
-        const profBrasG = document.getElementById('profBrasG');
-        const profBrasD = document.getElementById('profBrasD');
+      <!-- Zones sportives -->
 
-        let angle = 0;
-        function animate() {
-          angle += 0.05;
-          brasG.setAttribute('rotation', `0 0 ${Math.sin(angle) * 30 + 10}`);
-          brasD.setAttribute('rotation', `0 0 ${-Math.sin(angle) * 30 - 10}`);
-          jambeG.setAttribute('rotation', `0 0 ${-Math.sin(angle) * 30 + 15}`);
-          jambeD.setAttribute('rotation', `0 0 ${Math.sin(angle) * 30 - 15}`);
+      <!-- Football -->
+      <a-entity id="zone-foot" position="-10 0 -10" rotation="0 20 0">
+        <a-text value="Football" color="#005500" align="center" position="0 3 0" width="6" shader="msdf"></a-text>
+        <!-- Terrain foot (rectangle vert clair) -->
+        <a-plane width="10" height="6" color="#228822" rotation="-90 0 0" position="0 0 0" shadow="receive:true"></a-plane>
+        <!-- Joueur Foot (modèle animé) -->
+        <a-gltf-model src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/AnimatedMorphSphere/glTF/AnimatedMorphSphere.gltf" 
+                      position="0 0 0" scale="0.75 0.75 0.75" animation-mixer></a-gltf-model>
+        <!-- Ballon Foot -->
+        <a-gltf-model src="https://cdn.jsdelivr.net/gh/pmndrs/drei-assets@master/football/scene.gltf" 
+                      position="1 0.3 0" scale="0.3 0.3 0.3" rotation="0 45 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 4000"></a-gltf-model>
+      </a-entity>
 
-          profBrasG.setAttribute('rotation', `0 0 ${Math.sin(angle * 0.7) * 40 + 20}`);
-          profBrasD.setAttribute('rotation', `0 0 ${-Math.sin(angle * 0.7) * 40 - 20}`);
+      <!-- Basket -->
+      <a-entity id="zone-basket" position="10 0 -10" rotation="0 -30 0">
+        <a-text value="Basketball" color="#aa5500" align="center" position="0 3 0" width="6" shader="msdf"></a-text>
+        <!-- Terrain basket -->
+        <a-plane width="8" height="8" color="#cc7722" rotation="-90 0 0" position="0 0 0" shadow="receive:true"></a-plane>
+        <!-- Joueur Basket -->
+        <a-gltf-model src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/BrainStem/glTF/BrainStem.gltf" 
+                      position="0 0 0" scale="0.7 0.7 0.7" animation-mixer></a-gltf-model>
+        <!-- Ballon Basket -->
+        <a-gltf-model src="https://cdn.jsdelivr.net/gh/pmndrs/drei-assets@master/basketball/scene.gltf" 
+                      position="1 0.3 0" scale="0.3 0.3 0.3" rotation="0 45 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 3500"></a-gltf-model>
+      </a-entity>
 
-          requestAnimationFrame(animate);
-        }
-        animate();
-      });
-    </script>
+      <!-- Handball -->
+      <a-entity id="zone-handball" position="-10 0 10" rotation="0 45 0">
+        <a-text value="Handball" color="#aa0044" align="center" position="0 3 0" width="6" shader="msdf"></a-text>
+        <!-- Terrain handball -->
+        <a-plane width="8" height="6" color="#aa0055" rotation="-90 0 0" position="0 0 0" shadow="receive:true"></a-plane>
+        <!-- Joueur Handball -->
+        <a-gltf-model src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Monster/glTF/Monster.gltf" 
+                      position="0 0 0" scale="0.6 0.6 0.6" animation-mixer></a-gltf-model>
+        <!-- Ballon Handball -->
+        <a-sphere position="1 0.4 0" radius="0.25" color="#ff3366" animation="property: rotation; to: 0 360 0; loop: true; dur: 4000" shadow="cast:true"></a-sphere>
+      </a-entity>
 
-  </a-scene>
+      <!-- Athlétisme -->
+      <a-entity id="zone-athle" position="10 0 10" rotation="0 -15 0">
+        <a-text value="Athlétisme" color="#0044aa" align="center" position="0 3 0" width="6" shader="msdf"></a-text>
+        <!-- Piste athlé -->
+        <a-plane width="10" height="3" color="#4444aa" rotation="-90 0 0" position="0 0 0" shadow="receive:true"></a-plane>
+        <!-- Coureur Athlé -->
+        <a-gltf-model src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/WalkingLady/glTF/WalkingLady.gltf" 
+                      position="0 0 0" scale="0.7 0.7 0.7" animation-mixer></a-gltf-model>
+      </a-entity>
+
+    </a-scene>
+
+    <!-- Menu VR téléportation -->
+    <div id="vr-menu">
+      <button data-target="zone-foot">Football</button>
+      <button data-target="zone-basket">Basketball</button>
+      <button data-target="zone-handball">Handball</button>
+      <button data-target="zone-athle">Athlétisme</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const welcome = document.getElementById('welcome');
+  const sceneContainer = document.getElementById('scene-container');
+  const enterBtn = document.getElementById('enterBtn');
+  const vrMenu = document.getElementById('vr-menu');
+  const cameraRig = document.querySelector('#cameraRig');
+
+  // Affiche la scène et masque l'accueil
+  enterBtn.onclick = () => {
+    welcome.style.display = 'none';
+    sceneContainer.style.display = 'block';
+  };
+
+  // Téléportation dans la scène
+  vrMenu.addEventListener('click', e => {
+    if(e.target.tagName !== 'BUTTON') return;
+    const targetId = e.target.getAttribute('data-target');
+    const target = document.getElementById(targetId);
+    if (target) {
+      // Téléporte caméraRig devant la zone ciblée
+      const pos = target.getAttribute('position');
+      const offset = {x: pos.x, y: 1.6, z: pos.z + 4};
+      cameraRig.setAttribute('position', offset);
+    }
+  });
+</script>
+
 </body>
 </html>
