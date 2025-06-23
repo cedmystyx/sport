@@ -76,77 +76,63 @@
 <a-scene embedded background="color: #181818" shadow="type: pcfsoft" style="width:100vw; height:100vh; display:none" id="scene">
 
   <a-assets>
-    <!-- FOOTBALL -->
     <a-asset-item id="footPlayer" src="personnage/goal.glb"></a-asset-item>
-    <!-- BASKETBALL -->
-    <a-asset-item id="basketPlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Soldier/glTF/Soldier.glb"></a-asset-item>
-    <!-- HANDBALL -->
+    <a-asset-item id="basketPlayer" src="basketball/dribble.glb"></a-asset-item>
     <a-asset-item id="handPlayer" src="handball/hand.glb"></a-asset-item>
-    <!-- ATHLÉTISME -->
     <a-asset-item id="athlePlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/RunningMan/glTF/RunningMan.glb"></a-asset-item>
 
-    <!-- Sons ambiance stade -->
     <audio id="ambiance" src="https://cdn.pixabay.com/audio/2022/03/15/audio_c7a7c2f4e0.mp3"></audio>
   </a-assets>
 
-  <!-- Caméra avec son ambiant -->
   <a-entity id="cameraRig" position="0 1.6 15">
     <a-entity camera look-controls wasd-controls>
       <a-entity sound="src: #ambiance; autoplay: false; loop: true; positional: true; volume: 0.3"></a-entity>
     </a-entity>
   </a-entity>
 
-  <!-- Lumières -->
   <a-light type="ambient" color="#555"></a-light>
   <a-light type="directional" color="#fff" position="5 10 7" intensity="0.8" cast-shadow="true"></a-light>
 
-  <!-- Sol -->
   <a-plane rotation="-90 0 0" width="100" height="100" color="#2b2b2b" shadow="receive: true"></a-plane>
 
   <!-- FOOTBALL -->
   <a-entity id="foot" position="-20 0 -15">
     <a-text value="Football" position="0 3 0" align="center" color="#00ff00" width="6"></a-text>
     <a-box color="#1a3d1a" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
-    <a-entity id="footPlayerEntity" position="-2 0 0" scale="1.5 1.5 1.5"
-              gltf-model="#footPlayer"
-              animation-mixer="clip: *; loop: repeat; crossFadeDuration: 1.0"
-              class="clickable">
-      <a-sphere id="footBall" radius="0.18" color="#fff" shadow="cast: true; receive: false"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear">
-      </a-sphere>
-    </a-entity>
+    <a-sphere color="#fff" radius="0.4" position="1 0.4 0"
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear">
+    </a-sphere>
+    <a-entity gltf-model="#footPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer></a-entity>
   </a-entity>
 
   <!-- BASKETBALL -->
   <a-entity id="basket" position="20 0 -15">
     <a-text value="Basketball" position="0 3 0" align="center" color="#ff8000" width="6"></a-text>
     <a-box color="#4a2e00" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
-    <a-sphere color="#e67e22" radius="0.45" position="1 0.45 0" segments-height="8" segments-width="8" animation="property: rotation; to: 0 360 0; loop: true; dur: 6000; easing: linear"></a-sphere>
-    <a-entity gltf-model="#basketPlayer" position="-2 0 0" scale="0.03 0.03 0.03" animation-mixer="clip: *; loop: repeat; crossFadeDuration: 1.0"></a-entity>
+    <a-sphere radius="0.35" color="#e67e22" position="0.3 1 0.2"
+              animation="property: position; dir: alternate; dur: 600; loop: true; to: 0.3 0.7 0.2; easing: easeInOutSine">
+    </a-sphere>
+    <a-entity gltf-model="#basketPlayer" position="-1.5 0 0" scale="1.5 1.5 1.5"
+              animation-mixer="clip: *; loop: repeat; crossFadeDuration: 0.5"></a-entity>
   </a-entity>
 
   <!-- HANDBALL -->
   <a-entity id="hand" position="-20 0 15">
     <a-text value="Handball" position="0 3 0" align="center" color="#cc3399" width="6"></a-text>
     <a-box color="#3b0f3b" width="8" height="0.1" depth="14" position="0 0 0"></a-box>
-    <a-entity id="handPlayerEntity" position="-2 0 0" scale="1.5 1.5 1.5"
-              gltf-model="#handPlayer"
-              animation-mixer="clip: *; loop: repeat; crossFadeDuration: 1.0"
-              class="clickable">
-      <a-sphere id="handBall" radius="0.15" color="#cc3366" shadow="cast: true; receive: false"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 3500; easing: linear">
-      </a-sphere>
-    </a-entity>
+    <a-sphere color="#cc3366" radius="0.35" position="1 0.35 0"
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"></a-sphere>
+    <a-entity gltf-model="#handPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer></a-entity>
   </a-entity>
 
   <!-- ATHLÉTISME -->
   <a-entity id="athle" position="20 0 15">
     <a-text value="Athlétisme" position="0 3 0" align="center" color="#3399cc" width="6"></a-text>
     <a-box color="#111111" width="16" height="0.1" depth="4" position="0 0 0"></a-box>
-    <a-entity gltf-model="#athlePlayer" position="-4 0 0" scale="1.3 1.3 1.3" animation-mixer="clip: *; loop: repeat; crossFadeDuration: 1.0"></a-entity>
+    <a-entity gltf-model="#athlePlayer" position="-4 0 0" scale="1.3 1.3 1.3" animation-mixer></a-entity>
   </a-entity>
 
-  <!-- Tribune simplifiée -->
+  <!-- Tribune -->
   <a-box position="0 0 -30" width="40" height="3" depth="3" color="#111111" shadow></a-box>
 
 </a-scene>
@@ -162,8 +148,7 @@
     startScreen.style.display = 'none';
     scene.style.display = 'block';
     menu.style.display = 'flex';
-    // Play ambiance sound
-    const soundComp = scene.querySelector('[sound]').components.sound;
+    const soundComp = scene.querySelector('[sound]')?.components?.sound;
     if (soundComp) soundComp.playSound();
   });
 
@@ -173,209 +158,6 @@
     const pos = target.getAttribute('position');
     cameraRig.setAttribute('position', { x: pos.x, y: 1.6, z: pos.z + 7 });
   }
-
-  // FOOTBALL
-
-  const footPlayerEntity = document.getElementById('footPlayerEntity');
-  const footBall = document.getElementById('footBall');
-  let isShooting = false;
-  const shootDuration = 2000; // ms
-  const shootDistance = 8;
-
-  footPlayerEntity.addEventListener('model-loaded', () => {
-    attachBallToBone(footPlayerEntity, footBall, 'RightFoot'); // Ajuster si besoin
-
-    const mixer = footPlayerEntity.components['animation-mixer'];
-    if (mixer) {
-      console.log('Animations FOOTBALL:');
-      mixer.clips.forEach(clip => {
-        console.log(' -', clip.name);
-      });
-    }
-  });
-
-  // HANDBALL
-
-  const handPlayerEntity = document.getElementById('handPlayerEntity');
-  const handBall = document.getElementById('handBall');
-  let isHandShooting = false;
-  const handShootDuration = 1800;
-  const handShootDistance = 6;
-
-  handPlayerEntity.addEventListener('model-loaded', () => {
-    attachBallToBone(handPlayerEntity, handBall, 'RightHand'); // Ajuster si besoin
-
-    const mixer = handPlayerEntity.components['animation-mixer'];
-    if (mixer) {
-      console.log('Animations HANDBALL:');
-      mixer.clips.forEach(clip => {
-        console.log(' -', clip.name);
-      });
-    }
-  });
-
-  // Fonction pour attacher ballon à un os
-  function attachBallToBone(playerEntity, ballEntity, boneName) {
-    const mesh = playerEntity.getObject3D('mesh');
-    if (!mesh) return false;
-
-    let bone = null;
-    mesh.traverse(node => {
-      if (node.isBone && node.name === boneName) bone = node;
-    });
-
-    if (!bone) {
-      console.warn('Os non trouvé:', boneName);
-      return false;
-    }
-
-    const ballPivot = new THREE.Object3D();
-    bone.add(ballPivot);
-
-    ballPivot.position.set(0, 0, 0); // Ajuster position locale ballon
-    ballPivot.add(ballEntity.object3D);
-    ballEntity.object3D.position.set(0, 0, 0);
-
-    playerEntity.ballPivot = ballPivot;
-    playerEntity.bone = bone;
-
-    return true;
-  }
-
-  // Tir FOOTBALL
-  function shootBall() {
-    if (isShooting) return;
-    isShooting = true;
-
-    const mixerComp = footPlayerEntity.components['animation-mixer'];
-    if (mixerComp) {
-      mixerComp.stopAllAction();
-      // Cherche animation "shoot" ou prend première
-      const shootClipName = mixerComp.clips.find(c => c.name.toLowerCase().includes('shoot'))?.name || mixerComp.clips[0].name;
-      mixerComp.playAction(shootClipName, 0, 1);
-    }
-
-    if (footPlayerEntity.ballPivot && footBall.object3D.parent === footPlayerEntity.ballPivot) {
-      footPlayerEntity.ballPivot.remove(footBall.object3D);
-      scene.appendChild(footBall);
-    }
-
-    const ballWorldPos = new THREE.Vector3();
-    footBall.object3D.getWorldPosition(ballWorldPos);
-    footBall.setAttribute('position', ballWorldPos);
-
-    const startPos = ballWorldPos.clone();
-    const playerRotY = footPlayerEntity.object3D.rotation.y;
-    const dirX = -Math.sin(playerRotY);
-    const dirZ = -Math.cos(playerRotY);
-
-    const startTime = performance.now();
-    footBall.removeAttribute('animation');
-
-    function animateBall(time) {
-      const elapsed = time - startTime;
-      if (elapsed > shootDuration) {
-        if (footPlayerEntity.ballPivot) {
-          scene.removeChild(footBall);
-          footPlayerEntity.ballPivot.add(footBall.object3D);
-          footBall.object3D.position.set(0, 0, 0);
-        }
-        if (mixerComp) {
-          mixerComp.stopAllAction();
-          mixerComp.playAction(mixerComp.clips[0].name, 0, Infinity);
-        }
-        footBall.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear');
-        isShooting = false;
-        return;
-      }
-      const progress = elapsed / shootDuration;
-      const height = 1.5 * Math.sin(Math.PI * progress);
-      footBall.setAttribute('position', {
-        x: startPos.x + dirX * shootDistance * progress,
-        y: startPos.y + height,
-        z: startPos.z + dirZ * shootDistance * progress
-      });
-      requestAnimationFrame(animateBall);
-    }
-    requestAnimationFrame(animateBall);
-  }
-
-  // Tir HANDBALL
-  function shootHandBall() {
-    if (isHandShooting) return;
-    isHandShooting = true;
-
-    const mixerComp = handPlayerEntity.components['animation-mixer'];
-    if (mixerComp) {
-      mixerComp.stopAllAction();
-
-      // Affiche dans console les animations, puis joue la bonne
-      // Remplace 'Throw' par le nom exact trouvé dans ta console
-      const throwClipName = mixerComp.clips.find(c =>
-        ['throw', 'jeté', 'shoot', 'throw_ball'].some(s => c.name.toLowerCase().includes(s))
-      )?.name || mixerComp.clips[0].name;
-
-      mixerComp.playAction(throwClipName, 0, 1);
-    }
-
-    if (handPlayerEntity.ballPivot && handBall.object3D.parent === handPlayerEntity.ballPivot) {
-      handPlayerEntity.ballPivot.remove(handBall.object3D);
-      scene.appendChild(handBall);
-    }
-
-    const ballWorldPos = new THREE.Vector3();
-    handBall.object3D.getWorldPosition(ballWorldPos);
-    handBall.setAttribute('position', ballWorldPos);
-
-    const startPos = ballWorldPos.clone();
-    const playerRotY = handPlayerEntity.object3D.rotation.y;
-    const dirX = -Math.sin(playerRotY);
-    const dirZ = -Math.cos(playerRotY);
-
-    const startTime = performance.now();
-    handBall.removeAttribute('animation');
-
-    function animateBall(time) {
-      const elapsed = time - startTime;
-      if (elapsed > handShootDuration) {
-        if (handPlayerEntity.ballPivot) {
-          scene.removeChild(handBall);
-          handPlayerEntity.ballPivot.add(handBall.object3D);
-          handBall.object3D.position.set(0, 0, 0);
-        }
-        if (mixerComp) {
-          mixerComp.stopAllAction();
-          mixerComp.playAction(mixerComp.clips[0].name, 0, Infinity);
-        }
-        handBall.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 3500; easing: linear');
-        isHandShooting = false;
-        return;
-      }
-      const progress = elapsed / handShootDuration;
-      const height = 1.2 * Math.sin(Math.PI * progress);
-      handBall.setAttribute('position', {
-        x: startPos.x + dirX * handShootDistance * progress,
-        y: startPos.y + height,
-        z: startPos.z + dirZ * handShootDistance * progress
-      });
-      requestAnimationFrame(animateBall);
-    }
-    requestAnimationFrame(animateBall);
-  }
-
-  // Événements clics + touches clavier
-  footPlayerEntity.addEventListener('click', shootBall);
-  handPlayerEntity.addEventListener('click', shootHandBall);
-
-  window.addEventListener('keydown', e => {
-    if (e.code === 'Space') {
-      shootBall();
-    }
-    if (e.code === 'KeyH') {
-      shootHandBall();
-    }
-  });
-
 </script>
 
 </body>
