@@ -25,8 +25,8 @@
 <a-scene background="color: #000">
 
   <!-- Caméra avec angle de vue comme dans la vidéo -->
-  <a-entity id="cameraRig" position="0 3 40" rotation="-5 0 0"
-    animation="property: position; to: 0 3 -300; dur: 40000; easing: linear; loop: true">
+  <a-entity id="cameraRig" position="0 3 100" rotation="-8 0 0"
+    animation="property: position; to: 0 3 -300; dur: 60000; easing: linear; loop: true">
     <a-entity camera look-controls="enabled: false"></a-entity>
   </a-entity>
 
@@ -34,12 +34,10 @@
   <a-entity light="type: ambient; color: #88ffff; intensity: 0.6"></a-entity>
   <a-entity light="type: directional; color: #00ffff; intensity: 0.8" position="0 10 10"></a-entity>
 
-  <!-- Sol miroir comme de l'eau -->
-  <a-entity geometry="primitive: plane; width: 200; height: 1000"
-            rotation="-90 0 0"
-            material="color: #111"
-            reflection="mirror: true; mixColor: #00ffff; mixAmount: 0.6; offset: 0.01">
-  </a-entity>
+  <!-- Sol effet eau miroir comme dans la vidéo -->
+  <a-plane position="0 0 0" rotation="-90 0 0" width="1000" height="1000"
+           material="shader: flat; src: https://cdn.pixabay.com/photo/2015/12/01/20/28/water-1072753_960_720.jpg; repeat: 100 100; opacity: 0.5; side: double">
+  </a-plane>
 
   <!-- Bâtiments avec code binaire animé sur toutes les faces -->
   <a-entity id="city" generate-city></a-entity>
@@ -50,81 +48,81 @@
         const container = this.el;
         const binaryChars = ['0', '1'];
 
-        for (let i = 0; i < 400; i++) {
-          const x = (Math.random() - 0.5) * 80;
-          const z = -i * 4 - 10;
-          const h = Math.random() * 10 + 3;
+        const spacing = 10;
+        for (let x = -40; x <= 40; x += spacing) {
+          for (let z = -40; z >= -400; z -= spacing) {
+            const h = Math.random() * 10 + 3;
 
-          const building = document.createElement('a-entity');
-          building.setAttribute('position', `${x} 0 ${z}`);
+            const building = document.createElement('a-entity');
+            building.setAttribute('position', `${x} 0 ${z}`);
 
-          const box = document.createElement('a-box');
-          box.setAttribute('position', `0 ${h/2} 0`);
-          box.setAttribute('width', '2');
-          box.setAttribute('depth', '2');
-          box.setAttribute('height', h.toFixed(2));
-          box.setAttribute('color', '#00ffff');
-          box.setAttribute('opacity', '0.6');
-          building.appendChild(box);
+            const box = document.createElement('a-box');
+            box.setAttribute('position', `0 ${h/2} 0`);
+            box.setAttribute('width', '4');
+            box.setAttribute('depth', '4');
+            box.setAttribute('height', h.toFixed(2));
+            box.setAttribute('color', '#00ffff');
+            box.setAttribute('opacity', '0.6');
+            building.appendChild(box);
 
-          const faces = [
-            { pos: '0 ' + h / 2 + ' 1.01', rot: '0 0 0' },     // front
-            { pos: '0 ' + h / 2 + ' -1.01', rot: '0 180 0' },   // back
-            { pos: '1.01 ' + h / 2 + ' 0', rot: '0 -90 0' },    // right
-            { pos: '-1.01 ' + h / 2 + ' 0', rot: '0 90 0' }     // left
-          ];
+            const faces = [
+              { pos: '0 ' + h / 2 + ' 2.01', rot: '0 0 0' },
+              { pos: '0 ' + h / 2 + ' -2.01', rot: '0 180 0' },
+              { pos: '2.01 ' + h / 2 + ' 0', rot: '0 -90 0' },
+              { pos: '-2.01 ' + h / 2 + ' 0', rot: '0 90 0' }
+            ];
 
-          faces.forEach(face => {
-            const binaryPlane = document.createElement('a-plane');
-            binaryPlane.setAttribute('position', face.pos);
-            binaryPlane.setAttribute('rotation', face.rot);
-            binaryPlane.setAttribute('width', '2');
-            binaryPlane.setAttribute('height', h.toFixed(2));
-            binaryPlane.setAttribute('material', 'shader: flat; side: double;');
+            faces.forEach(face => {
+              const binaryPlane = document.createElement('a-plane');
+              binaryPlane.setAttribute('position', face.pos);
+              binaryPlane.setAttribute('rotation', face.rot);
+              binaryPlane.setAttribute('width', '4');
+              binaryPlane.setAttribute('height', h.toFixed(2));
+              binaryPlane.setAttribute('material', 'shader: flat; side: double;');
 
-            // Canvas animé Matrix
-            const canvas = document.createElement('canvas');
-            canvas.width = 256;
-            canvas.height = 512;
-            const ctx = canvas.getContext('2d');
-            const chars = 'アカサタナハマヤラワ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            const columns = canvas.width / 10;
-            const drops = Array(Math.floor(columns)).fill(1);
+              const canvas = document.createElement('canvas');
+              canvas.width = 256;
+              canvas.height = 512;
+              const ctx = canvas.getContext('2d');
+              const chars = 'アカサタナハマヤラワ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+              const columns = canvas.width / 10;
+              const drops = Array(Math.floor(columns)).fill(1);
 
-            function drawMatrix() {
-              ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              function drawMatrix() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-              ctx.fillStyle = '#00ffff';
-              ctx.font = '10px monospace';
-              for (let i = 0; i < drops.length; i++) {
-                const text = chars[Math.floor(Math.random() * chars.length)];
-                ctx.fillText(text, i * 10, drops[i] * 10);
-                drops[i]++;
-                if (drops[i] * 10 > canvas.height || Math.random() > 0.975) {
-                  drops[i] = 0;
+                ctx.fillStyle = '#00ffff';
+                ctx.font = '10px monospace';
+                for (let i = 0; i < drops.length; i++) {
+                  const text = chars[Math.floor(Math.random() * chars.length)];
+                  ctx.fillText(text, i * 10, drops[i] * 10);
+                  drops[i]++;
+                  if (drops[i] * 10 > canvas.height || Math.random() > 0.975) {
+                    drops[i] = 0;
+                  }
                 }
               }
-            }
 
-            const texture = new THREE.CanvasTexture(canvas);
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(1, 1);
-            setInterval(() => {
-              drawMatrix();
-              texture.needsUpdate = true;
-            }, 50);
+              const texture = new THREE.CanvasTexture(canvas);
+              texture.wrapS = THREE.RepeatWrapping;
+              texture.wrapT = THREE.RepeatWrapping;
+              texture.repeat.set(1, 1);
+              setInterval(() => {
+                drawMatrix();
+                texture.needsUpdate = true;
+              }, 50);
 
-            binaryPlane.addEventListener('loaded', () => {
-              binaryPlane.getObject3D('mesh').material.map = texture;
-              binaryPlane.getObject3D('mesh').material.needsUpdate = true;
+              binaryPlane.addEventListener('loaded', () => {
+                binaryPlane.getObject3D('mesh').material.map = texture;
+                binaryPlane.getObject3D('mesh').material.needsUpdate = true;
+              });
+
+              building.appendChild(binaryPlane);
             });
 
-            building.appendChild(binaryPlane);
-          });
-
-          container.appendChild(building);
+            container.appendChild(building);
+          }
         }
       }
     });
