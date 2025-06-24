@@ -8,6 +8,36 @@
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
 
   <script>
+     AFRAME.registerComponent('tree-manager', {         
+          init: function () {
+            let el = this.el;
+            let comp = this;
+            let data = this.data;
+            comp.scene = el.sceneEl.object3D;  
+            comp.counter = 0;   
+            comp.treeModels = [];
+            comp.modelLoaded = false;
+
+            // After gltf model has loaded, modify it materials.
+            el.addEventListener('model-loaded', function(ev){
+              let mesh = el.getObject3D('mesh'); 
+              if (!mesh){return;}
+              //console.log(mesh);
+              mesh.traverse(function(node){
+                 if (node.isMesh){  
+                   let mat = new THREE.MeshStandardMaterial;
+                   let color = new THREE.Color(0xaa5511);
+                   mat.color = color;
+                   mat.wireframe = true;
+                   node.material = mat;                  
+                 }
+              });
+              comp.modelLoaded = true;
+            });   
+          }
+        });
+
+    
     AFRAME.registerComponent('hologram-effect', {
       schema: {},
       init: function () {
@@ -120,10 +150,10 @@
 <a-scene embedded background="color: #181818" shadow="type: pcfsoft" style="width:100vw; height:100vh; display:none" id="scene">
 
   <a-assets>
-    <a-asset-item id="footPlayer" src="personnage/goal.glb" wireframe></a-asset-item>
-    <a-asset-item id="basketPlayer" src="basketball/dribble.glb" wireframe></a-asset-item>
-    <a-asset-item id="handPlayer" src="handball/hand.glb" wireframe></a-asset-item>
-    <a-asset-item id="athlePlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/RunningMan/glTF/RunningMan.glb" wireframe></a-asset-item>
+    <a-asset-item id="footPlayer" src="personnage/goal.glb" tree-manager></a-asset-item>
+    <a-asset-item id="basketPlayer" src="basketball/dribble.glb" tree-manager></a-asset-item>
+    <a-asset-item id="handPlayer" src="handball/hand.glb" tree-manager></a-asset-item>
+    <a-asset-item id="athlePlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/RunningMan/glTF/RunningMan.glb" tree-manager></a-asset-item>
     <audio id="ambiance" src="https://cdn.pixabay.com/audio/2022/03/15/audio_c7a7c2f4e0.mp3"></audio>
     <audio id="holoSound" src="sounds/holo-on.mp3"></audio>
   </a-assets>
