@@ -18,37 +18,7 @@
             comp.treeModels = [];
             comp.modelLoaded = false;
 
-            // After gltf model has loaded, modify it materials.
-            el.addEventListener('model-loaded', function(ev){
-              let mesh = el.getObject3D('mesh'); 
-              if (!mesh){return;}
-              //console.log(mesh);
-              mesh.traverse(function(node){
-                 if (node.isMesh){  
-                   let mat = new THREE.MeshStandardMaterial;
-                   let color = new THREE.Color(0xaa5511);
-                   mat.color = color;
-                   mat.wireframe = true;
-                   node.material = mat;                  
-                 }
-              });
-              comp.modelLoaded = true;
-            });   
-          }
-        });
-
-    
-    AFRAME.registerComponent('hologram-effect', {
-      schema: {},
-      init: function () {
-        const el = this.el;
-        el.setAttribute('material', {
-          color: '#66ccff',
-          opacity: 0.5,
-          transparent: true,
-          emissive: '#2288ff',
-          emissiveIntensity: 0.4
-        });
+            
 
         const scanInterval = setInterval(() => {
           const time = Date.now() * 0.002;
@@ -262,3 +232,34 @@
 
 </body>
 </html>
+<!-- // After gltf model has loaded, modify it materials.
+            el.addEventListener('model-loaded', function(ev){
+              let mesh = el.getObject3D('mesh'); 
+              if (!mesh){return;}
+              //console.log(mesh);
+              mesh.traverse(function(node){
+                 if (node.isMesh){  
+                   let mat = new THREE.MeshStandardMaterial;
+                   let color = new THREE.Color(0xaa5511);
+                   mat.color = color;
+                   mat.wireframe = true;
+                   node.material = mat;                  
+                 }
+              });
+              comp.modelLoaded = true;
+            });   
+          }
+        });
+
+    
+    AFRAME.registerComponent('hologram-effect', {
+      schema: {},
+      init: function () {
+        const el = this.el;
+        el.setAttribute('material', {
+          color: '#66ccff',
+          opacity: 0.5,
+          transparent: true,
+          emissive: '#2288ff',
+          emissiveIntensity: 0.4
+        }); -->
