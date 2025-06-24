@@ -59,18 +59,83 @@
     }
   </style>
 
-  <!-- Composant hologramme désactivé (neutre) -->
+  <!-- Composant hologramme avec shader glitch visible -->
   <script>
     AFRAME.registerComponent('hologram-effect', {
       schema: {
         color: { type: 'color', default: '#00ffff' }
       },
       init: function () {
-        // Ne fait rien, juste visible
-        this.el.setAttribute('visible', true);
+        this.el.setAttribute('visible', false);
+        const glitchSound = document.createElement('audio');
+        glitchSound.src = 'https://cdn.pixabay.com/audio/2021/12/17/audio_e28540f04a.mp3';
+        glitchSound.volume = 0.4;
+        glitchSound.preload = 'auto';
+        this.glitchSound = glitchSound;
+
+        this.el.addEventListener('model-loaded', () => {
+          const mesh = this.el.getObject3D('mesh');
+          if (!mesh) return;
+
+          mesh.traverse(node => {
+            if (node.isMesh) {
+              node.material = new THREE.ShaderMaterial({
+                transparent: true,
+                uniforms: {
+                  time: { value: 0 },
+                  color: { value: new THREE.Color(this.data.color) },
+                  opacity: { value: 0.0 },
+                  glitch: { value: 0.0 }
+                },
+                vertexShader: `
+                  varying vec2 vUv;
+                  void main() {
+                    vUv = uv;
+                    vec3 pos = position;
+                    pos.x += sin(pos.y * 10.0 + time * 10.0) * 0.02;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                  }
+                `,
+                fragmentShader: `
+                  uniform float time;
+                  uniform vec3 color;
+                  uniform float opacity;
+                  uniform float glitch;
+                  varying vec2 vUv;
+                  void main() {
+                    float scan = sin((vUv.y + time * 0.8) * 40.0) * 0.1;
+                    float band = step(0.05, fract(vUv.y * 20.0 + time)) * 0.05;
+                    float alpha = opacity * (0.5 + scan + band + (fract(sin(dot(vUv, vec2(12.9898,78.233))) * 43758.5453) - 0.5) * glitch);
+                    gl_FragColor = vec4(color, alpha);
+                  }
+                `,
+                side: THREE.DoubleSide,
+                depthWrite: false
+              });
+            }
+          });
+
+          setTimeout(() => {
+            this.el.setAttribute('visible', true);
+            this.startTime = Date.now();
+            this.glitchSound.play();
+          }, 300);
+        });
       },
       tick: function (time) {
-        // Aucun effet visuel appliqué
+        const mesh = this.el.getObject3D('mesh');
+        if (!mesh || !this.startTime) return;
+        const elapsed = (Date.now() - this.startTime) / 1000;
+        const alpha = Math.min(elapsed / 2.0, 1.0);
+        const glitch = Math.max(0.0, 1.0 - elapsed * 0.5);
+
+        mesh.traverse(node => {
+          if (node.material && node.material.uniforms) {
+            node.material.uniforms.time.value = time / 1000;
+            node.material.uniforms.opacity.value = alpha;
+            node.material.uniforms.glitch.value = glitch;
+          }
+        });
       }
     });
   </script>
@@ -115,11 +180,7 @@
     <a-box color="#1a3d1a" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
     <a-sphere color="#fff" radius="0.4" position="1 0.4 0"
               animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"></a-sphere>
-    <a-entity gltf-model="#footPlayer" position="-2 0.1 0" scale="1.5 1.5 1.5" 
-              animation-mixer="clip: *" 
-              hologram-effect 
-              shadow="cast: true">
-    </a-entity>
+    <a-entity gltf-model="#footPlayer" position="-2 0.1 0" scale="1.5 1.5 1.5" animation-mixer="clip: *" hologram-effect="color: #00ff00" shadow="cast: true"></a-entity>
   </a-entity>
 
   <!-- BASKET -->
@@ -128,11 +189,7 @@
     <a-box color="#4a2e00" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
     <a-sphere radius="0.35" color="#e67e22" position="0.3 1 0.2"
               animation="property: position; dir: alternate; dur: 600; loop: true; to: 0.3 0.7 0.2; easing: easeInOutSine"></a-sphere>
-    <a-entity gltf-model="#basketPlayer" position="-1.5 0.1 0" scale="1.5 1.5 1.5" 
-              animation-mixer="clip: *" 
-              hologram-effect 
-              shadow="cast: true">
-    </a-entity>
+    <a-entity gltf-model="#basketPlayer" position="-1.5 0.1 0" scale="1.5 1.5 1.5" animation-mixer="clip: *" hologram-effect="color: #ff8000" shadow="cast: true"></a-entity>
   </a-entity>
 
   <!-- HANDBALL -->
@@ -141,22 +198,14 @@
     <a-box color="#3b0f3b" width="8" height="0.1" depth="14" position="0 0 0"></a-box>
     <a-sphere color="#cc3366" radius="0.35" position="1 0.35 0"
               animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"></a-sphere>
-    <a-entity gltf-model="#handPlayer" position="-2 0.1 0" scale="1.5 1.5 1.5" 
-              animation-mixer="clip: *" 
-              hologram-effect 
-              shadow="cast: true">
-    </a-entity>
+    <a-entity gltf-model="#handPlayer" position="-2 0.1 0" scale="1.5 1.5 1.5" animation-mixer="clip: *" hologram-effect="color: #cc00ff" shadow="cast: true"></a-entity>
   </a-entity>
 
   <!-- ATHLE -->
   <a-entity id="athle" position="20 0 15">
     <a-text value="Athlétisme" position="0 3 0" align="center" color="#3399cc" width="6"></a-text>
     <a-box color="#111111" width="16" height="0.1" depth="4" position="0 0 0"></a-box>
-    <a-entity gltf-model="#athlePlayer" position="-4 0.1 0" scale="1.3 1.3 1.3" 
-              animation-mixer="clip: *" 
-              hologram-effect 
-              shadow="cast: true">
-    </a-entity>
+    <a-entity gltf-model="#athlePlayer" position="-4 0.1 0" scale="1.3 1.3 1.3" animation-mixer="clip: *" hologram-effect="color: #00ffff" shadow="cast: true"></a-entity>
   </a-entity>
 
   <!-- Tribune -->
