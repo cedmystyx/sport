@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Big Data Digital City - Version Améliorée</title>
+  <title>Big Data Digital City - VR Version Améliorée</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   <!-- Chargement différé des bibliothèques nécessaires -->
@@ -12,7 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/postprocessing/ShaderPass.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/shaders/FilmShader.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/shaders/CopyShader.js" defer></script>
-
+  
   <style>
     /* Styles globaux */
     body {
@@ -38,7 +38,7 @@
       z-index: 5;
     }
     @keyframes scroll {
-      0%   { transform: translateY(-100%); }
+      0% { transform: translateY(-100%); }
       100% { transform: translateY(100%); }
     }
   </style>
@@ -50,39 +50,46 @@
     1010010101010010101010101001010101001010100101010101010010101010<br>
     0101010100101010101001010101010101010010101010010101010100101010<br>
   </div>
-
+  
   <!-- Audio d'ambiance futuriste avec fallback pour navigateurs non compatibles -->
   <audio autoplay loop>
     <source src="https://cdn.pixabay.com/audio/2023/03/07/audio_eb50a9b332.mp3" type="audio/mpeg">
     Votre navigateur ne supporte pas la lecture audio.
   </audio>
-
-  <!-- Scène A-Frame principale -->
-  <a-scene background="color: #000" embedded postprocess="enabled: true">
-    <!-- Caméra avec animation pré-définie (survol de la ville) -->
-    <a-entity id="cameraRig" position="0 2 30"
-              animation="property: position; to: 0 2 -500; dur: 30000; easing: linear; loop: true">
-      <a-entity camera look-controls="enabled: false"></a-entity>
+  
+  <!-- Scène A-Frame VR principale -->
+  <a-scene background="color: #000" postprocess="enabled: true">
+    <!-- Rig de caméra avec animation pour survoler la ville -->
+    <a-entity id="cameraRig" position="0 2 30" animation="property: position; to: 0 2 -500; dur: 30000; easing: linear; loop: true">
+      <!-- Caméra avec look-controls activé pour permettre un suivi de tête en VR -->
+      <a-entity camera look-controls>
+        <!-- Curseur pour les interactions en mode non-VR -->
+        <a-cursor color="#0ff"></a-cursor>
+      </a-entity>
     </a-entity>
-
+    
+    <!-- Contrôles laser pour interagir avec les objets en mode VR via les manettes -->
+    <a-entity laser-controls="hand: left"></a-entity>
+    <a-entity laser-controls="hand: right"></a-entity>
+    
     <!-- Éclairage de la scène -->
     <a-entity light="type: ambient; color: #0ff; intensity: 0.3"></a-entity>
     <a-entity light="type: directional; color: #0ff; intensity: 0.7" position="0 20 10"></a-entity>
-
-    <!-- Sol animé avec shader personnalisé pour l'effet grille futuriste -->
+    
+    <!-- Sol animé avec shader personnalisé (effet grille futuriste animée) -->
     <a-entity geometry="primitive: plane; width: 300; height: 1000"
               rotation="-90 0 0"
               material="shader: custom-grid"></a-entity>
-
-    <!-- Conteneur pour la génération de la ville -->
+    
+    <!-- Conteneur pour la génération dynamique de la ville -->
     <a-entity id="city" generate-city></a-entity>
-
+    
     <!-- Composants et shaders personnalisés -->
     <script>
-      // Composant pour générer dynamiquement la ville
+      // Composant permettant de générer dynamiquement la ville
       AFRAME.registerComponent('generate-city', {
         schema: {
-          count: { type: 'int', default: 800 }  // Nombre de bâtiments générés (modifiable)
+          count: { type: 'int', default: 800 }  // Nombre de bâtiments générés, modifiable via l'attribut
         },
         init: function () {
           const container = this.el;
@@ -90,7 +97,7 @@
           for (let i = 0; i < count; i++) {
             const box = document.createElement('a-box');
             const x = (Math.random() - 0.5) * 100;
-            // Génération de la profondeur pour créer un effet de perspective non linéaire
+            // Calcul de la profondeur pour créer un effet de perspective non linéaire
             const z = -Math.pow(i, 1.02) * 3 - 20;
             const h = Math.random() * 20 + 2;
             box.setAttribute('position', `${x} ${h / 2} ${z.toFixed(2)}`);
@@ -99,13 +106,12 @@
             box.setAttribute('height', h.toFixed(2));
             box.setAttribute('color', '#0ff');
             box.setAttribute('opacity', 0.5);
-            // Possibilité d'ajouter des animations ou interactions sur chaque bâtiment
             container.appendChild(box);
           }
         }
       });
-
-      // Shader personnalisé pour le sol (effet grille avec animation)
+      
+      // Shader personnalisé pour le sol (création d'une grille animée)
       AFRAME.registerShader('custom-grid', {
         schema: { timeMsec: { type: 'time', is: 'uniform' } },
         vertexShader: `
@@ -120,9 +126,7 @@
           varying vec2 vUV;
           void main() {
             float t = timeMsec / 1000.0;
-            // Lignes verticales statiques
             float gx = step(0.015, abs(mod(vUV.x * 80.0, 1.0) - 0.5));
-            // Lignes horizontales animées
             float gy = step(0.015, abs(mod(vUV.y * 200.0 + t * 5.0, 1.0) - 0.5));
             float g = max(gx, gy);
             vec3 color = mix(vec3(0.0), vec3(0.0, 1.0, 1.0), g);
@@ -130,18 +134,16 @@
           }
         `
       });
-
-      // Système de post-traitement pour appliquer un effet « film »
+      
+      // Système de post-traitement pour ajouter un effet "film" avec grain et scanlines
       AFRAME.registerSystem('postprocess', {
         init: function () {
           const sceneEl = this.el;
           const renderer = sceneEl.renderer;
           const scene = sceneEl.object3D;
           const camera = sceneEl.camera;
-          // Mise en place de l'EffectComposer pour gérer les passes
           const composer = new THREE.EffectComposer(renderer);
           composer.addPass(new THREE.RenderPass(scene, camera));
-          // Application d’une passe film pour le bruit et les scanlines
           const filmPass = new THREE.ShaderPass(THREE.FilmShader);
           filmPass.uniforms['nIntensity'].value = 0.4;  // Intensité du grain
           filmPass.uniforms['sIntensity'].value = 0.08; // Intensité des scanlines
