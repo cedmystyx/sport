@@ -6,6 +6,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+
+  <script>
+    AFRAME.registerComponent('hologram-effect', {
+      schema: {},
+      init: function () {
+        const el = this.el;
+        el.setAttribute('material', {
+          color: '#66ccff',
+          opacity: 0.5,
+          transparent: true,
+          emissive: '#2288ff',
+          emissiveIntensity: 0.4
+        });
+
+        const scanInterval = setInterval(() => {
+          const time = Date.now() * 0.002;
+          el.object3D.traverse((node) => {
+            if (node.material) {
+              node.material.emissiveIntensity = 0.3 + 0.2 * Math.sin(time);
+              node.material.opacity = 0.5 + 0.1 * Math.sin(time * 2);
+            }
+          });
+        }, 50);
+
+        this.el.addEventListener('model-loaded', () => {
+          this.el.object3D.traverse((node) => {
+            if (node.material) {
+              node.material.transparent = true;
+            }
+          });
+        });
+
+        this.removeInterval = () => clearInterval(scanInterval);
+      },
+      remove: function () {
+        this.removeInterval();
+      }
+    });
+  </script>
+
   <style>
     html, body {
       margin: 0; height: 100%; overflow: hidden;
@@ -73,6 +113,10 @@
   <button onclick="teleportTo('athle')">Athlétisme</button>
 </div>
 
+<button id="toggleHolo" style="position: absolute; top: 90px; left: 20px; z-index: 999; font-size: 1em; padding: 10px 20px; background: #444; color: white; border: 2px solid #66ccff; border-radius: 8px;">
+  Mode Hologramme : OFF
+</button>
+
 <a-scene embedded background="color: #181818" shadow="type: pcfsoft" style="width:100vw; height:100vh; display:none" id="scene">
 
   <a-assets>
@@ -80,8 +124,8 @@
     <a-asset-item id="basketPlayer" src="basketball/dribble.glb"></a-asset-item>
     <a-asset-item id="handPlayer" src="handball/hand.glb"></a-asset-item>
     <a-asset-item id="athlePlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/RunningMan/glTF/RunningMan.glb"></a-asset-item>
-
     <audio id="ambiance" src="https://cdn.pixabay.com/audio/2022/03/15/audio_c7a7c2f4e0.mp3"></audio>
+    <audio id="holoSound" src="sounds/holo-on.mp3"></audio>
   </a-assets>
 
   <a-entity id="cameraRig" position="0 1.6 15">
@@ -99,9 +143,7 @@
   <a-entity id="foot" position="-20 0 -15">
     <a-text value="Football" position="0 3 0" align="center" color="#00ff00" width="6"></a-text>
     <a-box color="#1a3d1a" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
-    <a-sphere color="#fff" radius="0.4" position="1 0.4 0"
-              animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear">
-    </a-sphere>
+    <a-sphere color="#fff" radius="0.4" position="1 0.4 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"></a-sphere>
     <a-entity gltf-model="#footPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer></a-entity>
   </a-entity>
 
@@ -109,19 +151,15 @@
   <a-entity id="basket" position="20 0 -15">
     <a-text value="Basketball" position="0 3 0" align="center" color="#ff8000" width="6"></a-text>
     <a-box color="#4a2e00" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
-    <a-sphere radius="0.35" color="#e67e22" position="0.3 1 0.2"
-              animation="property: position; dir: alternate; dur: 600; loop: true; to: 0.3 0.7 0.2; easing: easeInOutSine">
-    </a-sphere>
-    <a-entity gltf-model="#basketPlayer" position="-1.5 0 0" scale="1.5 1.5 1.5"
-              animation-mixer="clip: *; loop: repeat; crossFadeDuration: 0.5"></a-entity>
+    <a-sphere radius="0.35" color="#e67e22" position="0.3 1 0.2" animation="property: position; dir: alternate; dur: 600; loop: true; to: 0.3 0.7 0.2; easing: easeInOutSine"></a-sphere>
+    <a-entity gltf-model="#basketPlayer" position="-1.5 0 0" scale="1.5 1.5 1.5" animation-mixer="clip: *; loop: repeat; crossFadeDuration: 0.5"></a-entity>
   </a-entity>
 
   <!-- HANDBALL -->
   <a-entity id="hand" position="-20 0 15">
     <a-text value="Handball" position="0 3 0" align="center" color="#cc3399" width="6"></a-text>
     <a-box color="#3b0f3b" width="8" height="0.1" depth="14" position="0 0 0"></a-box>
-    <a-sphere color="#cc3366" radius="0.35" position="1 0.35 0"
-              animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"></a-sphere>
+    <a-sphere color="#cc3366" radius="0.35" position="1 0.35 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"></a-sphere>
     <a-entity gltf-model="#handPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer></a-entity>
   </a-entity>
 
@@ -134,7 +172,6 @@
 
   <!-- Tribune -->
   <a-box position="0 0 -30" width="40" height="3" depth="3" color="#111111" shadow></a-box>
-
 </a-scene>
 
 <script>
@@ -158,6 +195,39 @@
     const pos = target.getAttribute('position');
     cameraRig.setAttribute('position', { x: pos.x, y: 1.6, z: pos.z + 7 });
   }
+
+  const toggleHoloBtn = document.getElementById('toggleHolo');
+  const holoSound = document.getElementById('holoSound');
+  let hologramOn = false;
+
+  toggleHoloBtn.addEventListener('click', () => {
+    hologramOn = !hologramOn;
+    toggleHoloBtn.textContent = "Mode Hologramme : " + (hologramOn ? "ON" : "OFF");
+
+    if (hologramOn && holoSound) {
+      holoSound.currentTime = 0;
+      holoSound.play();
+    }
+
+    const players = document.querySelectorAll('[animation-mixer]');
+    players.forEach(player => {
+      if (hologramOn) {
+        player.setAttribute('hologram-effect', '');
+      } else {
+        player.removeAttribute('hologram-effect');
+        player.addEventListener('model-loaded', () => {
+          player.object3D.traverse((node) => {
+            if (node.material) {
+              node.material.opacity = 1;
+              node.material.emissiveIntensity = 0;
+              node.material.transparent = false;
+              node.material.color.set('#ffffff');
+            }
+          });
+        });
+      }
+    });
+  });
 </script>
 
 </body>
