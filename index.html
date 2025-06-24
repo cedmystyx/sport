@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Lycée louis de cormontaigne - Section sportives</title>
+  <title>Big Data Digital City</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <style>
@@ -11,74 +11,90 @@
       overflow: hidden;
       background: black;
     }
+
+    .binary {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      font-family: monospace;
+      font-size: 12px;
+      line-height: 1.2;
+      color: #00ffcc;
+      opacity: 0.08;
+      pointer-events: none;
+      white-space: pre;
+      z-index: 5;
+    }
   </style>
 </head>
 <body>
 
+<!-- ✅ Audio immersif futuriste -->
+<audio autoplay loop>
+  <source src="https://cdn.pixabay.com/audio/2023/03/07/audio_eb50a9b332.mp3" type="audio/mpeg">
+</audio>
+
 <a-scene background="color: #000">
 
-  <!-- Caméra animée comme dans la vidéo -->
-  <a-entity id="cameraRig" position="0 2 20"
-    animation="property: position; to: 0 2 -400; dur: 40000; easing: linear; loop: true">
+  <!-- Caméra avec angle de vue comme dans la vidéo -->
+  <a-entity id="cameraRig" position="0 3 40" rotation="-5 0 0"
+    animation="property: position; to: 0 3 -300; dur: 40000; easing: linear; loop: true">
     <a-entity camera look-controls="enabled: false"></a-entity>
   </a-entity>
 
-  <!-- Lumières bleues -->
-  <a-entity light="type: ambient; color: #0ff; intensity: 0.5"></a-entity>
-  <a-entity light="type: directional; color: #0ff; intensity: 0.8" position="0 10 10"></a-entity>
+  <!-- Lumières -->
+  <a-entity light="type: ambient; color: #88ffff; intensity: 0.6"></a-entity>
+  <a-entity light="type: directional; color: #00ffff; intensity: 0.8" position="0 10 10"></a-entity>
 
-  <!-- Sol en grille lumineuse -->
+  <!-- Sol miroir -->
   <a-entity geometry="primitive: plane; width: 200; height: 1000"
             rotation="-90 0 0"
-            material="shader: custom-grid"></a-entity>
+            material="color: #111; metalness: 1; roughness: 0.1; shader: standard"></a-entity>
 
-  <!-- Bâtiments générés -->
+  <!-- Bâtiments + texte binaire intégré -->
   <a-entity id="city" generate-city></a-entity>
 
   <script>
     AFRAME.registerComponent('generate-city', {
       init: function () {
         const container = this.el;
+        const binaryChars = ['0', '1'];
+
         for (let i = 0; i < 400; i++) {
-          const box = document.createElement('a-box');
           const x = (Math.random() - 0.5) * 80;
           const z = -i * 4 - 10;
           const h = Math.random() * 10 + 3;
+
+          const box = document.createElement('a-box');
           box.setAttribute('position', `${x} ${h/2} ${z}`);
           box.setAttribute('width', '2');
           box.setAttribute('depth', '2');
           box.setAttribute('height', h.toFixed(2));
-          box.setAttribute('color', '#0ff');
-          box.setAttribute('opacity', '0.5');
+          box.setAttribute('color', '#00ffff');
+          box.setAttribute('opacity', '0.6');
           container.appendChild(box);
+
+          // Code binaire animé attaché au bâtiment
+          const text = document.createElement('a-entity');
+          text.setAttribute('text', {
+            value: Array.from({length: 10}, () => binaryChars[Math.floor(Math.random() * 2)]).join(''),
+            color: '#00ffff',
+            align: 'center',
+            width: 4
+          });
+          text.setAttribute('position', `${x} ${h + 1} ${z}`);
+          text.setAttribute('animation', {
+            property: 'position',
+            to: `${x} ${h + 5} ${z}`,
+            dur: 3000,
+            dir: 'alternate',
+            loop: true
+          });
+          container.appendChild(text);
         }
       }
-    });
-  </script>
-
-  <!-- Shader pour le sol -->
-  <script>
-    AFRAME.registerShader('custom-grid', {
-      schema: { timeMsec: { type: 'time', is: 'uniform' } },
-      vertexShader: `
-        varying vec2 vUV;
-        void main() {
-          vUV = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform float timeMsec;
-        varying vec2 vUV;
-        void main() {
-          float t = timeMsec / 1000.0;
-          float gridX = step(0.02, abs(mod(vUV.x * 40.0, 1.0) - 0.5));
-          float gridY = step(0.02, abs(mod(vUV.y * 100.0 + t * 2.0, 1.0) - 0.5));
-          float grid = gridX + gridY;
-          vec3 color = vec3(0.0, 1.0, 1.0) * grid;
-          gl_FragColor = vec4(color, 0.2);
-        }
-      `
     });
   </script>
 
