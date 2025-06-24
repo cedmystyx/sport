@@ -1,1 +1,127 @@
-<!DOCTYPE html> <html lang="fr"> <head> <meta charset="UTF-8"> <title>Big Data Digital City</title> <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- A-Frame & Three.js extras --> <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/postprocessing/EffectComposer.js"></script> <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/postprocessing/RenderPass.js"></script> <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/postprocessing/ShaderPass.js"></script> <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/shaders/FilmShader.js"></script> <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/shaders/CopyShader.js"></script> <style> body { margin:0; overflow:hidden; background:#000; } .binary { position: absolute; top:0; left:0; width:100%; height:100%; font-family: monospace; font-size:14px; line-height:1.2; color:#0ff; opacity:0.08; pointer-events:none; white-space:pre; animation: scroll 15s linear infinite; z-index:5; } @keyframes scroll { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } } </style> </head> <body> <!-- 1) Overlay binaire --> <div class="binary"> <!-- duplique/répète ces lignes pour couvrir toute la hauteur --> 0101010010101010101001010010101010100101010010101010100101010101<br> 1010010101010010101010101001010101001010100101010101010010101010<br> 0101010100101010101001010101010101010010101010010101010100101010<br> </div> <!-- 2) Audio futuriste --> <audio autoplay loop> <source src="https://cdn.pixabay.com/audio/2023/03/07/audio_eb50a9b332.mp3" type="audio/mpeg"> </audio> <!-- 3) Scène A-Frame principale --> <a-scene background="color: #000" embedded postprocess="enabled: true"> <!-- Caméra / rig --> <a-entity id="cameraRig" position="0 2 30" animation="property: position; to: 0 2 -500; dur: 30000; easing: linear; loop: true"> <a-entity camera look-controls="enabled: false"></a-entity> </a-entity> <!-- Lumières --> <a-entity light="type: ambient; color: #0ff; intensity: 0.3"></a-entity> <a-entity light="type: directional; color: #0ff; intensity: 0.7" position="0 20 10"></a-entity> <!-- Sol animé en shader --> <a-entity geometry="primitive: plane; width: 300; height: 1000" rotation="-90 0 0" material="shader: custom-grid"></a-entity> <!-- Conteneur bâtiments --> <a-entity id="city"></a-entity> <!-- Génère la ville ultra-dense --> <script> AFRAME.registerComponent('generate-city', { init: function () { const container = this.el; const count = 800; for (let i = 0; i < count; i++) { const box = document.createElement('a-box'); const x = (Math.random() - 0.5) * 100; const z = -Math.pow(i, 1.02) * 3 - 20; const h = Math.random() * 20 + 2; box.setAttribute('position', `${x} ${h/2} ${z.toFixed(2)}`); box.setAttribute('width', 2 + Math.random()*2); box.setAttribute('depth', 2 + Math.random()*2); box.setAttribute('height', h.toFixed(2)); box.setAttribute('color', '#0ff'); box.setAttribute('opacity', 0.5); container.appendChild(box); } } }); document.querySelector('#city').setAttribute('generate-city', ''); </script> <!-- Shader pour le sol --> <script> AFRAME.registerShader('custom-grid', { schema: { timeMsec: { type: 'time', is: 'uniform' } }, vertexShader: ` varying vec2 vUV; void main() { vUV = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); } `, fragmentShader: ` uniform float timeMsec; varying vec2 vUV; void main() { float t = timeMsec / 1000.0; // lignes X fixes float gx = step(0.015, abs(mod(vUV.x*80.0,1.0)-0.5)); // lignes Y qui défilent float gy = step(0.015, abs(mod(vUV.y*200.0 + t*5.0,1.0)-0.5)); float g = max(gx, gy); vec3 col = mix(vec3(0), vec3(0.0,1.0,1.0), g); gl_FragColor = vec4(col, 0.3); } ` }); </script> <!-- Post-processing system --> <script> AFRAME.registerSystem('postprocess', { init: function () { const sceneEl = this.el; const renderer = sceneEl.renderer; const scene = sceneEl.object3D; const camera = sceneEl.camera; const composer = new THREE.EffectComposer(renderer); composer.addPass(new THREE.RenderPass(scene, camera)); const filmPass = new THREE.ShaderPass(THREE.FilmShader); filmPass.uniforms['nIntensity'].value = 0.4; // noise filmPass.uniforms['sIntensity'].value = 0.08; // scanlines composer.addPass(filmPass); this.composer = composer; renderer.autoClear = false; }, tick: function () { this.el.renderer.clear(); this.composer.render(); } }); </script> </a-scene> </body> </html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Big Data Digital City</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+    }
+
+    .binary {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      font-family: monospace;
+      font-size: 14px;
+      line-height: 1.2;
+      color: #0ff;
+      opacity: 0.08;
+      pointer-events: none;
+      white-space: pre;
+      animation: scroll 20s linear infinite;
+      z-index: 5;
+    }
+
+    @keyframes scroll {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ✅ Code binaire (Matrix effect) -->
+<div class="binary">
+  0110010101010110101001010010101010101001010010101010100100101010<br>
+  1010100101010010101010101010010101001010100101010101010100101010<br>
+  0101010010101001010101010010101010101001010010101010100100101010<br>
+  1010100101010010101010101010010101001010100101010101010100101010<br>
+</div>
+
+<!-- ✅ Audio immersif futuriste -->
+<audio autoplay loop>
+  <source src="https://cdn.pixabay.com/audio/2023/03/07/audio_eb50a9b332.mp3" type="audio/mpeg">
+</audio>
+
+<!-- ✅ Scène A-Frame -->
+<a-scene background="color: #000">
+
+  <!-- Caméra en mouvement -->
+  <a-entity id="cameraRig" position="0 2 20"
+    animation="property: position; to: 0 2 -400; dur: 40000; easing: linear; loop: true">
+    <a-entity camera look-controls="enabled: false"></a-entity>
+  </a-entity>
+
+  <!-- Lumières bleues -->
+  <a-entity light="type: ambient; color: #0ff; intensity: 0.4"></a-entity>
+  <a-entity light="type: directional; color: #0ff; intensity: 0.8" position="0 10 10"></a-entity>
+
+  <!-- ✅ Sol avec shader animé -->
+  <a-entity geometry="primitive: plane; width: 200; height: 800"
+            rotation="-90 0 0"
+            material="shader: custom-grid"></a-entity>
+
+  <!-- ✅ Bâtiments numériques -->
+  <a-entity id="city"></a-entity>
+
+  <!-- 📜 Script pour les bâtiments -->
+  <script>
+    AFRAME.registerComponent('generate-city', {
+      init: function () {
+        const container = this.el;
+        for (let i = 0; i < 350; i++) {
+          const box = document.createElement('a-box');
+          const x = (Math.random() - 0.5) * 80;
+          const z = -i * 5 - 10;
+          const h = Math.random() * 12 + 2;
+          box.setAttribute('position', `${x} ${h/2} ${z}`);
+          box.setAttribute('width', '3');
+          box.setAttribute('depth', '3');
+          box.setAttribute('height', h.toFixed(2));
+          box.setAttribute('color', '#0ff');
+          box.setAttribute('opacity', '0.4');
+          container.appendChild(box);
+        }
+      }
+    });
+
+    document.querySelector('#city').setAttribute('generate-city', '');
+  </script>
+
+  <!-- 📜 Shader personnalisé pour le sol -->
+  <script>
+    AFRAME.registerShader('custom-grid', {
+      schema: { timeMsec: { type: 'time', is: 'uniform' } },
+      vertexShader: `
+        varying vec2 vUV;
+        void main() {
+          vUV = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float timeMsec;
+        varying vec2 vUV;
+        void main() {
+          float t = timeMsec / 1000.0;
+          float gridX = step(0.02, abs(mod(vUV.x * 40.0, 1.0) - 0.5));
+          float gridY = step(0.02, abs(mod(vUV.y * 100.0 + t * 2.0, 1.0) - 0.5));
+          float grid = gridX + gridY;
+          vec3 color = vec3(0.0, 1.0, 1.0) * grid;
+          gl_FragColor = vec4(color, 0.3);
+        }
+      `
+    });
+  </script>
+
+</a-scene>
+
+</body>
+</html>
