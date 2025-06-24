@@ -99,6 +99,7 @@ startBtn.addEventListener('click', () => {
   scene.style.display = 'block';
   menu.style.display = 'flex';
   generateMatrixCorridor();
+  generateDataRain();
 });
 
 function generateMatrixCorridor() {
@@ -110,9 +111,23 @@ function generateMatrixCorridor() {
     building.setAttribute('depth', '3');
     building.setAttribute('height', `${Math.random() * 10 + 10}`);
     building.setAttribute('color', '#00ffcc');
-    building.setAttribute('opacity', '0.15');
-    building.setAttribute('position', `${(i % 2 === 0 ? -5 : 5)} ${5} ${-i * 5}`);
+    building.setAttribute('opacity', '0.1');
+    building.setAttribute('position', `${(i % 2 === 0 ? -5 : 5)} 5 ${-i * 5}`);
+    building.setAttribute('material', 'wireframe: true; color: #00ffcc');
     corridor.appendChild(building);
+  }
+}
+
+function generateDataRain() {
+  const corridor = document.getElementById('infiniteCorridor');
+  for (let i = 0; i < 200; i++) {
+    const text = document.createElement('a-text');
+    text.setAttribute('value', Math.random() > 0.5 ? '0' : '1');
+    text.setAttribute('color', '#00ff99');
+    text.setAttribute('opacity', '0.4');
+    text.setAttribute('position', `${(Math.random()-0.5)*10} ${Math.random()*15+1} ${-Math.random()*100}`);
+    text.setAttribute('animation', 'property: position; to: 0 -10 -200; dur: 6000; loop: true');
+    corridor.appendChild(text);
   }
 }
 
@@ -131,9 +146,18 @@ function teleportTo(sport) {
   character.setAttribute('scale', '1.5 1.5 1.5');
   character.setAttribute('material', 'color: #00ffee; opacity: 0.5; emissive: #00ccff; emissiveIntensity: 0.6; transparent: true');
   character.setAttribute('animation-mixer', '');
+  character.setAttribute('animation__fadein', 'property: material.opacity; from: 0; to: 0.5; dur: 500');
+
   characterSpot.appendChild(character);
+
+  setTimeout(() => {
+    character.setAttribute('animation__fadeout', 'property: material.opacity; to: 0; dur: 1000');
+    setTimeout(() => {
+      if (character.parentNode) character.parentNode.removeChild(character);
+    }, 1000);
+  }, 10000);
 }
 </script>
 
 </body>
-</html>
+</html
