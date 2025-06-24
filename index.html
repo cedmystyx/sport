@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Big Data Digital City</title>
+  <title>Lycée louis de cormontaigne - Section sportives</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <style>
@@ -11,91 +11,52 @@
       overflow: hidden;
       background: black;
     }
-
-    .binary {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      font-family: monospace;
-      font-size: 14px;
-      line-height: 1.2;
-      color: #0ff;
-      opacity: 0.08;
-      pointer-events: none;
-      white-space: pre;
-      animation: scroll 20s linear infinite;
-      z-index: 5;
-    }
-
-    @keyframes scroll {
-      0% { transform: translateY(-100%); }
-      100% { transform: translateY(100%); }
-    }
   </style>
 </head>
 <body>
 
-<!-- ✅ Code binaire (Matrix effect) -->
-<div class="binary">
-  0110010101010110101001010010101010101001010010101010100100101010<br>
-  1010100101010010101010101010010101001010100101010101010100101010<br>
-  0101010010101001010101010010101010101001010010101010100100101010<br>
-  1010100101010010101010101010010101001010100101010101010100101010<br>
-</div>
-
-<!-- ✅ Audio immersif futuriste -->
-<audio autoplay loop>
-  <source src="https://cdn.pixabay.com/audio/2023/03/07/audio_eb50a9b332.mp3" type="audio/mpeg">
-</audio>
-
-<!-- ✅ Scène A-Frame -->
 <a-scene background="color: #000">
 
-  <!-- Caméra en mouvement -->
+  <!-- Caméra animée comme dans la vidéo -->
   <a-entity id="cameraRig" position="0 2 20"
     animation="property: position; to: 0 2 -400; dur: 40000; easing: linear; loop: true">
     <a-entity camera look-controls="enabled: false"></a-entity>
   </a-entity>
 
   <!-- Lumières bleues -->
-  <a-entity light="type: ambient; color: #0ff; intensity: 0.4"></a-entity>
+  <a-entity light="type: ambient; color: #0ff; intensity: 0.5"></a-entity>
   <a-entity light="type: directional; color: #0ff; intensity: 0.8" position="0 10 10"></a-entity>
 
-  <!-- ✅ Sol avec shader animé -->
-  <a-entity geometry="primitive: plane; width: 200; height: 800"
+  <!-- Sol en grille lumineuse -->
+  <a-entity geometry="primitive: plane; width: 200; height: 1000"
             rotation="-90 0 0"
             material="shader: custom-grid"></a-entity>
 
-  <!-- ✅ Bâtiments numériques -->
-  <a-entity id="city"></a-entity>
+  <!-- Bâtiments générés -->
+  <a-entity id="city" generate-city></a-entity>
 
-  <!-- 📜 Script pour les bâtiments -->
   <script>
     AFRAME.registerComponent('generate-city', {
       init: function () {
         const container = this.el;
-        for (let i = 0; i < 350; i++) {
+        for (let i = 0; i < 400; i++) {
           const box = document.createElement('a-box');
           const x = (Math.random() - 0.5) * 80;
-          const z = -i * 5 - 10;
-          const h = Math.random() * 12 + 2;
+          const z = -i * 4 - 10;
+          const h = Math.random() * 10 + 3;
           box.setAttribute('position', `${x} ${h/2} ${z}`);
-          box.setAttribute('width', '3');
-          box.setAttribute('depth', '3');
+          box.setAttribute('width', '2');
+          box.setAttribute('depth', '2');
           box.setAttribute('height', h.toFixed(2));
           box.setAttribute('color', '#0ff');
-          box.setAttribute('opacity', '0.4');
+          box.setAttribute('opacity', '0.5');
           container.appendChild(box);
         }
       }
     });
-
-    document.querySelector('#city').setAttribute('generate-city', '');
   </script>
 
-  <!-- 📜 Shader personnalisé pour le sol -->
+  <!-- Shader pour le sol -->
   <script>
     AFRAME.registerShader('custom-grid', {
       schema: { timeMsec: { type: 'time', is: 'uniform' } },
@@ -115,7 +76,7 @@
           float gridY = step(0.02, abs(mod(vUV.y * 100.0 + t * 2.0, 1.0) - 0.5));
           float grid = gridX + gridY;
           vec3 color = vec3(0.0, 1.0, 1.0) * grid;
-          gl_FragColor = vec4(color, 0.3);
+          gl_FragColor = vec4(color, 0.2);
         }
       `
     });
