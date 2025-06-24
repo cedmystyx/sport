@@ -1,175 +1,74 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Section Sportive - Accueil Matrix</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>Data City Matrix - Effet Vidéo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
   <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      overflow: hidden;
+    body, html {
+      margin: 0; padding: 0; overflow: hidden;
       background: black;
-      font-family: Arial, sans-serif;
-      color: white;
-    }
-    #startScreen {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(#000, #111);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      text-align: center;
-    }
-    #startButton {
-      margin-top: 20px;
-      padding: 14px 30px;
-      font-size: 1.3em;
-      background: #00ffcc;
-      border: none;
-      border-radius: 8px;
-      color: black;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    #startButton:hover {
-      background: #00ccaa;
-    }
-    #menu {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.7);
-      padding: 12px 25px;
-      border-radius: 10px;
-      display: none;
-      gap: 15px;
-      z-index: 5;
-      user-select: none;
-    }
-    #menu button {
-      background: #00ffaa;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 18px;
-      font-size: 1em;
-      color: black;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    #menu button:hover {
-      background: #00dd99;
+      height: 100vh;
+      width: 100vw;
     }
   </style>
 </head>
 <body>
 
-<div id="startScreen">
-  <h1>Section Sportive - Lycée Louis de Cormontaigne</h1>
-  <p>Explorez un couloir infini de sport holographique façon Matrix</p>
-  <button id="startButton">Entrer</button>
-</div>
+<a-scene fog="type: linear; color: black; near: 0; far: 100" embedded>
 
-<div id="menu">
-  <button onclick="teleportTo('foot')">Football</button>
-  <button onclick="teleportTo('basket')">Basketball</button>
-  <button onclick="teleportTo('hand')">Handball</button>
-  <button onclick="teleportTo('athle')">Athlétisme</button>
-</div>
-
-<a-scene id="scene" background="color: black" fog="type: linear; color: #0f0f0f; near:1; far:80">
-  <a-assets>
-    <a-asset-item id="footPlayer" src="personnage/goal.glb"></a-asset-item>
-    <a-asset-item id="basketPlayer" src="basketball/dribble.glb"></a-asset-item>
-    <a-asset-item id="handPlayer" src="handball/hand.glb"></a-asset-item>
-    <a-asset-item id="athlePlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/RunningMan/glTF/RunningMan.glb"></a-asset-item>
-  </a-assets>
-
-  <a-entity id="cameraRig" position="0 1.6 0" animation="property: position; to: 0 1.6 -500; loop: true; dur: 100000; easing: linear">
-    <a-entity camera look-controls position="0 0 0"></a-entity>
+  <a-entity id="cameraRig" position="0 2 0" animation="property: position; to: 0 2 -200; dur: 60000; easing: linear; loop: true">
+    <a-entity camera look-controls wasd-controls></a-entity>
   </a-entity>
 
-  <a-entity id="infiniteCorridor"></a-entity>
-  <a-entity id="characterSpot" position="0 0 -3"></a-entity>
+  <a-entity id="buildings"></a-entity>
+  <a-entity id="binaryRain"></a-entity>
+
 </a-scene>
 
 <script>
-const startBtn = document.getElementById('startButton');
-const startScreen = document.getElementById('startScreen');
-const scene = document.getElementById('scene');
-const menu = document.getElementById('menu');
+  const scene = document.querySelector('a-scene');
+  const buildingsContainer = document.getElementById('buildings');
+  const rainContainer = document.getElementById('binaryRain');
 
-startBtn.addEventListener('click', () => {
-  startScreen.style.display = 'none';
-  scene.style.display = 'block';
-  menu.style.display = 'flex';
-  generateMatrixCorridor();
-  generateDataRain();
-});
-
-function generateMatrixCorridor() {
-  const corridor = document.getElementById('infiniteCorridor');
-  corridor.innerHTML = '';
-  for (let i = 0; i < 150; i++) {
-    const building = document.createElement('a-box');
-    building.setAttribute('width', '3');
-    building.setAttribute('depth', '3');
-    building.setAttribute('height', `${Math.random() * 10 + 10}`);
-    building.setAttribute('color', '#00ffcc');
-    building.setAttribute('opacity', '0.1');
-    building.setAttribute('position', `${(i % 2 === 0 ? -5 : 5)} 5 ${-i * 5}`);
-    building.setAttribute('material', 'wireframe: true; color: #00ffcc');
-    corridor.appendChild(building);
+  // Générer les bâtiments wireframe verts
+  function createBuildings(){
+    buildingsContainer.innerHTML = '';
+    const buildingCount = 80;
+    for(let i=0; i < buildingCount; i++){
+      const building = document.createElement('a-box');
+      const height = Math.random() * 20 + 5;
+      building.setAttribute('width', 2);
+      building.setAttribute('height', height);
+      building.setAttribute('depth', 2);
+      building.setAttribute('position', `${i % 2 === 0 ? -5 : 5} ${height/2} ${-i * 4}`);
+      building.setAttribute('material', 'wireframe:true; color:#00ff00; opacity:0.12');
+      buildingsContainer.appendChild(building);
+    }
   }
-}
 
-function generateDataRain() {
-  const corridor = document.getElementById('infiniteCorridor');
-  for (let i = 0; i < 200; i++) {
-    const text = document.createElement('a-text');
-    text.setAttribute('value', Math.random() > 0.5 ? '0' : '1');
-    text.setAttribute('color', '#00ff99');
-    text.setAttribute('opacity', '0.4');
-    text.setAttribute('position', `${(Math.random()-0.5)*10} ${Math.random()*15+1} ${-Math.random()*100}`);
-    text.setAttribute('animation', 'property: position; to: 0 -10 -200; dur: 6000; loop: true');
-    corridor.appendChild(text);
+  // Générer la pluie binaire 3D (0 & 1 tombant)
+  function createBinaryRain(){
+    rainContainer.innerHTML = '';
+    const rainCount = 500;
+    for(let i=0; i < rainCount; i++){
+      const text = document.createElement('a-text');
+      text.setAttribute('value', Math.random() > 0.5 ? '0' : '1');
+      text.setAttribute('color', '#00ff00');
+      text.setAttribute('opacity', '0.4');
+      const x = (Math.random() - 0.5) * 20;
+      const y = Math.random() * 15 + 5;
+      const z = -Math.random() * 200;
+      text.setAttribute('position', `${x} ${y} ${z}`);
+      text.setAttribute('animation', `property: position; to: ${x} -10 ${z - 200}; dur: 8000; loop: true; easing: linear`);
+      rainContainer.appendChild(text);
+    }
   }
-}
 
-function teleportTo(sport) {
-  const characterSpot = document.getElementById('characterSpot');
-  characterSpot.innerHTML = '';
-  const modelId = {
-    'foot': 'footPlayer',
-    'basket': 'basketPlayer',
-    'hand': 'handPlayer',
-    'athle': 'athlePlayer'
-  }[sport];
+  createBuildings();
+  createBinaryRain();
 
-  const character = document.createElement('a-entity');
-  character.setAttribute('gltf-model', `#${modelId}`);
-  character.setAttribute('scale', '1.5 1.5 1.5');
-  character.setAttribute('material', 'color: #00ffee; opacity: 0.5; emissive: #00ccff; emissiveIntensity: 0.6; transparent: true');
-  character.setAttribute('animation-mixer', '');
-  character.setAttribute('animation__fadein', 'property: material.opacity; from: 0; to: 0.5; dur: 500');
-
-  characterSpot.appendChild(character);
-
-  setTimeout(() => {
-    character.setAttribute('animation__fadeout', 'property: material.opacity; to: 0; dur: 1000');
-    setTimeout(() => {
-      if (character.parentNode) character.parentNode.removeChild(character);
-    }, 1000);
-  }, 10000);
-}
 </script>
 
 </body>
