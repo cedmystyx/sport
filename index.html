@@ -86,7 +86,7 @@
 
   <!-- Couloir infini de bâtiments façon Matrix -->
   <a-entity id="infiniteCorridor"></a-entity>
-
+  <a-entity id="characterSpot"></a-entity>
 </a-scene>
 
 <script>
@@ -103,25 +103,45 @@ startBtn.addEventListener('click', () => {
   generateMatrixCorridor();
 });
 
-function teleportTo(sport) {
+function generateMatrixCorridor() {
   const corridor = document.getElementById('infiniteCorridor');
-  corridor.innerHTML = ''; // Clear previous
-  let modelId = {
+  corridor.innerHTML = '';
+  for (let i = 0; i < 30; i++) {
+    const building = document.createElement('a-box');
+    building.setAttribute('width', '3');
+    building.setAttribute('depth', '3');
+    building.setAttribute('height', `${Math.random() * 10 + 10}`);
+    building.setAttribute('color', '#00ffcc');
+    building.setAttribute('opacity', '0.2');
+    building.setAttribute('position', `${(i % 2 === 0 ? -5 : 5)} ${5} ${-i * 10}`);
+    building.setAttribute('animation__appear', `property: scale; from: 0 0 0; to: 1 1 1; dur: 800; delay: ${i * 100}`);
+    corridor.appendChild(building);
+  }
+}
+
+function teleportTo(sport) {
+  const characterSpot = document.getElementById('characterSpot');
+  characterSpot.innerHTML = '';
+  const modelId = {
     'foot': 'footPlayer',
     'basket': 'basketPlayer',
     'hand': 'handPlayer',
     'athle': 'athlePlayer'
   }[sport];
-  for (let i = 0; i < 20; i++) {
-    let posZ = -i * 10;
-    let entity = document.createElement('a-entity');
-    entity.setAttribute('gltf-model', `#${modelId}`);
-    entity.setAttribute('position', `${(i%2)*4-2} 0 ${posZ}`);
-    entity.setAttribute('scale', '1.5 1.5 1.5');
-    entity.setAttribute('animation-mixer', '');
-    entity.setAttribute('material', 'color: #00ffee; opacity: 0.5; emissive: #00ccff; emissiveIntensity: 0.6; transparent: true');
-    corridor.appendChild(entity);
-  }
+
+  const character = document.createElement('a-entity');
+  character.setAttribute('gltf-model', `#${modelId}`);
+  character.setAttribute('position', '0 0 -3');
+  character.setAttribute('scale', '1.5 1.5 1.5');
+  character.setAttribute('material', 'color: #00ffee; opacity: 0.5; emissive: #00ccff; emissiveIntensity: 0.6; transparent: true');
+  character.setAttribute('animation-mixer', '');
+  character.setAttribute('animation__fadein', 'property: components.material.material.opacity; from: 0; to: 0.5; dur: 1000');
+
+  characterSpot.appendChild(character);
+
+  setTimeout(() => {
+    characterSpot.removeChild(character);
+  }, 10000);
 }
 </script>
 
