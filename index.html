@@ -72,7 +72,7 @@
   <button onclick="teleportTo('athle')">Athlétisme</button>
 </div>
 
-<a-scene id="scene" style="display:none" background="color: black">
+<a-scene id="scene" background="color: black" fog="type: linear; color: #0f0f0f; near:1; far:80">
   <a-assets>
     <a-asset-item id="footPlayer" src="personnage/goal.glb"></a-asset-item>
     <a-asset-item id="basketPlayer" src="basketball/dribble.glb"></a-asset-item>
@@ -80,13 +80,12 @@
     <a-asset-item id="athlePlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/RunningMan/glTF/RunningMan.glb"></a-asset-item>
   </a-assets>
 
-  <a-entity id="cameraRig" position="0 1.6 0">
-    <a-entity camera look-controls wasd-controls position="0 0 0"></a-entity>
+  <a-entity id="cameraRig" position="0 1.6 0" animation="property: position; to: 0 1.6 -500; loop: true; dur: 100000; easing: linear">
+    <a-entity camera look-controls position="0 0 0"></a-entity>
   </a-entity>
 
-  <!-- Couloir infini de bâtiments façon Matrix -->
   <a-entity id="infiniteCorridor"></a-entity>
-  <a-entity id="characterSpot"></a-entity>
+  <a-entity id="characterSpot" position="0 0 -3"></a-entity>
 </a-scene>
 
 <script>
@@ -94,7 +93,6 @@ const startBtn = document.getElementById('startButton');
 const startScreen = document.getElementById('startScreen');
 const scene = document.getElementById('scene');
 const menu = document.getElementById('menu');
-const cameraRig = document.getElementById('cameraRig');
 
 startBtn.addEventListener('click', () => {
   startScreen.style.display = 'none';
@@ -106,15 +104,14 @@ startBtn.addEventListener('click', () => {
 function generateMatrixCorridor() {
   const corridor = document.getElementById('infiniteCorridor');
   corridor.innerHTML = '';
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 150; i++) {
     const building = document.createElement('a-box');
     building.setAttribute('width', '3');
     building.setAttribute('depth', '3');
     building.setAttribute('height', `${Math.random() * 10 + 10}`);
     building.setAttribute('color', '#00ffcc');
-    building.setAttribute('opacity', '0.2');
-    building.setAttribute('position', `${(i % 2 === 0 ? -5 : 5)} ${5} ${-i * 10}`);
-    building.setAttribute('animation__appear', `property: scale; from: 0 0 0; to: 1 1 1; dur: 800; delay: ${i * 100}`);
+    building.setAttribute('opacity', '0.15');
+    building.setAttribute('position', `${(i % 2 === 0 ? -5 : 5)} ${5} ${-i * 5}`);
     corridor.appendChild(building);
   }
 }
@@ -131,17 +128,10 @@ function teleportTo(sport) {
 
   const character = document.createElement('a-entity');
   character.setAttribute('gltf-model', `#${modelId}`);
-  character.setAttribute('position', '0 0 -3');
   character.setAttribute('scale', '1.5 1.5 1.5');
   character.setAttribute('material', 'color: #00ffee; opacity: 0.5; emissive: #00ccff; emissiveIntensity: 0.6; transparent: true');
   character.setAttribute('animation-mixer', '');
-  character.setAttribute('animation__fadein', 'property: components.material.material.opacity; from: 0; to: 0.5; dur: 1000');
-
   characterSpot.appendChild(character);
-
-  setTimeout(() => {
-    characterSpot.removeChild(character);
-  }, 10000);
 }
 </script>
 
