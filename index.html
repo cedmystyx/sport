@@ -57,64 +57,6 @@
       background: #005f99;
     }
   </style>
-
-  <script>
-    AFRAME.registerComponent('hologram-effect', {
-      schema: { color: { type: 'color', default: '#00ffff' } },
-      init: function () {
-        const el = this.el;
-        el.addEventListener('model-loaded', () => {
-          const mesh = el.getObject3D('mesh');
-          if (!mesh) return;
-          mesh.traverse(node => {
-            if (node.isMesh) {
-              node.material = new THREE.ShaderMaterial({
-                transparent: true,
-                uniforms: {
-                  time: { value: 0 },
-                  color: { value: new THREE.Color(this.data.color) },
-                  opacity: { value: 0.7 }
-                },
-                vertexShader: `
-                  varying vec2 vUv;
-                  uniform float time;
-                  void main() {
-                    vUv = uv;
-                    vec3 pos = position;
-                    pos.x += sin(pos.y * 10.0 + time * 10.0) * 0.02;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-                  }
-                `,
-                fragmentShader: `
-                  uniform vec3 color;
-                  uniform float opacity;
-                  varying vec2 vUv;
-                  uniform float time;
-                  void main() {
-                    float scan = sin((vUv.y + time * 0.8) * 40.0) * 0.1;
-                    float band = step(0.05, fract(vUv.y * 20.0 + time)) * 0.05;
-                    float alpha = opacity * (0.5 + scan + band);
-                    gl_FragColor = vec4(color, alpha);
-                  }
-                `,
-                side: THREE.DoubleSide,
-                depthWrite: false
-              });
-            }
-          });
-        });
-      },
-      tick: function (time) {
-        const mesh = this.el.getObject3D('mesh');
-        if (!mesh) return;
-        mesh.traverse(node => {
-          if (node.material && node.material.uniforms) {
-            node.material.uniforms.time.value = time / 1000;
-          }
-        });
-      }
-    });
-  </script>
 </head>
 
 <body>
@@ -129,7 +71,6 @@
     <button onclick="teleportTo('basket')">Basketball</button>
     <button onclick="teleportTo('hand')">Handball</button>
     <button onclick="teleportTo('athle')">Athlétisme</button>
-    <button id="toggleEffect">Activer filtre hologram</button>
   </div>
 
   <a-scene embedded background="color: #181818" shadow="type: pcfsoft" style="width:100vw; height:100vh; display:none" id="scene">
@@ -157,9 +98,7 @@
       <a-box color="#1a3d1a" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
       <a-sphere color="#fff" radius="0.4" position="1 0.4 0"
                 animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"></a-sphere>
-
-      <a-entity id="footNormal" gltf-model="#footPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer shadow="cast: true" visible="true"></a-entity>
-      <a-entity id="footHolo" gltf-model="#footPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer hologram-effect="color: #00ff00" shadow="cast: true" visible="false"></a-entity>
+      <a-entity gltf-model="#footPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer shadow="cast: true" visible="true"></a-entity>
     </a-entity>
 
     <!-- BASKET -->
@@ -168,9 +107,7 @@
       <a-box color="#4a2e00" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
       <a-sphere radius="0.35" color="#e67e22" position="0.3 1 0.2"
                 animation="property: position; dir: alternate; dur: 600; loop: true; to: 0.3 0.7 0.2; easing: easeInOutSine"></a-sphere>
-
-      <a-entity id="basketNormal" gltf-model="#basketPlayer" position="-1.5 0 0" scale="1.5 1.5 1.5" animation-mixer shadow="cast: true" visible="true"></a-entity>
-      <a-entity id="basketHolo" gltf-model="#basketPlayer" position="-1.5 0 0" scale="1.5 1.5 1.5" animation-mixer hologram-effect="color: #ff8000" shadow="cast: true" visible="false"></a-entity>
+      <a-entity gltf-model="#basketPlayer" position="-1.5 0 0" scale="1.5 1.5 1.5" animation-mixer shadow="cast: true" visible="true"></a-entity>
     </a-entity>
 
     <!-- HANDBALL -->
@@ -179,18 +116,14 @@
       <a-box color="#3b0f3b" width="8" height="0.1" depth="14" position="0 0 0"></a-box>
       <a-sphere color="#cc3366" radius="0.35" position="1 0.35 0"
                 animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"></a-sphere>
-
-      <a-entity id="handNormal" gltf-model="#handPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer shadow="cast: true" visible="true"></a-entity>
-      <a-entity id="handHolo" gltf-model="#handPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer hologram-effect="color: #cc00ff" shadow="cast: true" visible="false"></a-entity>
+      <a-entity gltf-model="#handPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer shadow="cast: true" visible="true"></a-entity>
     </a-entity>
 
     <!-- ATHLE -->
     <a-entity id="athle" position="20 0 15">
       <a-text value="Athlétisme" position="0 3 0" align="center" color="#3399cc" width="6"></a-text>
       <a-box color="#111111" width="16" height="0.1" depth="4" position="0 0 0"></a-box>
-
-      <a-entity id="athleNormal" gltf-model="#athlePlayer" position="-4 0 0" scale="1.3 1.3 1.3" animation-mixer shadow="cast: true" visible="true"></a-entity>
-      <a-entity id="athleHolo" gltf-model="#athlePlayer" position="-4 0 0" scale="1.3 1.3 1.3" animation-mixer hologram-effect="color: #00ffff" shadow="cast: true" visible="false"></a-entity>
+      <a-entity gltf-model="#athlePlayer" position="-4 0 0" scale="1.3 1.3 1.3" animation-mixer shadow="cast: true" visible="true"></a-entity>
     </a-entity>
 
     <a-box position="0 0 -30" width="40" height="3" depth="3" color="#111111" shadow></a-box>
@@ -202,31 +135,16 @@
     const scene = document.getElementById('scene');
     const menu = document.getElementById('menu');
     const cameraRig = document.getElementById('cameraRig');
-    const toggleBtn = document.getElementById('toggleEffect');
-
-    let hologramOn = false;
 
     startBtn.addEventListener('click', () => {
       startScreen.style.display = 'none';
       scene.style.display = 'block';
       menu.style.display = 'flex';
 
-      // Au départ : version normale visible, hologram invisible
-      setModelVisibility(false);
+      // Démarrer le son ambiance si possible
+      const soundComp = scene.querySelector('[sound]')?.components?.sound;
+      if (soundComp) soundComp.playSound();
     });
-
-    toggleBtn.addEventListener('click', () => {
-      hologramOn = !hologramOn;
-      setModelVisibility(hologramOn);
-      toggleBtn.textContent = hologramOn ? "Désactiver filtre hologram" : "Activer filtre hologram";
-    });
-
-    function setModelVisibility(useHolo) {
-      ['foot', 'basket', 'hand', 'athle'].forEach(sport => {
-        document.getElementById(sport + 'Normal').setAttribute('visible', !useHolo);
-        document.getElementById(sport + 'Holo').setAttribute('visible', useHolo);
-      });
-    }
 
     function teleportTo(zoneId) {
       const target = document.getElementById(zoneId);
