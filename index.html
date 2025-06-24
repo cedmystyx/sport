@@ -4,9 +4,13 @@
   <meta charset="UTF-8">
   <title>Big Data Digital City</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- A-Frame et extras -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
   <script src="https://unpkg.com/aframe-reflection-component@^1.0.0/dist/aframe-reflection-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.loaders.min.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -17,16 +21,15 @@
 </head>
 <body>
 
-<!-- ✅ Audio immersif futuriste -->
+<!-- Audio immersif futuriste -->
 <audio autoplay loop>
   <source src="https://cdn.pixabay.com/audio/2023/03/07/audio_eb50a9b332.mp3" type="audio/mpeg">
 </audio>
 
 <a-scene background="color: #000">
 
-  <!-- Caméra avec angle de vue comme dans la vidéo -->
-  <a-entity id="cameraRig" position="0 3 100" rotation="-8 0 0"
-    animation="property: position; to: 0 3 -300; dur: 60000; easing: linear; loop: true">
+  <!-- Caméra avec déplacement infini -->
+  <a-entity id="cameraRig" position="0 3 100" rotation="-8 0 0" move-forward="speed: 1">
     <a-entity camera look-controls="enabled: false"></a-entity>
   </a-entity>
 
@@ -34,21 +37,36 @@
   <a-entity light="type: ambient; color: #88ffff; intensity: 0.6"></a-entity>
   <a-entity light="type: directional; color: #00ffff; intensity: 0.8" position="0 10 10"></a-entity>
 
-  <!-- Sol effet eau miroir comme dans la vidéo -->
-  <a-plane position="0 0 0" rotation="-90 0 0" width="1000" height="1000"
-           material="shader: flat; src: https://cdn.pixabay.com/photo/2015/12/01/20/28/water-1072753_960_720.jpg; repeat: 100 100; opacity: 0.5; side: double">
-  </a-plane>
+  <!-- Sol avec effet eau animé -->
+  <a-water
+    position="0 0 0"
+    rotation="-90 0 0"
+    width="1000"
+    height="1000"
+    color="#001e0f"
+    distortionFactor="0.1"
+    flowDirection="1 0">
+  </a-water>
 
   <!-- Bâtiments avec code binaire animé sur toutes les faces -->
   <a-entity id="city" generate-city></a-entity>
 
   <script>
+    // Composant déplacement continu vers l'avant
+    AFRAME.registerComponent('move-forward', {
+      schema: { speed: {type: 'number', default: 0.5} },
+      tick: function (time, delta) {
+        const position = this.el.getAttribute('position');
+        position.z -= this.data.speed * (delta / 1000);
+        this.el.setAttribute('position', position);
+      }
+    });
+
     AFRAME.registerComponent('generate-city', {
       init: function () {
         const container = this.el;
-        const binaryChars = ['0', '1'];
+        const spacing = 5; // bâtiment plus proche
 
-        const spacing = 10;
         for (let x = -40; x <= 40; x += spacing) {
           for (let z = -40; z >= -400; z -= spacing) {
             const h = Math.random() * 10 + 3;
