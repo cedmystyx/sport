@@ -1,108 +1,175 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Data City Matrix - Reproduction Vidéo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <title>Section Sportive - Accueil Matrix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
   <style>
     html, body {
-      margin: 0; height: 100%; overflow: hidden;
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
       background: black;
-      font-family: monospace;
-      color: #0f0;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+    #startScreen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(#000, #111);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      text-align: center;
+    }
+    #startButton {
+      margin-top: 20px;
+      padding: 14px 30px;
+      font-size: 1.3em;
+      background: #00ffcc;
+      border: none;
+      border-radius: 8px;
+      color: black;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #startButton:hover {
+      background: #00ccaa;
+    }
+    #menu {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      padding: 12px 25px;
+      border-radius: 10px;
+      display: none;
+      gap: 15px;
+      z-index: 5;
+      user-select: none;
+    }
+    #menu button {
+      background: #00ffaa;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 18px;
+      font-size: 1em;
+      color: black;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #menu button:hover {
+      background: #00dd99;
     }
   </style>
 </head>
 <body>
 
-<a-scene
-  background="color: #000"
-  fog="type: linear; color: #002200; near: 1; far: 60"
-  embedded
-  vr-mode-ui="enabled: false">
+<div id="startScreen">
+  <h1>Section Sportive - Lycée Louis de Cormontaigne</h1>
+  <p>Explorez un couloir infini de sport holographique façon Matrix</p>
+  <button id="startButton">Entrer</button>
+</div>
 
-  <!-- Caméra en vol continu -->
-  <a-entity id="cameraRig" position="0 1.6 0"
-    animation="property: position; to: 0 1.6 -150; dur: 90000; easing: linear; loop: true">
-    <a-entity camera look-controls wasd-controls></a-entity>
+<div id="menu">
+  <button onclick="teleportTo('foot')">Football</button>
+  <button onclick="teleportTo('basket')">Basketball</button>
+  <button onclick="teleportTo('hand')">Handball</button>
+  <button onclick="teleportTo('athle')">Athlétisme</button>
+</div>
+
+<a-scene id="scene" background="color: black" fog="type: linear; color: #0f0f0f; near:1; far:80">
+  <a-assets>
+    <a-asset-item id="footPlayer" src="personnage/goal.glb"></a-asset-item>
+    <a-asset-item id="basketPlayer" src="basketball/dribble.glb"></a-asset-item>
+    <a-asset-item id="handPlayer" src="handball/hand.glb"></a-asset-item>
+    <a-asset-item id="athlePlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/RunningMan/glTF/RunningMan.glb"></a-asset-item>
+  </a-assets>
+
+  <a-entity id="cameraRig" position="0 1.6 0" animation="property: position; to: 0 1.6 -500; loop: true; dur: 100000; easing: linear">
+    <a-entity camera look-controls position="0 0 0"></a-entity>
   </a-entity>
 
-  <!-- Conteneur bâtiments -->
-  <a-entity id="city"></a-entity>
-
-  <!-- Conteneur pluie de chiffres -->
-  <a-entity id="rain"></a-entity>
-
+  <a-entity id="infiniteCorridor"></a-entity>
+  <a-entity id="characterSpot" position="0 0 -3"></a-entity>
 </a-scene>
 
 <script>
-  const city = document.getElementById('city');
-  const rain = document.getElementById('rain');
+const startBtn = document.getElementById('startButton');
+const startScreen = document.getElementById('startScreen');
+const scene = document.getElementById('scene');
+const menu = document.getElementById('menu');
 
-  // Génère une grille dense de bâtiments wireframe avec effet de glow simulé
-  const buildingCount = 400;
-  for(let i=0; i<buildingCount; i++){
+startBtn.addEventListener('click', () => {
+  startScreen.style.display = 'none';
+  scene.style.display = 'block';
+  menu.style.display = 'flex';
+  generateMatrixCorridor();
+  generateDataRain();
+});
+
+function generateMatrixCorridor() {
+  const corridor = document.getElementById('infiniteCorridor');
+  corridor.innerHTML = '';
+  for (let i = 0; i < 150; i++) {
     const building = document.createElement('a-box');
-
-    // Hauteur aléatoire, entre 4 et 20
-    const height = 4 + Math.random()*16;
-
-    // Taille fixe petits cubes
-    building.setAttribute('width', 1.5);
-    building.setAttribute('depth', 1.5);
-    building.setAttribute('height', height);
-
-    // Position en grille 3D
-    const x = (i % 20) - 10; // -10 à +9
-    const z = -Math.floor(i / 20) * 3; // 20 lignes
-    const y = height / 2;
-
-    building.setAttribute('position', `${x} ${y} ${z}`);
-
-    // Wireframe vert avec glow (simulate glow via opacity + emissive)
-    building.setAttribute('material', 'wireframe:true; color:#00ff00; opacity:0.15; emissive:#00ff00; emissiveIntensity:0.8;');
-
-    city.appendChild(building);
+    building.setAttribute('width', '3');
+    building.setAttribute('depth', '3');
+    building.setAttribute('height', `${Math.random() * 10 + 10}`);
+    building.setAttribute('color', '#00ffcc');
+    building.setAttribute('opacity', '0.1');
+    building.setAttribute('position', `${(i % 2 === 0 ? -5 : 5)} 5 ${-i * 5}`);
+    building.setAttribute('material', 'wireframe: true; color: #00ffcc');
+    corridor.appendChild(building);
   }
+}
 
-  // Pluie de 0/1 en plusieurs couches pour effet profondeur
-  const rainCount = 500;
-  for(let i=0; i<rainCount; i++){
-    const digit = document.createElement('a-text');
-
-    // Valeur 0 ou 1
-    digit.setAttribute('value', Math.random() > 0.5 ? '0' : '1');
-
-    // Couleur néon verte
-    digit.setAttribute('color', '#00ff00');
-
-    // Opacité variable pour effet de profondeur
-    digit.setAttribute('opacity', 0.3 + Math.random()*0.4);
-
-    // Taille variable (petits chiffres)
-    const scale = 0.3 + Math.random()*0.3;
-    digit.setAttribute('scale', `${scale} ${scale} ${scale}`);
-
-    // Position initiale aléatoire sur X, Y, Z
-    const x = (Math.random() - 0.5) * 20; // +/- 10
-    const y = Math.random() * 15 + 10; // assez haut
-    const z = -Math.random() * 150; // profondeur jusqu'à -150
-    digit.setAttribute('position', `${x} ${y} ${z}`);
-
-    // Animation verticale "pluie" continue vers bas, boucle infinie
-    // On anime la position Y de y à -10, et on décale en Z un peu pour effet de chute diagonal
-    digit.setAttribute('animation', `
-      property: position;
-      from: ${x} ${y} ${z};
-      to: ${x} -10 ${z - 10};
-      dur: ${3000 + Math.random() * 4000};
-      easing: linear;
-      loop: true;
-    `);
-
-    rain.appendChild(digit);
+function generateDataRain() {
+  const corridor = document.getElementById('infiniteCorridor');
+  for (let i = 0; i < 200; i++) {
+    const text = document.createElement('a-text');
+    text.setAttribute('value', Math.random() > 0.5 ? '0' : '1');
+    text.setAttribute('color', '#00ff99');
+    text.setAttribute('opacity', '0.4');
+    text.setAttribute('position', `${(Math.random()-0.5)*10} ${Math.random()*15+1} ${-Math.random()*100}`);
+    text.setAttribute('animation', 'property: position; to: 0 -10 -200; dur: 6000; loop: true');
+    corridor.appendChild(text);
   }
+}
+
+function teleportTo(sport) {
+  const characterSpot = document.getElementById('characterSpot');
+  characterSpot.innerHTML = '';
+  const modelId = {
+    'foot': 'footPlayer',
+    'basket': 'basketPlayer',
+    'hand': 'handPlayer',
+    'athle': 'athlePlayer'
+  }[sport];
+
+  const character = document.createElement('a-entity');
+  character.setAttribute('gltf-model', `#${modelId}`);
+  character.setAttribute('scale', '1.5 1.5 1.5');
+  character.setAttribute('material', 'color: #00ffee; opacity: 0.5; emissive: #00ccff; emissiveIntensity: 0.6; transparent: true');
+  character.setAttribute('animation-mixer', '');
+  character.setAttribute('animation__fadein', 'property: material.opacity; from: 0; to: 0.5; dur: 500');
+
+  characterSpot.appendChild(character);
+
+  setTimeout(() => {
+    character.setAttribute('animation__fadeout', 'property: material.opacity; to: 0; dur: 1000');
+    setTimeout(() => {
+      if (character.parentNode) character.parentNode.removeChild(character);
+    }, 1000);
+  }, 10000);
+}
 </script>
 
 </body>
