@@ -80,7 +80,7 @@
     <a-asset-item id="athlePlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/RunningMan/glTF/RunningMan.glb"></a-asset-item>
   </a-assets>
 
-  <a-entity id="cameraRig" position="0 1.6 0" animation="property: position; to: 0 1.6 -500; loop: true; dur: 100000; easing: linear">
+  <a-entity id="cameraRig" position="0 1.6 0" animation="property: position; to: 0 1.6 -750; dur: 120000; easing: linear; loop: true">
     <a-entity camera look-controls position="0 0 0"></a-entity>
   </a-entity>
 
@@ -102,35 +102,37 @@ startBtn.addEventListener('click', () => {
   generateDataRain();
 });
 
+// Génération du couloir avec bâtiments fil de fer verts
 function generateMatrixCorridor() {
   const corridor = document.getElementById('infiniteCorridor');
   corridor.innerHTML = '';
   for (let i = 0; i < 150; i++) {
     const building = document.createElement('a-box');
+    const height = Math.random() * 20 + 10;
     building.setAttribute('width', '3');
     building.setAttribute('depth', '3');
-    building.setAttribute('height', `${Math.random() * 10 + 10}`);
-    building.setAttribute('color', '#00ffcc');
-    building.setAttribute('opacity', '0.1');
-    building.setAttribute('position', `${(i % 2 === 0 ? -5 : 5)} 5 ${-i * 5}`);
-    building.setAttribute('material', 'wireframe: true; color: #00ffcc');
+    building.setAttribute('height', height);
+    building.setAttribute('position', `${(i % 2 === 0 ? -5 : 5)} ${height / 2} ${-i * 5}`);
+    building.setAttribute('material', 'wireframe: true; color: #00ffcc; opacity: 0.15');
     corridor.appendChild(building);
   }
 }
 
+// Génération de la pluie de 0 et 1 en boucle dans le couloir
 function generateDataRain() {
   const corridor = document.getElementById('infiniteCorridor');
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 250; i++) {
     const text = document.createElement('a-text');
     text.setAttribute('value', Math.random() > 0.5 ? '0' : '1');
     text.setAttribute('color', '#00ff99');
-    text.setAttribute('opacity', '0.4');
-    text.setAttribute('position', `${(Math.random()-0.5)*10} ${Math.random()*15+1} ${-Math.random()*100}`);
-    text.setAttribute('animation', 'property: position; to: 0 -10 -200; dur: 6000; loop: true');
+    text.setAttribute('opacity', '0.3');
+    text.setAttribute('position', `${(Math.random() - 0.5) * 12} ${Math.random() * 15 + 1} ${-Math.random() * 700}`);
+    text.setAttribute('animation', 'property: position; to: 0 -10 -800; dur: 7000; loop: true; easing: linear');
     corridor.appendChild(text);
   }
 }
 
+// Affichage personnage holographique avec animation et disparition au bout de 10s
 function teleportTo(sport) {
   const characterSpot = document.getElementById('characterSpot');
   characterSpot.innerHTML = '';
@@ -144,14 +146,14 @@ function teleportTo(sport) {
   const character = document.createElement('a-entity');
   character.setAttribute('gltf-model', `#${modelId}`);
   character.setAttribute('scale', '1.5 1.5 1.5');
-  character.setAttribute('material', 'color: #00ffee; opacity: 0.5; emissive: #00ccff; emissiveIntensity: 0.6; transparent: true');
+  character.setAttribute('material', 'color: #00ffee; opacity: 0; emissive: #00ccff; emissiveIntensity: 0.6; transparent: true');
+  character.setAttribute('animation__fadein', 'property: material.opacity; from: 0; to: 0.5; dur: 800; easing: easeInOutQuad');
   character.setAttribute('animation-mixer', '');
-  character.setAttribute('animation__fadein', 'property: material.opacity; from: 0; to: 0.5; dur: 500');
 
   characterSpot.appendChild(character);
 
   setTimeout(() => {
-    character.setAttribute('animation__fadeout', 'property: material.opacity; to: 0; dur: 1000');
+    character.setAttribute('animation__fadeout', 'property: material.opacity; to: 0; dur: 1000; easing: easeInOutQuad');
     setTimeout(() => {
       if (character.parentNode) character.parentNode.removeChild(character);
     }, 1000);
@@ -160,4 +162,4 @@ function teleportTo(sport) {
 </script>
 
 </body>
-</html
+</html>
