@@ -81,25 +81,23 @@
             binaryPlane.setAttribute('height', h.toFixed(2));
             binaryPlane.setAttribute('material', 'color: #00ffff; opacity: 0.25; transparent: true');
 
-            const text = document.createElement('a-entity');
-            text.setAttribute('text', {
-              value: Array.from({length: 20}, () => binaryChars[Math.floor(Math.random() * 2)]).join(''),
-              color: '#00ffff',
-              align: 'center',
-              width: 2,
-              wrapCount: 10,
-              baseline: 'top'
-            });
-            text.setAttribute('position', '0 0.5 0.01');
-            text.setAttribute('animation', {
-              property: 'position',
-              to: '0 -0.5 0.01',
-              dur: 1500,
-              loop: true,
-              dir: 'alternate'
-            });
+            // Générer plusieurs lignes de petit texte binaire sur toute la hauteur
+            const lineCount = Math.floor(h / 0.2);
+            for (let j = 0; j < lineCount; j++) {
+              const text = document.createElement('a-entity');
+              text.setAttribute('text', {
+                value: Array.from({length: 40}, () => binaryChars[Math.floor(Math.random() * 2)]).join(''),
+                color: '#00ffff',
+                align: 'center',
+                width: 1.5,
+                wrapCount: 40,
+                baseline: 'top',
+                height: 0.1
+              });
+              text.setAttribute('position', `0 ${(h / 2) - (j * 0.2)} 0.01`);
+              binaryPlane.appendChild(text);
+            }
 
-            binaryPlane.appendChild(text);
             building.appendChild(binaryPlane);
           });
 
