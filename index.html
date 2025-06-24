@@ -5,7 +5,7 @@
   <title>Section Sportive - Lycée Louis de Cormontaigne</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
   <style>
     html, body {
       margin: 0; height: 100%; overflow: hidden;
@@ -19,7 +19,7 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       z-index: 10; text-align: center;
     }
-    button {
+    #startButton {
       margin-top: 20px;
       padding: 14px 30px;
       font-size: 1.3em;
@@ -30,7 +30,7 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
-    button:hover {
+    #startButton:hover {
       background: #005f99;
     }
     #menu {
@@ -58,100 +58,107 @@
     }
   </style>
 </head>
-
 <body>
-  <div id="startScreen">
-    <h1>Section Sportive - Lycée Louis de Cormontaigne</h1>
-    <p>Entrez dans une expérience sportive immersive en réalité virtuelle</p>
-    <button id="startButton">Entrer</button>
-  </div>
 
-  <div id="menu">
-    <button onclick="teleportTo('foot')">Football</button>
-    <button onclick="teleportTo('basket')">Basketball</button>
-    <button onclick="teleportTo('hand')">Handball</button>
-    <button onclick="teleportTo('athle')">Athlétisme</button>
-  </div>
+<div id="startScreen">
+  <h1>Section Sportive - Lycée Louis de Cormontaigne</h1>
+  <p>Entrez dans une expérience sportive immersive en réalité virtuelle</p>
+  <button id="startButton">Entrer</button>
+</div>
 
-  <a-scene embedded background="color: #181818" shadow="type: pcfsoft" style="width:100vw; height:100vh; display:none" id="scene">
-    <a-assets>
-      <a-asset-item id="footPlayer" src="personnage/goal.glb"></a-asset-item>
-      <a-asset-item id="basketPlayer" src="basketball/dribble.glb"></a-asset-item>
-      <a-asset-item id="handPlayer" src="handball/hand.glb"></a-asset-item>
-      <a-asset-item id="athlePlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/RunningMan/glTF/RunningMan.glb"></a-asset-item>
-      <audio id="ambiance" src="https://cdn.pixabay.com/audio/2022/03/15/audio_c7a7c2f4e0.mp3"></audio>
-    </a-assets>
+<div id="menu">
+  <button onclick="teleportTo('foot')">Football</button>
+  <button onclick="teleportTo('basket')">Basketball</button>
+  <button onclick="teleportTo('hand')">Handball</button>
+  <button onclick="teleportTo('athle')">Athlétisme</button>
+</div>
 
-    <a-entity id="cameraRig" position="0 1.6 15">
-      <a-entity camera look-controls wasd-controls>
-        <a-entity sound="src: #ambiance; autoplay: false; loop: true; positional: true; volume: 0.3"></a-entity>
-      </a-entity>
+<a-scene embedded background="color: #181818" shadow="type: pcfsoft" style="width:100vw; height:100vh; display:none" id="scene">
+
+  <a-assets>
+    <a-asset-item id="footPlayer" src="personnage/goal.glb"></a-asset-item>
+    <a-asset-item id="basketPlayer" src="basketball/dribble.glb"></a-asset-item>
+    <a-asset-item id="handPlayer" src="handball/hand.glb"></a-asset-item>
+    <a-asset-item id="athlePlayer" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/RunningMan/glTF/RunningMan.glb"></a-asset-item>
+
+    <audio id="ambiance" src="https://cdn.pixabay.com/audio/2022/03/15/audio_c7a7c2f4e0.mp3"></audio>
+  </a-assets>
+
+  <a-entity id="cameraRig" position="0 1.6 15">
+    <a-entity camera look-controls wasd-controls>
+      <a-entity sound="src: #ambiance; autoplay: false; loop: true; positional: true; volume: 0.3"></a-entity>
     </a-entity>
+  </a-entity>
 
-    <a-light type="ambient" color="#555"></a-light>
-    <a-light type="directional" color="#fff" position="5 10 7" intensity="0.8" cast-shadow="true"></a-light>
-    <a-plane rotation="-90 0 0" width="100" height="100" color="#2b2b2b" shadow="receive: true"></a-plane>
+  <a-light type="ambient" color="#555"></a-light>
+  <a-light type="directional" color="#fff" position="5 10 7" intensity="0.8" cast-shadow="true"></a-light>
 
-    <!-- FOOT -->
-    <a-entity id="foot" position="-20 0 -15">
-      <a-text value="Football" position="0 3 0" align="center" color="#00ff00" width="6"></a-text>
-      <a-box color="#1a3d1a" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
-      <a-sphere color="#fff" radius="0.4" position="1 0.4 0"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"></a-sphere>
-      <a-entity gltf-model="#footPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer shadow="cast: true" visible="true"></a-entity>
-    </a-entity>
+  <a-plane rotation="-90 0 0" width="100" height="100" color="#2b2b2b" shadow="receive: true"></a-plane>
 
-    <!-- BASKET -->
-    <a-entity id="basket" position="20 0 -15">
-      <a-text value="Basketball" position="0 3 0" align="center" color="#ff8000" width="6"></a-text>
-      <a-box color="#4a2e00" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
-      <a-sphere radius="0.35" color="#e67e22" position="0.3 1 0.2"
-                animation="property: position; dir: alternate; dur: 600; loop: true; to: 0.3 0.7 0.2; easing: easeInOutSine"></a-sphere>
-      <a-entity gltf-model="#basketPlayer" position="-1.5 0 0" scale="1.5 1.5 1.5" animation-mixer shadow="cast: true" visible="true"></a-entity>
-    </a-entity>
+  <!-- FOOTBALL -->
+  <a-entity id="foot" position="-20 0 -15">
+    <a-text value="Football" position="0 3 0" align="center" color="#00ff00" width="6"></a-text>
+    <a-box color="#1a3d1a" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
+    <a-sphere color="#fff" radius="0.4" position="1 0.4 0"
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear">
+    </a-sphere>
+    <a-entity gltf-model="#footPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer></a-entity>
+  </a-entity>
 
-    <!-- HANDBALL -->
-    <a-entity id="hand" position="-20 0 15">
-      <a-text value="Handball" position="0 3 0" align="center" color="#cc3399" width="6"></a-text>
-      <a-box color="#3b0f3b" width="8" height="0.1" depth="14" position="0 0 0"></a-box>
-      <a-sphere color="#cc3366" radius="0.35" position="1 0.35 0"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"></a-sphere>
-      <a-entity gltf-model="#handPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer shadow="cast: true" visible="true"></a-entity>
-    </a-entity>
+  <!-- BASKETBALL -->
+  <a-entity id="basket" position="20 0 -15">
+    <a-text value="Basketball" position="0 3 0" align="center" color="#ff8000" width="6"></a-text>
+    <a-box color="#4a2e00" width="10" height="0.1" depth="18" position="0 0 0"></a-box>
+    <a-sphere radius="0.35" color="#e67e22" position="0.3 1 0.2"
+              animation="property: position; dir: alternate; dur: 600; loop: true; to: 0.3 0.7 0.2; easing: easeInOutSine">
+    </a-sphere>
+    <a-entity gltf-model="#basketPlayer" position="-1.5 0 0" scale="1.5 1.5 1.5"
+              animation-mixer="clip: *; loop: repeat; crossFadeDuration: 0.5"></a-entity>
+  </a-entity>
 
-    <!-- ATHLE -->
-    <a-entity id="athle" position="20 0 15">
-      <a-text value="Athlétisme" position="0 3 0" align="center" color="#3399cc" width="6"></a-text>
-      <a-box color="#111111" width="16" height="0.1" depth="4" position="0 0 0"></a-box>
-      <a-entity gltf-model="#athlePlayer" position="-4 0 0" scale="1.3 1.3 1.3" animation-mixer shadow="cast: true" visible="true"></a-entity>
-    </a-entity>
+  <!-- HANDBALL -->
+  <a-entity id="hand" position="-20 0 15">
+    <a-text value="Handball" position="0 3 0" align="center" color="#cc3399" width="6"></a-text>
+    <a-box color="#3b0f3b" width="8" height="0.1" depth="14" position="0 0 0"></a-box>
+    <a-sphere color="#cc3366" radius="0.35" position="1 0.35 0"
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"></a-sphere>
+    <a-entity gltf-model="#handPlayer" position="-2 0 0" scale="1.5 1.5 1.5" animation-mixer></a-entity>
+  </a-entity>
 
-    <a-box position="0 0 -30" width="40" height="3" depth="3" color="#111111" shadow></a-box>
-  </a-scene>
+  <!-- ATHLÉTISME -->
+  <a-entity id="athle" position="20 0 15">
+    <a-text value="Athlétisme" position="0 3 0" align="center" color="#3399cc" width="6"></a-text>
+    <a-box color="#111111" width="16" height="0.1" depth="4" position="0 0 0"></a-box>
+    <a-entity gltf-model="#athlePlayer" position="-4 0 0" scale="1.3 1.3 1.3" animation-mixer></a-entity>
+  </a-entity>
 
-  <script>
-    const startBtn = document.getElementById('startButton');
-    const startScreen = document.getElementById('startScreen');
-    const scene = document.getElementById('scene');
-    const menu = document.getElementById('menu');
-    const cameraRig = document.getElementById('cameraRig');
+  <!-- Tribune -->
+  <a-box position="0 0 -30" width="40" height="3" depth="3" color="#111111" shadow></a-box>
 
-    startBtn.addEventListener('click', () => {
-      startScreen.style.display = 'none';
-      scene.style.display = 'block';
-      menu.style.display = 'flex';
+</a-scene>
 
-      // Démarrer le son ambiance si possible
-      const soundComp = scene.querySelector('[sound]')?.components?.sound;
-      if (soundComp) soundComp.playSound();
-    });
+<script>
+  const startBtn = document.getElementById('startButton');
+  const startScreen = document.getElementById('startScreen');
+  const scene = document.getElementById('scene');
+  const menu = document.getElementById('menu');
+  const cameraRig = document.getElementById('cameraRig');
 
-    function teleportTo(zoneId) {
-      const target = document.getElementById(zoneId);
-      if (!target) return;
-      const pos = target.getAttribute('position');
-      cameraRig.setAttribute('position', { x: pos.x, y: 1.6, z: pos.z + 7 });
-    }
-  </script>
+  startBtn.addEventListener('click', () => {
+    startScreen.style.display = 'none';
+    scene.style.display = 'block';
+    menu.style.display = 'flex';
+    const soundComp = scene.querySelector('[sound]')?.components?.sound;
+    if (soundComp) soundComp.playSound();
+  });
+
+  function teleportTo(zoneId) {
+    const target = document.getElementById(zoneId);
+    if (!target) return;
+    const pos = target.getAttribute('position');
+    cameraRig.setAttribute('position', { x: pos.x, y: 1.6, z: pos.z + 7 });
+  }
+</script>
+
 </body>
 </html>
