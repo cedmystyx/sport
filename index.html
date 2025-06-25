@@ -2,138 +2,115 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Lycée Louis de Cormontaigne – Section Sportive</title>
+  <title>Section Sportive – Lycée Louis de Cormontaigne</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- A-Frame et extras pour déplacement VR/multiplateforme -->
+  <!-- A-Frame pour VR/multiplateforme -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.controls.min.js"></script>
   <style>
-    body { margin: 0; overflow: hidden; background: #111; font-family: Arial, sans-serif; }
+    body { margin:0; background: #111; font-family: Arial, sans-serif; }
     #header {
-      position: fixed; left: 20px; top: 20px; z-index: 100;
+      position: fixed; left: 0; top: 0; width: 100vw;
       color: #fff; background: rgba(0,0,0,0.92);
-      padding: 18px 30px; border-radius: 10px;
-      font-size: 2.1rem; font-family: 'Segoe UI', Arial, sans-serif;
+      padding: 18px 0 10px 0; border-radius: 0 0 18px 18px;
+      font-size: 2.2rem; font-family: 'Segoe UI', Arial, sans-serif;
       letter-spacing: 1.5px; box-shadow: 0 3px 24px #00ffff44;
-      border-left: 5px solid #00ffff; text-shadow: 0 2px 20px #00ffff88;
-      max-width: 90vw;
+      border-bottom: 5px solid #00ffff; text-shadow: 0 2px 20px #00ffff88;
+      text-align: center; z-index: 10;
     }
     #subtitle {
-      display: block; font-size: 1.1rem; color: #00ffff;
+      display: block; font-size: 1.08rem; color: #00ffff;
       margin-top: 8px; letter-spacing: 1px; font-weight: bold;
       text-shadow: 0 1px 8px #00ffff77;
     }
-    #welcome {
-      display: block; font-size: 1.15rem; color: #fff;
-      margin-top: 14px; letter-spacing: 0.5px; font-weight: 400;
-      text-shadow: 0 1px 10px #00224488;
+    #start-btn {
+      display: inline-block; margin-top: 18px; padding: 12px 34px;
+      background: #00ffff; color: #113; font-size: 1.2rem; font-weight: bold;
+      border-radius: 14px; border: none; cursor: pointer; letter-spacing: 2px;
+      box-shadow: 0 2px 14px #00ffff55; transition: background 0.2s;
+    }
+    #start-btn:hover { background: #00cfcf; }
+    #infos {
+      display:block; margin: 20px auto 0 auto; color: #e0e0e0;
+      font-size: 1.08rem; letter-spacing: 1px; max-width: 450px;
+      background: rgba(0,0,0,0.48); border-radius: 10px; padding: 10px 16px;
+      text-align: center;
     }
     @media (max-width: 600px) {
-      #header { font-size: 1.2rem; padding:10px 8px; }
+      #header { font-size: 1.1rem; padding:10px 0; }
+      #infos { font-size: 0.92rem; }
+      #start-btn { font-size: 1rem; padding: 10px 20px; }
     }
   </style>
 </head>
 <body>
+  <div id="header">
+    Section Sportive – Lycée Louis de Cormontaigne
+    <span id="subtitle">Bienvenue dans l’espace de présentation sportive en réalité virtuelle</span>
+    <div id="infos">
+      Découvrez les activités Football, Basketball, Handball, Athlétisme et bien plus, dans une visite virtuelle immersive.<br>
+      Compatible PC, mobile et casque VR.<br>
+      <span style="color:#00ffff;"><b>Appuyez sur le bouton ci-dessous pour entrer</b></span>
+    </div>
+    <button id="start-btn" onclick="document.querySelector('a-scene').style.display='block';this.parentElement.style.display='none';">ENTRER</button>
+  </div>
 
-  <a-scene vr-mode-ui="enabled: true" background="color: #1a232b" device-orientation-permission-ui="enabled: true">
-    <!-- Ciel doux statique -->
-    <a-sky color="#1a232b"></a-sky>
+  <a-scene style="display: none;" background="color: #212f37">
+    <!-- Ciel doux dégradé -->
+    <a-sky color="#212f37"></a-sky>
+    <!-- Sol -->
+    <a-plane color="#1b2530" width="42" height="42" rotation="-90 0 0" position="0 0 0"></a-plane>
+    <!-- Anneau décor sportif (piste) -->
+    <a-torus color="#00d3aa" opacity="0.16" radius="14" radius-tubular="0.25" arc="360" rotation="90 0 0" position="0 0.03 0"></a-torus>
 
-    <!-- Caméra + mains VR + déplacement multiplateforme -->
-    <a-entity id="rig" position="0 1.6 13">
-      <a-entity id="player"
-        camera
-        look-controls="pointerLockEnabled: false"
-        wasd-controls="acceleration: 25; fly: false"
-        universal-controls
-        movement-controls="fly: false; speed: 0.17; constrainToNavMesh: false"
-        touch-controls
-        position="0 0 0">
-      </a-entity>
-      <!-- Mains VR -->
-      <a-entity hand-controls="hand: left" id="main-gauche"></a-entity>
-      <a-entity hand-controls="hand: right" id="main-droite"></a-entity>
+    <!-- Batiments sportifs simples, centrés en cercle -->
+    <a-box color="#00eedd" width="3.2" height="6" depth="3.2" position="0 3 8" opacity="0.78"></a-box>
+    <a-entity position="0 6.7 8">
+      <a-plane width="4" height="1.1" color="#111" opacity="0.94"></a-plane>
+      <a-text value="Football" width="3.8" align="center" color="#00eedd" position="0 0 0.01" anchor="center"></a-text>
+    </a-entity>
+    <a-box color="#ffad00" width="3.2" height="6" depth="3.2" position="8 3 0" opacity="0.78"></a-box>
+    <a-entity position="8 6.7 0">
+      <a-plane width="4" height="1.1" color="#111" opacity="0.94"></a-plane>
+      <a-text value="Basketball" width="3.8" align="center" color="#ffad00" position="0 0 0.01" anchor="center"></a-text>
+    </a-entity>
+    <a-box color="#00bfff" width="3.2" height="6" depth="3.2" position="0 3 -8" opacity="0.78"></a-box>
+    <a-entity position="0 6.7 -8">
+      <a-plane width="4" height="1.1" color="#111" opacity="0.94"></a-plane>
+      <a-text value="Handball" width="3.8" align="center" color="#00bfff" position="0 0 0.01" anchor="center"></a-text>
+    </a-entity>
+    <a-box color="#8fff8f" width="3.2" height="6" depth="3.2" position="-8 3 0" opacity="0.78"></a-box>
+    <a-entity position="-8 6.7 0">
+      <a-plane width="4" height="1.1" color="#111" opacity="0.94"></a-plane>
+      <a-text value="Athlétisme" width="3.8" align="center" color="#39e06a" position="0 0 0.01" anchor="center"></a-text>
     </a-entity>
 
-    <!-- Lumière douce et directionnelle -->
-    <a-entity light="type: ambient; color: #428fa7; intensity: 0.85"></a-entity>
-    <a-entity light="type: directional; color: #aef9ff; intensity: 0.23" position="0 8 0"></a-entity>
+    <!-- Lumière douce -->
+    <a-entity light="type: ambient; color: #5bdcff; intensity: 0.7"></a-entity>
+    <a-entity light="type: directional; color: #d4eeff; intensity: 0.25" position="0 12 2"></a-entity>
 
-    <!-- Sol doux et léger -->
-    <a-plane color="#202c38" width="36" height="36" rotation="-90 0 0" position="0 0 0" material="roughness:0.92; metalness:0.0;"></a-plane>
-
-    <!-- Décor sportif ultra-léger -->
-    <a-torus color="#39e06a" opacity="0.13" radius="11" radius-tubular="0.18" arc="360" rotation="90 0 0" position="0 0.01 0"></a-torus>
-    <a-box color="#eeeeee" width="2.2" height="1.3" depth="0.08" position="0 0.65 -10" opacity="0.65"></a-box>
-    <a-box color="#eeeeee" width="2.2" height="1.3" depth="0.08" position="0 0.65 10" opacity="0.65"></a-box>
-    <a-cylinder color="#ffad00" height="0.8" radius="0.18" position="-4 0.4 -4"></a-cylinder>
-    <a-cylinder color="#ffad00" height="0.8" radius="0.18" position="4 0.4 4"></a-cylinder>
-    <a-sphere color="#00eedd" radius="0.22" position="-12 0.55 0" opacity="0.36"></a-sphere>
-    <a-sphere color="#00eedd" radius="0.22" position="12 0.55 0" opacity="0.36"></a-sphere>
-    <a-sphere color="#00eedd" radius="0.22" position="0 0.55 12" opacity="0.36"></a-sphere>
-    <a-sphere color="#00eedd" radius="0.22" position="0 0.55 -12" opacity="0.36"></a-sphere>
-
-    <!-- 4 buildings centrés, noms sportifs -->
-    <a-box color="#00eedd" width="2.7" height="4.3" depth="2.7" position="-2.8 2.15 -2.8" opacity="0.80" shadow="cast:true"></a-box>
-    <a-entity position="-2.8 4.7 -2.8">
-      <a-plane width="3.5" height="0.8" color="#111" opacity="0.94"></a-plane>
-      <a-text value="Football" width="3" align="center" color="#00eedd" position="0 0 0.01" anchor="center"></a-text>
-    </a-entity>
-    <a-box color="#ffad00" width="2.7" height="4.3" depth="2.7" position="2.8 2.15 -2.8" opacity="0.80" shadow="cast:true"></a-box>
-    <a-entity position="2.8 4.7 -2.8">
-      <a-plane width="3.5" height="0.8" color="#111" opacity="0.94"></a-plane>
-      <a-text value="Basketball" width="3" align="center" color="#ffad00" position="0 0 0.01" anchor="center"></a-text>
-    </a-entity>
-    <a-box color="#00bfff" width="2.7" height="4.3" depth="2.7" position="-2.8 2.15 2.8" opacity="0.80" shadow="cast:true"></a-box>
-    <a-entity position="-2.8 4.7 2.8">
-      <a-plane width="3.5" height="0.8" color="#111" opacity="0.94"></a-plane>
-      <a-text value="Handball" width="3" align="center" color="#00bfff" position="0 0 0.01" anchor="center"></a-text>
-    </a-entity>
-    <a-box color="#8fff8f" width="2.7" height="4.3" depth="2.7" position="2.8 2.15 2.8" opacity="0.80" shadow="cast:true"></a-box>
-    <a-entity position="2.8 4.7 2.8">
-      <a-plane width="3.5" height="0.8" color="#111" opacity="0.94"></a-plane>
-      <a-text value="Athlétisme" width="3" align="center" color="#39e06a" position="0 0 0.01" anchor="center"></a-text>
+    <!-- Caméra + déplacement multiplateforme -->
+    <a-entity id="rig" position="0 1.6 16">
+      <a-entity camera wasd-controls="acceleration: 18" look-controls="pointerLockEnabled: false" touch-controls></a-entity>
     </a-entity>
 
-    <!-- Panneau d'accueil face au joueur (billboard simple) -->
-    <a-entity id="accueil-panel"
-      position="0 2 -4"
-      rotation="0 0 0"
-      accueil-billboard>
-      <a-plane width="8" height="2.2" color="#001c23" opacity="0.97"
-               material="shader: flat; side: double; transparent: true; emissive: #00ffff; emissiveIntensity: 0.04"></a-plane>
-      <a-text value="Bienvenue au Lycée Louis de Cormontaigne\nSection Sportive"
-              width="7.5" align="center" color="#00ffff"
-              position="0 0.4 0.01" side="double" anchor="center"
-              font="mozillavr" shader="msdf"></a-text>
-      <a-text value="Avance avec le joystick, ZQSD ou tactile. Aucun lag !"
-              width="6.5" align="center" color="#fff"
-              position="0 -0.5 0.01" side="double" anchor="center"
-              font="mozillavr" shader="msdf"></a-text>
+    <!-- Panneau d'accueil flottant face à l'utilisateur -->
+    <a-entity id="welcome-panel" position="0 3 6">
+      <a-plane width="10" height="3.3" color="#001c23" opacity="0.92" material="shader: flat; side: double;"></a-plane>
+      <a-text value="Bienvenue dans la section sportive du\nLycée Louis de Cormontaigne"
+              width="9.5" align="center" color="#00ffff"
+              position="0 0.9 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"></a-text>
+      <a-text value="Explorez librement les pôles sportifs en VR, PC ou mobile !"
+              width="8.5" align="center" color="#fff"
+              position="0 -0.6 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"></a-text>
     </a-entity>
-    <script>
-      // Panneau accueil toujours devant la caméra
-      AFRAME.registerComponent('accueil-billboard', {
-        tick: function () {
-          var rig = document.querySelector('#rig');
-          var panel = this.el;
-          if (!rig) return;
-          var rigWorldPos = new THREE.Vector3();
-          var rigWorldQuat = new THREE.Quaternion();
-          rig.object3D.getWorldPosition(rigWorldPos);
-          rig.object3D.getWorldQuaternion(rigWorldQuat);
 
-          // Place le panneau devant la caméra, à 4m, hauteur 2m
-          var cameraDir = new THREE.Vector3(0, 0, -1).applyQuaternion(rigWorldQuat);
-          var newPos = rigWorldPos.clone().add(cameraDir.multiplyScalar(4));
-          newPos.y += 0.2; // hauteur confortable
-          panel.object3D.position.copy(newPos);
-
-          // Oriente le panneau vers la caméra
-          panel.object3D.lookAt(rigWorldPos.x, rigWorldPos.y + 1.2, rigWorldPos.z);
-        }
-      });
-    </script>
+    <!-- Décors sportifs supplémentaires : plots, sphères ambiance -->
+    <a-cylinder color="#ffad00" height="1.1" radius="0.22" position="4 0.55 5"></a-cylinder>
+    <a-cylinder color="#ffad00" height="1.1" radius="0.22" position="-4 0.55 -5"></a-cylinder>
+    <a-sphere color="#00eedd" radius="0.34" position="12 0.7 0" opacity="0.35"></a-sphere>
+    <a-sphere color="#00eedd" radius="0.34" position="-12 0.7 0" opacity="0.35"></a-sphere>
+    <a-sphere color="#00eedd" radius="0.34" position="0 0.7 12" opacity="0.35"></a-sphere>
+    <a-sphere color="#00eedd" radius="0.34" position="0 0.7 -12" opacity="0.35"></a-sphere>
   </a-scene>
 </body>
 </html>
