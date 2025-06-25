@@ -21,7 +21,6 @@
 <body>
 
 <div id="loading">Chargement de la ville numérique...</div>
-
 <div id="controls">
   <div>🎮 WASD - Se déplacer</div>
   <div>🖱️ Souris - Regarder autour</div>
@@ -29,27 +28,21 @@
 </div>
 
 <a-scene loading-screen="enabled: false">
-
   <a-sky color="#000011" material="shader: gradient; topColor: #000033; bottomColor: #000000"></a-sky>
-  
   <a-entity id="cameraRig" position="0 1.5 0">
     <a-entity camera look-controls wasd-controls="acceleration: 20; fly: true" position="0 0 0"></a-entity>
   </a-entity>
-
   <a-entity light="type: ambient; color: #002244; intensity: 0.4"></a-entity>
-  <a-entity light="type: directional; color: #00ffff; intensity: 0.8" position="20 30 20"></a-entity>
-  <a-entity light="type: point; color: #ff0066; intensity: 0.5" position="-20 15 -20"></a-entity>
-
+  <a-entity light="type: directional; color: #00ffff; intensity: 0.7" position="20 30 20"></a-entity>
   <a-plane position="0 0 0" rotation="-90 0 0" width="200" height="200" color="#000000"
            material="metalness: 0.9; roughness: 0.1; emissive: #001122; emissiveIntensity: 0.2"
            shadow="receive: true"></a-plane>
-
   <a-entity id="grid" generate-grid></a-entity>
-  <a-entity id="city" generate-city-optimized></a-entity>
-  <a-entity particle-system="preset: dust; particleCount: 80; color: #00ffff,#ff0066; size: 0.3; accelerationValue: 0 0.1 0"></a-entity>
+  <a-entity id="city" generate-city-epilepsy-safe></a-entity>
+  <a-entity particle-system="preset: dust; particleCount: 40; color: #00ffff,#ff0066; size: 0.3; accelerationValue: 0 0.1 0"></a-entity>
 
   <script>
-    // Grille cyberpunk sur le sol
+    // Grille au sol
     AFRAME.registerComponent('generate-grid', {
       init: function () {
         const container = this.el;
@@ -59,14 +52,14 @@
           const line = document.createElement('a-entity');
           line.setAttribute('geometry', { primitive: 'box', width: gridSize*2, height: 0.04, depth: 0.08 });
           line.setAttribute('position', `0 0.01 ${i}`);
-          line.setAttribute('material', { color: '#00ffff', emissive: '#00ffff', emissiveIntensity: 0.3, opacity: 0.3, transparent: true });
+          line.setAttribute('material', { color: '#00ffff', emissive: '#00ffff', emissiveIntensity: 0.3, opacity: 0.22, transparent: true });
           container.appendChild(line);
         }
         for (let i = -gridSize; i <= gridSize; i += spacing) {
           const line = document.createElement('a-entity');
           line.setAttribute('geometry', { primitive: 'box', width: 0.08, height: 0.04, depth: gridSize*2 });
           line.setAttribute('position', `${i} 0.01 0`);
-          line.setAttribute('material', { color: '#00ffff', emissive: '#00ffff', emissiveIntensity: 0.3, opacity: 0.3, transparent: true });
+          line.setAttribute('material', { color: '#00ffff', emissive: '#00ffff', emissiveIntensity: 0.3, opacity: 0.22, transparent: true });
           container.appendChild(line);
         }
       }
@@ -80,7 +73,7 @@
       }, 1200);
     });
 
-    // Matrix texture globale mutualisée (pour la perf VR/mobile)
+    // Texture Matrix mutualisée, adoucie
     let sharedMatrixTexture = null;
     (function createSharedMatrixTexture() {
       const canvas = document.createElement('canvas');
@@ -93,15 +86,15 @@
       let drops = Array(columns).fill( Math.floor(Math.random() * (canvas.height / fontSize)) );
 
       function animateMatrix() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.font = `${fontSize}px monospace`;
         for (let i = 0; i < columns; i++) {
           const char = chars[Math.floor(Math.random() * chars.length)];
-          ctx.fillStyle = `rgba(0,255,160,0.8)`;
+          ctx.fillStyle = `rgba(0,220,110,0.55)`;
           ctx.fillText(char, i * fontSize, drops[i] * fontSize);
-          if (drops[i] * fontSize > canvas.height && Math.random() > 0.96) drops[i] = 0;
-          drops[i] += 1 + Math.random();
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) drops[i] = 0;
+          drops[i] += 0.5 + Math.random()*0.8; // PLUS LENT
         }
         sharedMatrixTexture.needsUpdate = true;
         requestAnimationFrame(animateMatrix);
@@ -113,24 +106,25 @@
       animateMatrix();
     })();
 
-    // Ville optimisée VR/mobile (moins de buildings, tous utilisent la même texture Matrix)
-    AFRAME.registerComponent('generate-city-optimized', {
+    // Ville douce et variée
+    AFRAME.registerComponent('generate-city-epilepsy-safe', {
       init: function () {
         const container = this.el;
-        const spacing = 7;
-        const gridSize = 8; // moins de buildings pour mobile/VR
-        const emptyRadius = 5;
-
+        const spacing = 9;
+        const gridSize = 8;
+        const emptyRadius = 6;
         for (let x = -gridSize; x <= gridSize; x += 2) {
           for (let z = -gridSize; z <= gridSize; z += 2) {
+            // Zone centrale vide
             if (Math.abs(x) <= emptyRadius && Math.abs(z) <= emptyRadius) continue;
-            const width = 2 + Math.random() * 2.5;   // 2 à 4.5
-            const depth = 2 + Math.random() * 2.5;
-            const height = 18 + Math.random() * 80;  // 18 à 98
-            const posX = x * spacing;
-            const posZ = z * spacing;
-            const animationDuration = 6000 + Math.random()*3000;
-
+            // Dimensions variées
+            const width = 2.1 + Math.random() * 3.6;
+            const depth = 2.1 + Math.random() * 3.6;
+            const height = 18 + Math.random() * 50 + Math.random() * 70 * Math.random(); // Forte variété
+            // PETIT DECALAGE ALEATOIRE pour éviter le "mur"
+            const posX = x * spacing + (Math.random()-0.5)*2;
+            const posZ = z * spacing + (Math.random()-0.5)*2;
+            const animationDuration = 7000 + Math.random()*4000;
             this.createBuilding(container, posX, posZ, width, depth, height, animationDuration);
           }
         }
@@ -139,8 +133,7 @@
       createBuilding: function(container, x, z, width, depth, height, animationDuration) {
         const building = document.createElement('a-entity');
         building.setAttribute('position', `${x} 0 ${z}`);
-
-        // Structure principale
+        // Boîte principale
         const mainBox = document.createElement('a-box');
         mainBox.setAttribute('width', width.toFixed(2));
         mainBox.setAttribute('depth', depth.toFixed(2));
@@ -148,15 +141,14 @@
         mainBox.setAttribute('position', `0 ${height/2} 0`);
         mainBox.setAttribute('material', {
           color: '#00ffff',
-          opacity: 0.52,
+          opacity: 0.35,
           transparent: true,
           emissive: '#002244',
-          emissiveIntensity: 0.29,
-          metalness: 0.6,
+          emissiveIntensity: 0.21,
+          metalness: 0.5,
           roughness: 0.3
         });
         mainBox.setAttribute('shadow', 'cast: true; receive: true');
-        // Animation verticale synchronisée
         mainBox.setAttribute('animation__float', {
           property: 'position',
           to: `0 ${height/2} 0`,
@@ -167,8 +159,7 @@
           easing: 'easeInOutSine'
         });
         building.appendChild(mainBox);
-
-        // Façades Matrix (toutes utilisent la texture partagée)
+        // Façades Matrix mutualisées, adoucies
         const faces = [
           { pos: [0, height/2, depth/2 + 0.05], rot: [0, 0, 0], w: width, h: height },
           { pos: [0, height/2, -depth/2 - 0.05], rot: [0, 180, 0], w: width, h: height },
@@ -185,7 +176,7 @@
             shader: 'flat',
             side: 'double',
             transparent: true,
-            opacity: 0.87
+            opacity: 0.42
           });
           panel.setAttribute('animation__float', {
             property: 'position',
@@ -205,7 +196,6 @@
           });
           building.appendChild(panel);
         });
-
         container.appendChild(building);
       }
     });
