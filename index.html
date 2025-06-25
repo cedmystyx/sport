@@ -119,7 +119,6 @@
   <a-entity id="cameraRig" position="0 1.5 0">
     <a-entity id="mainCamera" camera look-controls wasd-controls="acceleration: 20; fly: true" position="0 0 0"></a-entity>
     <!-- Mains et contrôleurs VR avancés -->
-    <!-- Main gauche -->
     <a-entity id="leftHand"
         hand-controls="hand: left; handModelStyle: highPoly; color: #00ffff"
         laser-controls="hand: left"
@@ -132,18 +131,15 @@
         valve-index-controls="hand: left"
         universal-controls
         visible="false">
-      <!-- Anneau lumineux -->
       <a-entity geometry="primitive: torus; radius: 0.09; tube: 0.012"
                 material="color: #00ffff; emissive: #00ffff; emissiveIntensity: 0.8; transparent: true; opacity: 0.4"
                 position="0 0.02 0"
                 animation="property: rotation; to: 0 360 0; dur: 3000; loop: true; easing: linear"></a-entity>
-      <!-- Surlignage -->
       <a-entity geometry="primitive: sphere; radius: 0.045"
                 material="color: #fff; emissive: #00ffff; emissiveIntensity: 1.4; transparent: true; opacity: 0.13"
                 position="0 0.015 0"
                 animation="property: scale; dir: alternate; from: 1 1 1; to: 1.2 1.2 1.2; dur: 950; loop: true; easing: easeInOutSine"></a-entity>
     </a-entity>
-    <!-- Main droite -->
     <a-entity id="rightHand"
         hand-controls="hand: right; handModelStyle: highPoly; color: #ff0066"
         laser-controls="hand: right"
@@ -156,12 +152,10 @@
         valve-index-controls="hand: right"
         universal-controls
         visible="false">
-      <!-- Anneau lumineux -->
       <a-entity geometry="primitive: torus; radius: 0.09; tube: 0.012"
                 material="color: #ff0066; emissive: #ff0066; emissiveIntensity: 0.8; transparent: true; opacity: 0.4"
                 position="0 0.02 0"
                 animation="property: rotation; to: 360 0 0; dur: 3000; loop: true; easing: linear"></a-entity>
-      <!-- Surlignage -->
       <a-entity geometry="primitive: sphere; radius: 0.045"
                 material="color: #fff; emissive: #ff0066; emissiveIntensity: 1.4; transparent: true; opacity: 0.13"
                 position="0 0.015 0"
@@ -176,16 +170,13 @@
   <a-entity id="grid" generate-grid></a-entity>
   <a-entity id="city" generate-city-cormontaigne></a-entity>
   <a-entity particle-system="preset: dust; particleCount: 36; color: #00ffff,#ff0066; size: 0.36; accelerationValue: 0 0.10 0"></a-entity>
-  <!-- Effet d'animation du logo sportif flottant -->
   <a-entity position="0 8.3 -25" animation="property: position; dir: alternate; to: 0 8.9 -25; dur: 2200; loop: true; easing: easeInOutSine">
     <a-plane width="6" height="6" color="#000" opacity="0.77" material="shader: flat; side: double; transparent: true; emissive: #00ffff; emissiveIntensity: 0.12"></a-plane>
-    <!-- Logo sportif central dynamique -->
     <a-image src="https://upload.wikimedia.org/wikipedia/commons/7/70/Sport_basketball.svg"
       width="3.3" height="3.3" position="0 0 0.01" opacity="0.88" transparent="true"
       animation="property: rotation; to: 0 360 0; loop: true; dur: 10500; easing: linear">
     </a-image>
   </a-entity>
-  <!-- Panneau de bienvenue flottant en 3D -->
   <a-entity position="0 4.5 -25" rotation="0 0 0" animation="property: position; dir: alternate; to: 0 5.2 -25; dur: 1600; loop: true; easing: easeInOutSine">
     <a-plane width="24" height="6.8" color="#000" opacity="0.90" material="shader: flat; side: double; transparent: true; emissive: #00ffff; emissiveIntensity: 0.09"></a-plane>
     <a-text value="Bienvenue au Lycée Louis de Cormontaigne\nSection Sportive" width="22" align="center" color="#00ffff" position="0 1.2 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"
@@ -194,83 +185,8 @@
       animation="property: scale; dir: alternate; to: 1.04 1.04 1.04; dur: 1900; loop: true; easing: easeInOutSine"></a-text>
   </a-entity>
   <script>
-    // Grille cyberpunk au sol
-    AFRAME.registerComponent('generate-grid', {
-      init: function () {
-        const container = this.el;
-        const gridSize = 100, spacing = 10;
-        for (let i = -gridSize; i <= gridSize; i += spacing) {
-          const line = document.createElement('a-entity');
-          line.setAttribute('geometry', { primitive: 'box', width: gridSize*2, height: 0.04, depth: 0.08 });
-          line.setAttribute('position', `0 0.01 ${i}`);
-          line.setAttribute('material', { color: '#00ffff', emissive: '#00ffff', emissiveIntensity: 0.3, opacity: 0.22, transparent: true });
-          container.appendChild(line);
-        }
-        for (let i = -gridSize; i <= gridSize; i += spacing) {
-          const line = document.createElement('a-entity');
-          line.setAttribute('geometry', { primitive: 'box', width: 0.08, height: 0.04, depth: gridSize*2 });
-          line.setAttribute('position', `${i} 0.01 0`);
-          line.setAttribute('material', { color: '#00ffff', emissive: '#00ffff', emissiveIntensity: 0.3, opacity: 0.22, transparent: true });
-          container.appendChild(line);
-        }
-      }
-    });
-
-    // Gestion du loading
-    document.addEventListener('DOMContentLoaded', function() {
-      setTimeout(() => {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('controls').style.opacity = '1';
-      }, 1200);
-    });
-
-    // Reset camera position
-    function resetView() {
-      const rig = document.getElementById('cameraRig');
-      if (rig) rig.setAttribute('position', '0 1.5 0');
-      const cam = document.getElementById('mainCamera');
-      if (cam && cam.components['look-controls']) {
-        cam.components['look-controls'].yawObject.rotation.set(0, 0, 0);
-        cam.components['look-controls'].pitchObject.rotation.set(0, 0, 0);
-      }
-    }
-    window.resetView = resetView;
-
-    // Affichage dynamique des mains si détectées
-    AFRAME.registerComponent('show-hands-when-present', {
-      init: function () {
-        const left = document.getElementById('leftHand');
-        const right = document.getElementById('rightHand');
-        this.tick = function () {
-          if (left && left.components['hand-controls'] && left.components['hand-controls'].controllerPresent) {
-            left.setAttribute('visible', 'true');
-          } else if (left) {
-            left.setAttribute('visible', 'false');
-          }
-          if (right && right.components['hand-controls'] && right.components['hand-controls'].controllerPresent) {
-            right.setAttribute('visible', 'true');
-          } else if (right) {
-            right.setAttribute('visible', 'false');
-          }
-        };
-      }
-    });
-    document.querySelector('a-scene').setAttribute('show-hands-when-present', '');
-
-    // Optionnel : Effet haptique (vibration) au clic si supporté
-    document.addEventListener('triggerdown', function (e) {
-      if (e.detail && e.detail.target && e.detail.target.components['hand-controls']) {
-        try {
-          const gamepad = e.detail.target.components['hand-controls'].controller;
-          if (gamepad && gamepad.hapticActuators && gamepad.hapticActuators[0]) {
-            gamepad.hapticActuators[0].pulse(0.7, 100);
-          }
-        } catch (err) {}
-      }
-    });
-
-    // Texture Matrix mutualisée, descente sur 10 secondes (indépendant du processeur)
-    let sharedMatrixTexture = null;
+    // Texture Matrix mutualisée créée AVANT la ville
+    window.sharedMatrixTexture = null;
     (function createSharedMatrixTexture() {
       const canvas = document.createElement('canvas');
       canvas.width = 128;
@@ -282,10 +198,11 @@
       const rows = Math.floor(canvas.height / fontSize);
       const colOffsets = [];
       for (let i = 0; i < columns; i++) colOffsets.push(Math.random());
-      sharedMatrixTexture = new THREE.CanvasTexture(canvas);
+      let sharedMatrixTexture = new THREE.CanvasTexture(canvas);
       sharedMatrixTexture.wrapS = THREE.RepeatWrapping;
       sharedMatrixTexture.wrapT = THREE.RepeatWrapping;
       sharedMatrixTexture.repeat.set(1, 2);
+      window.sharedMatrixTexture = sharedMatrixTexture;
 
       function animateMatrix() {
         const now = performance.now();
@@ -311,6 +228,28 @@
       }
       animateMatrix();
     })();
+
+    // Grille cyberpunk au sol
+    AFRAME.registerComponent('generate-grid', {
+      init: function () {
+        const container = this.el;
+        const gridSize = 100, spacing = 10;
+        for (let i = -gridSize; i <= gridSize; i += spacing) {
+          const line = document.createElement('a-entity');
+          line.setAttribute('geometry', { primitive: 'box', width: gridSize*2, height: 0.04, depth: 0.08 });
+          line.setAttribute('position', `0 0.01 ${i}`);
+          line.setAttribute('material', { color: '#00ffff', emissive: '#00ffff', emissiveIntensity: 0.3, opacity: 0.22, transparent: true });
+          container.appendChild(line);
+        }
+        for (let i = -gridSize; i <= gridSize; i += spacing) {
+          const line = document.createElement('a-entity');
+          line.setAttribute('geometry', { primitive: 'box', width: 0.08, height: 0.04, depth: gridSize*2 });
+          line.setAttribute('position', `${i} 0.01 0`);
+          line.setAttribute('material', { color: '#00ffff', emissive: '#00ffff', emissiveIntensity: 0.3, opacity: 0.22, transparent: true });
+          container.appendChild(line);
+        }
+      }
+    });
 
     // Ville Cormontaigne : buildings sportifs et Matrix
     AFRAME.registerComponent('generate-city-cormontaigne', {
@@ -361,7 +300,7 @@
           easing: 'easeInOutSine'
         });
         building.appendChild(mainBox);
-        // Façades Matrix
+        // Façades Matrix animées
         const faces = [
           { pos: [0, height/2, depth/2 + 0.05], rot: [0, 0, 0], w: width, h: height },
           { pos: [0, height/2, -depth/2 - 0.05], rot: [0, 180, 0], w: width, h: height },
@@ -389,10 +328,11 @@
             loop: true,
             easing: 'easeInOutSine'
           });
+          // Ajout texture Matrix uniquement si prête
           panel.addEventListener('loaded', () => {
             const mesh = panel.getObject3D('mesh');
-            if (mesh && mesh.material) {
-              mesh.material.map = sharedMatrixTexture;
+            if (mesh && mesh.material && window.sharedMatrixTexture) {
+              mesh.material.map = window.sharedMatrixTexture;
               mesh.material.needsUpdate = true;
             }
           });
@@ -420,6 +360,59 @@
         container.appendChild(building);
       }
     });
+
+    // Mains VR dynamiques (voir plus haut)
+    AFRAME.registerComponent('show-hands-when-present', {
+      init: function () {
+        const left = document.getElementById('leftHand');
+        const right = document.getElementById('rightHand');
+        this.tick = function () {
+          if (left && left.components['hand-controls'] && left.components['hand-controls'].controllerPresent) {
+            left.setAttribute('visible', 'true');
+          } else if (left) {
+            left.setAttribute('visible', 'false');
+          }
+          if (right && right.components['hand-controls'] && right.components['hand-controls'].controllerPresent) {
+            right.setAttribute('visible', 'true');
+          } else if (right) {
+            right.setAttribute('visible', 'false');
+          }
+        };
+      }
+    });
+    document.querySelector('a-scene').setAttribute('show-hands-when-present', '');
+
+    // Optionnel : Effet haptique (vibration) au clic si supporté
+    document.addEventListener('triggerdown', function (e) {
+      if (e.detail && e.detail.target && e.detail.target.components['hand-controls']) {
+        try {
+          const gamepad = e.detail.target.components['hand-controls'].controller;
+          if (gamepad && gamepad.hapticActuators && gamepad.hapticActuators[0]) {
+            gamepad.hapticActuators[0].pulse(0.7, 100);
+          }
+        } catch (err) {}
+      }
+    });
+
+    // Gestion du loading
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('controls').style.opacity = '1';
+      }, 1200);
+    });
+
+    // Reset camera position
+    function resetView() {
+      const rig = document.getElementById('cameraRig');
+      if (rig) rig.setAttribute('position', '0 1.5 0');
+      const cam = document.getElementById('mainCamera');
+      if (cam && cam.components['look-controls']) {
+        cam.components['look-controls'].yawObject.rotation.set(0, 0, 0);
+        cam.components['look-controls'].pitchObject.rotation.set(0, 0, 0);
+      }
+    }
+    window.resetView = resetView;
 
     // Shader dégradé ciel
     AFRAME.registerShader('gradient', {
