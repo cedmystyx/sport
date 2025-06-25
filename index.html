@@ -41,7 +41,7 @@
 </head>
 <body>
 
-<div id="loading">Chargement de la ville numérique...</div>
+
 
 <div id="controls">
   <div>🎮 WASD - Se déplacer</div>
@@ -84,13 +84,27 @@
   <a-entity particle-system="preset: dust; particleCount: 200; color: #00ffff,#ff0066; size: 0.5"></a-entity>
 
   <script>
-    // Gestion du loading
-    document.addEventListener('DOMContentLoaded', function() {
-      setTimeout(() => {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('controls').style.opacity = '1';
-      }, 2000);
+    // Gestion du loading - correction immédiate
+    window.addEventListener('load', function() {
+      // Masquer immédiatement l'écran de chargement
+      const loadingScreen = document.getElementById('loading');
+      const controls = document.getElementById('controls');
+      
+      if (loadingScreen) {
+        loadingScreen.style.display = 'none';
+      }
+      if (controls) {
+        controls.style.opacity = '1';
+      }
     });
+
+    // Backup au cas où
+    setTimeout(() => {
+      const loadingScreen = document.getElementById('loading');
+      if (loadingScreen) {
+        loadingScreen.style.display = 'none';
+      }
+    }, 1000);
 
     AFRAME.registerComponent('generate-city', {
       init: function () {
