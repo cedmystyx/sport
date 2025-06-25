@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-environment-component@1.4.0/dist/aframe-environment-component.min.js"></script>
+  <!-- Inclure le composant aframe-extras pour le locomotion VR via le joystick -->
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.controls.min.js"></script>
   <style>
     body { margin: 0; overflow: hidden; background: black; font-family: Arial, sans-serif; }
     #loading {
@@ -70,16 +72,24 @@
     Souris : Regarder autour de soi<br>
     ZQSD / Flèches : Se déplacer<br>
     Espace : Monter &nbsp;&nbsp;|&nbsp;&nbsp; Ctrl : Descendre<br>
-    <span style="color:#ff0066">VR :</span> Utilise les contrôleurs pour voir tes mains et pointer/interagir !<br>
+    <span style="color:#ff0066">VR :</span> Utilise les contrôleurs pour voir tes mains et pointer/interagir.<br>
+    <span style="color:#ff0066">Joystick VR :</span> Avance/recule et tourne avec les joysticks des manettes !<br>
     <span style="color:#ff0066">Astuce :</span> Va vers les bâtiments interactifs pour découvrir des surprises sportives !
   </div>
 
   <a-scene loading-screen="enabled: false" vr-mode-ui="enabled: true">
     <!-- Environnement stylisé -->
     <a-entity environment="preset: starry; skyType: gradient; skyColor: #002244; horizonColor: #00ffff; lighting: distant; ground: hills; groundColor: #001c23; groundYScale: 2.4; groundTexture: none; dressing: trees; dressingAmount: 18; dressingColor: #00ffff; fog: 0.5;"></a-entity>
-    <!-- Caméra centrale immersive avec mains VR -->
+    <!-- Caméra centrale immersive avec mains VR et déplacement VR -->
     <a-entity id="cameraRig" position="0 1.6 0">
-      <a-entity camera look-controls wasd-controls="acceleration: 18; fly: true" position="0 0 0"></a-entity>
+      <a-entity id="player"
+        camera
+        look-controls
+        wasd-controls="acceleration: 18; fly: true"
+        universal-controls
+        movement-controls="fly: true; speed: 0.18; constrainToNavMesh: false"
+        position="0 0 0">
+      </a-entity>
       <!-- Mains VR (WebXR) -->
       <a-entity hand-controls="hand: left" id="leftHand"></a-entity>
       <a-entity hand-controls="hand: right" id="rightHand"></a-entity>
@@ -139,7 +149,7 @@
         }, 1200);
       });
 
-      // Texture Matrix mutualisée
+      // Texture Matrix mutualisée - version douce sans flash ni contraste violent
       let sharedMatrixTexture = null;
       (function createSharedMatrixTexture() {
         const canvas = document.createElement('canvas');
@@ -157,23 +167,29 @@
         sharedMatrixTexture.wrapT = THREE.RepeatWrapping;
         sharedMatrixTexture.repeat.set(1, 2);
 
+        // Animation douce, fade et lente, couleur pastel, pas de flash, pas de blanc pur
         function animateMatrix() {
           const now = performance.now();
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+          // Fond très foncé, léger "blur"
+          ctx.fillStyle = 'rgba(0, 30, 40, 0.11)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
           ctx.font = `${fontSize}px monospace`;
 
-          const T = 10000; // 10s
+          const T = 18000; // Plus lent : 18s
           const phase = (now % T) / T;
 
           for (let i = 0; i < columns; i++) {
             const colPhase = ((phase + colOffsets[i]) % 1);
             const y = colPhase * canvas.height;
-            ctx.fillStyle = `rgba(0,220,110,0.58)`;
+            // Couleur turquoise pastel très atténuée
+            ctx.fillStyle = `rgba(0,220,180,0.28)`;
             for (let step = 0; step < rows; step++) {
-              const char = chars[Math.floor(Math.random() * chars.length)];
-              let dropY = ((y + step * fontSize) % canvas.height);
-              ctx.fillText(char, i * fontSize, dropY);
+              // Les caractères changent rarement sur une colonne
+              if (Math.random() < 0.12) {
+                const char = chars[Math.floor(Math.random() * chars.length)];
+                let dropY = ((y + step * fontSize) % canvas.height);
+                ctx.fillText(char, i * fontSize, dropY);
+              }
             }
           }
           sharedMatrixTexture.needsUpdate = true;
