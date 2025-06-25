@@ -5,419 +5,82 @@
   <title>Lycée Louis de Cormontaigne – Section Sportive</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-environment-component@1.4.0/dist/aframe-environment-component.min.js"></script>
-  <!-- Inclure le composant aframe-extras pour le locomotion VR via le joystick -->
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.controls.min.js"></script>
   <style>
-    body { margin: 0; overflow: hidden; background: black; font-family: Arial, sans-serif; }
-    #loading {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #000; color: #00ffff; display: flex; justify-content: center; align-items: center;
-      z-index: 1000; font-size: 24px;
-    }
-    #controls, #header {
-      position: fixed; left: 20px; z-index: 100;
-    }
-    #controls {
-      top: 88px; color: #00ffff;
-      background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px; font-size: 14px;
-    }
+    body { margin: 0; overflow: hidden; background: #111; font-family: Arial, sans-serif; }
     #header {
-      top: 20px;
-      color: #fff;
-      background: rgba(0,0,0,0.92);
-      padding: 18px 30px;
-      border-radius: 10px;
-      font-size: 2.1rem;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      letter-spacing: 1.5px;
-      box-shadow: 0 3px 24px #00ffff44;
-      border-left: 5px solid #00ffff;
-      text-shadow: 0 2px 20px #00ffff88;
+      position: fixed; left: 20px; top: 20px; z-index: 100;
+      color: #fff; background: rgba(0,0,0,0.92);
+      padding: 18px 30px; border-radius: 10px;
+      font-size: 2.1rem; font-family: 'Segoe UI', Arial, sans-serif;
+      letter-spacing: 1.5px; box-shadow: 0 3px 24px #00ffff44;
+      border-left: 5px solid #00ffff; text-shadow: 0 2px 20px #00ffff88;
       max-width: 90vw;
     }
     #subtitle {
-      display: block;
-      font-size: 1.1rem;
-      color: #00ffff;
-      margin-top: 8px;
-      letter-spacing: 1px;
-      font-weight: bold;
+      display: block; font-size: 1.1rem; color: #00ffff;
+      margin-top: 8px; letter-spacing: 1px; font-weight: bold;
       text-shadow: 0 1px 8px #00ffff77;
     }
     #welcome {
-      display: block;
-      font-size: 1.15rem;
-      color: #fff;
-      margin-top: 14px;
-      letter-spacing: 0.5px;
-      font-weight: 400;
+      display: block; font-size: 1.15rem; color: #fff;
+      margin-top: 14px; letter-spacing: 0.5px; font-weight: 400;
       text-shadow: 0 1px 10px #00224488;
     }
     @media (max-width: 600px) {
       #header { font-size: 1.2rem; padding:10px 8px; }
-      #controls { font-size: 12px; }
     }
   </style>
 </head>
 <body>
-  <div id="loading">Chargement de la visite virtuelle…</div>
   <div id="header">
     Lycée Louis de Cormontaigne – Section Sportive
     <span id="subtitle">Découvre notre univers sportif en immersion VR</span>
-    <span id="welcome">Explore la ville numérique et la passion du sport ! <br>Utilise ta souris, ton clavier, ou ton casque VR pour naviguer.</span>
-  </div>
-  <div id="controls" style="opacity:0">
-    <b>Contrôles :</b><br>
-    Souris : Regarder autour de soi<br>
-    ZQSD / Flèches : Se déplacer<br>
-    Espace : Monter &nbsp;&nbsp;|&nbsp;&nbsp; Ctrl : Descendre<br>
-    <span style="color:#ff0066">VR :</span> Utilise les contrôleurs pour voir tes mains et pointer/interagir.<br>
-    <span style="color:#ff0066">Joystick VR :</span> Avance/recule et tourne avec les joysticks des manettes !<br>
-    <span style="color:#ff0066">Astuce :</span> Va vers les bâtiments interactifs pour découvrir des surprises sportives !
+    <span id="welcome">Navigue en VR ou avec ton clavier.<br>
+      <span style="color:#00ffff">Sécurité visuelle maximale, compatible mobile/casque/PC.</span>
+    </span>
   </div>
 
-  <a-scene loading-screen="enabled: false" vr-mode-ui="enabled: true">
-    <!-- Environnement stylisé -->
-    <a-entity environment="preset: starry; skyType: gradient; skyColor: #002244; horizonColor: #00ffff; lighting: distant; ground: hills; groundColor: #001c23; groundYScale: 2.4; groundTexture: none; dressing: trees; dressingAmount: 18; dressingColor: #00ffff; fog: 0.5;"></a-entity>
-    <!-- Caméra centrale immersive avec mains VR et déplacement VR -->
-    <a-entity id="cameraRig" position="0 1.6 0">
+  <a-scene vr-mode-ui="enabled: true" background="color: #1a232b">
+    <!-- Ciel doux et statique -->
+    <a-sky color="#1a232b"></a-sky>
+
+    <!-- Caméra + mains + déplacement joystick -->
+    <a-entity id="rig" position="0 1.6 6">
       <a-entity id="player"
         camera
         look-controls
-        wasd-controls="acceleration: 18; fly: true"
+        wasd-controls="acceleration: 12; fly: false"
         universal-controls
-        movement-controls="fly: true; speed: 0.18; constrainToNavMesh: false"
+        movement-controls="fly: false; speed: 0.13; constrainToNavMesh: false"
         position="0 0 0">
       </a-entity>
-      <!-- Mains VR (WebXR) -->
-      <a-entity hand-controls="hand: left" id="leftHand"></a-entity>
-      <a-entity hand-controls="hand: right" id="rightHand"></a-entity>
+      <!-- Mains VR -->
+      <a-entity hand-controls="hand: left" id="main-gauche"></a-entity>
+      <a-entity hand-controls="hand: right" id="main-droite"></a-entity>
     </a-entity>
-    <!-- Lumière douce -->
-    <a-entity light="type: ambient; color: #00ffff; intensity: 0.45"></a-entity>
-    <a-entity light="type: directional; color: #00ffff; intensity: 0.7" position="18 32 12"></a-entity>
-    <!-- Sol stylisé -->
-    <a-plane position="0 0 0" rotation="-90 0 0" width="200" height="200" color="#000000"
-             material="metalness: 0.7; roughness: 0.2; emissive: #00ffff; emissiveIntensity: 0.1"
-             shadow="receive: true"></a-plane>
-    <!-- Grille lumineuse -->
-    <a-entity id="grid" generate-grid></a-entity>
-    <!-- Ville et bâtiments sportifs -->
-    <a-entity id="city" generate-city-cormontaigne></a-entity>
-    <!-- Particules ambiance -->
-    <a-entity particle-system="preset: snow; particleCount: 60; color: #00ffff,#ff0066; size: 0.26; accelerationValue: 0 0.08 0"></a-entity>
-    <!-- Panneau de bienvenue 3D flottant, un peu plus haut -->
-    <a-entity position="0 8 -22" rotation="0 0 0">
-      <a-plane width="26" height="7.2" color="#001c23" opacity="0.92"
-               material="shader: flat; side: double; transparent: true; emissive: #00ffff; emissiveIntensity: 0.09"></a-plane>
+
+    <!-- Lumière douce unique -->
+    <a-entity light="type: ambient; color: #428fa7; intensity: 0.6"></a-entity>
+
+    <!-- Sol doux -->
+    <a-plane color="#202c38" width="60" height="60" rotation="-90 0 0" position="0 0 0" material="roughness:0.8; metalness:0.0;"></a-plane>
+
+    <!-- Quelques bâtiments simples, peu nombreux -->
+    <a-box color="#00eedd" width="3" height="7" depth="3" position="-8 3.5 -10" opacity="0.45" shadow="cast:true"></a-box>
+    <a-box color="#ffad00" width="5" height="4" depth="5" position="8 2 -13" opacity="0.45" shadow="cast:true"></a-box>
+    <a-box color="#00bfff" width="4" height="6" depth="4" position="0 3 -18" opacity="0.45" shadow="cast:true"></a-box>
+    <!-- Panneau d'accueil 3D, haut, sans animation -->
+    <a-entity position="0 8 -10" rotation="0 0 0">
+      <a-plane width="17" height="4" color="#001c23" opacity="0.97"
+               material="shader: flat; side: double; transparent: true; emissive: #00ffff; emissiveIntensity: 0.04"></a-plane>
       <a-text value="Bienvenue au Lycée Louis de Cormontaigne\nSection Sportive"
-              width="24" align="center" color="#00ffff"
-              position="0 1.8 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"></a-text>
-      <a-text value="Clique ou approche-toi des bâtiments pour découvrir nos activités !"
-              width="23" align="center" color="#fff"
-              position="0 -1.3 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"></a-text>
+              width="15" align="center" color="#00ffff"
+              position="0 0.7 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"></a-text>
+      <a-text value="Avance avec le joystick, explore sans danger !"
+              width="14" align="center" color="#fff"
+              position="0 -0.8 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"></a-text>
     </a-entity>
-    <script>
-      // Grille lumineuse au sol
-      AFRAME.registerComponent('generate-grid', {
-        init: function () {
-          const container = this.el;
-          const gridSize = 100, spacing = 10;
-          for (let i = -gridSize; i <= gridSize; i += spacing) {
-            const line = document.createElement('a-entity');
-            line.setAttribute('geometry', { primitive: 'box', width: gridSize*2, height: 0.04, depth: 0.08 });
-            line.setAttribute('position', `0 0.01 ${i}`);
-            line.setAttribute('material', { color: '#00ffff', emissive: '#00ffff', emissiveIntensity: 0.28, opacity: 0.21, transparent: true });
-            container.appendChild(line);
-          }
-          for (let i = -gridSize; i <= gridSize; i += spacing) {
-            const line = document.createElement('a-entity');
-            line.setAttribute('geometry', { primitive: 'box', width: 0.08, height: 0.04, depth: gridSize*2 });
-            line.setAttribute('position', `${i} 0.01 0`);
-            line.setAttribute('material', { color: '#00ffff', emissive: '#00ffff', emissiveIntensity: 0.28, opacity: 0.21, transparent: true });
-            container.appendChild(line);
-          }
-        }
-      });
-
-      // Gestion du loading
-      document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(() => {
-          document.getElementById('loading').style.display = 'none';
-          document.getElementById('controls').style.opacity = '1';
-        }, 1200);
-      });
-
-      // Texture Matrix mutualisée - version douce sans flash ni contraste violent
-      let sharedMatrixTexture = null;
-      (function createSharedMatrixTexture() {
-        const canvas = document.createElement('canvas');
-        canvas.width = 128;
-        canvas.height = 256;
-        const ctx = canvas.getContext('2d');
-        const chars = "アカサタナハマヤラワ0123456789ABCDEF";
-        const fontSize = 8;
-        const columns = Math.floor(canvas.width / fontSize);
-        const rows = Math.floor(canvas.height / fontSize);
-        const colOffsets = [];
-        for (let i = 0; i < columns; i++) colOffsets.push(Math.random());
-        sharedMatrixTexture = new THREE.CanvasTexture(canvas);
-        sharedMatrixTexture.wrapS = THREE.RepeatWrapping;
-        sharedMatrixTexture.wrapT = THREE.RepeatWrapping;
-        sharedMatrixTexture.repeat.set(1, 2);
-
-        // Animation douce, fade et lente, couleur pastel, pas de flash, pas de blanc pur
-        function animateMatrix() {
-          const now = performance.now();
-          // Fond très foncé, léger "blur"
-          ctx.fillStyle = 'rgba(0, 30, 40, 0.11)';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.font = `${fontSize}px monospace`;
-
-          const T = 18000; // Plus lent : 18s
-          const phase = (now % T) / T;
-
-          for (let i = 0; i < columns; i++) {
-            const colPhase = ((phase + colOffsets[i]) % 1);
-            const y = colPhase * canvas.height;
-            // Couleur turquoise pastel très atténuée
-            ctx.fillStyle = `rgba(0,220,180,0.28)`;
-            for (let step = 0; step < rows; step++) {
-              // Les caractères changent rarement sur une colonne
-              if (Math.random() < 0.12) {
-                const char = chars[Math.floor(Math.random() * chars.length)];
-                let dropY = ((y + step * fontSize) % canvas.height);
-                ctx.fillText(char, i * fontSize, dropY);
-              }
-            }
-          }
-          sharedMatrixTexture.needsUpdate = true;
-          requestAnimationFrame(animateMatrix);
-        }
-        animateMatrix();
-      })();
-
-      // Ville Cormontaigne : buildings sportifs et Matrix
-      AFRAME.registerComponent('generate-city-cormontaigne', {
-        init: function () {
-          const container = this.el;
-          const spacing = 10;
-          const gridSize = 8;
-          const emptyRadius = 6;
-          // Ajout de bâtiments thématiques interactifs
-          const sports = [
-            { name: "Basket", color: "#ffad00", icon: "🏀" },
-            { name: "Natation", color: "#00bfff", icon: "🏊" },
-            { name: "Escalade", color: "#ff0066", icon: "🧗" },
-            { name: "Athlétisme", color: "#00ff99", icon: "🏃" },
-            { name: "Gym", color: "#ff00ff", icon: "🤸" },
-            { name: "Rugby", color: "#ca5500", icon: "🏉" }
-          ];
-          let sportIdx = 0;
-          for (let x = -gridSize; x <= gridSize; x += 2) {
-            for (let z = -gridSize; z <= gridSize; z += 2) {
-              if (Math.abs(x) <= emptyRadius && Math.abs(z) <= emptyRadius) continue;
-              // Every 4th building: thématique sport
-              if ((sportIdx < sports.length) && (Math.abs(x+z) % 7 === 0)) {
-                this.createSportBuilding(container, x*spacing, z*spacing, sports[sportIdx]);
-                sportIdx++;
-                continue;
-              }
-              // Autres bâtiments
-              const width = 2.4 + Math.random() * 4.2;
-              const depth = 2.3 + Math.random() * 3.8;
-              const height = 18 + Math.random() * 68 + Math.random()*24*Math.random();
-              const posX = x * spacing + (Math.random()-0.5)*2.3;
-              const posZ = z * spacing + (Math.random()-0.5)*2.3;
-              const animationDuration = 7000 + Math.random()*4000;
-              this.createBuilding(container, posX, posZ, width, depth, height, animationDuration);
-            }
-          }
-        },
-        createBuilding: function(container, x, z, width, depth, height, animationDuration) {
-          const building = document.createElement('a-entity');
-          building.setAttribute('position', `${x} 0 ${z}`);
-          const mainBox = document.createElement('a-box');
-          mainBox.setAttribute('width', width.toFixed(2));
-          mainBox.setAttribute('depth', depth.toFixed(2));
-          mainBox.setAttribute('height', height.toFixed(2));
-          mainBox.setAttribute('position', `0 ${height/2} 0`);
-          mainBox.setAttribute('material', {
-            color: '#00ffff',
-            opacity: 0.33,
-            transparent: true,
-            emissive: '#002244',
-            emissiveIntensity: 0.16,
-            metalness: 0.47,
-            roughness: 0.3
-          });
-          mainBox.setAttribute('shadow', 'cast: true; receive: true');
-          mainBox.setAttribute('animation__float', {
-            property: 'position',
-            to: `0 ${height/2} 0`,
-            from: `0 ${height/2 - 2} 0`,
-            dir: 'alternate',
-            dur: animationDuration,
-            loop: true,
-            easing: 'easeInOutSine'
-          });
-          building.appendChild(mainBox);
-          // Façades Matrix
-          const faces = [
-            { pos: [0, height/2, depth/2 + 0.05], rot: [0, 0, 0], w: width, h: height },
-            { pos: [0, height/2, -depth/2 - 0.05], rot: [0, 180, 0], w: width, h: height },
-            { pos: [width/2 + 0.05, height/2, 0], rot: [0, -90, 0], w: depth, h: height },
-            { pos: [-width/2 - 0.05, height/2, 0], rot: [0, 90, 0], w: depth, h: height }
-          ];
-          faces.forEach(face => {
-            const panel = document.createElement('a-plane');
-            panel.setAttribute('width', face.w.toFixed(2));
-            panel.setAttribute('height', face.h.toFixed(2));
-            panel.setAttribute('position', `${face.pos[0]} ${face.pos[1]} ${face.pos[2]}`);
-            panel.setAttribute('rotation', `${face.rot[0]} ${face.rot[1]} ${face.rot[2]}`);
-            panel.setAttribute('material', {
-              shader: 'flat',
-              side: 'double',
-              transparent: true,
-              opacity: 0.32
-            });
-            panel.setAttribute('animation__float', {
-              property: 'position',
-              to: `${face.pos[0]} ${face.pos[1]} ${face.pos[2]}`,
-              from: `${face.pos[0]} ${face.pos[1] - 2} ${face.pos[2]}`,
-              dir: 'alternate',
-              dur: animationDuration,
-              loop: true,
-              easing: 'easeInOutSine'
-            });
-            panel.addEventListener('loaded', () => {
-              const mesh = panel.getObject3D('mesh');
-              if (mesh && mesh.material) {
-                mesh.material.map = sharedMatrixTexture;
-                mesh.material.needsUpdate = true;
-              }
-            });
-            building.appendChild(panel);
-          });
-          // Antenne
-          if (Math.random() > 0.85) {
-            const antenna = document.createElement('a-cylinder');
-            antenna.setAttribute('radius', '0.13');
-            antenna.setAttribute('height', '3.3');
-            antenna.setAttribute('position', `0 ${height + 1.6} 0`);
-            antenna.setAttribute('color', '#ff0066');
-            antenna.setAttribute('material', 'emissive: #ff0066; emissiveIntensity: 0.36');
-            antenna.setAttribute('animation__float', {
-              property: 'position',
-              to: `0 ${height + 1.6} 0`,
-              from: `0 ${height + 1.6 - 2} 0`,
-              dir: 'alternate',
-              dur: animationDuration,
-              loop: true,
-              easing: 'easeInOutSine'
-            });
-            building.appendChild(antenna);
-          }
-          container.appendChild(building);
-        },
-        // Bâtiments thématiques interactifs :
-        createSportBuilding: function(container, x, z, sport) {
-          const height = 18 + Math.random() * 22;
-          const width = 7 + Math.random()*1.7;
-          const depth = 7 + Math.random()*1.7;
-          const building = document.createElement('a-entity');
-          building.setAttribute('position', `${x} 0 ${z}`);
-          // Volume principal
-          const mainBox = document.createElement('a-box');
-          mainBox.setAttribute('width', width.toFixed(2));
-          mainBox.setAttribute('depth', depth.toFixed(2));
-          mainBox.setAttribute('height', height.toFixed(2));
-          mainBox.setAttribute('position', `0 ${height/2} 0`);
-          mainBox.setAttribute('material', {
-            color: sport.color,
-            opacity: 0.55,
-            transparent: true,
-            emissive: sport.color,
-            emissiveIntensity: 0.18,
-            metalness: 0.5,
-            roughness: 0.23
-          });
-          mainBox.setAttribute('shadow', 'cast: true; receive: true');
-          building.appendChild(mainBox);
-          // Panneau sport interactif
-          const panel = document.createElement('a-plane');
-          panel.setAttribute('width', (width-1.2).toFixed(2));
-          panel.setAttribute('height', '3.2');
-          panel.setAttribute('position', `0 ${(height/2)+2.1} ${(depth/2)+0.06}`);
-          panel.setAttribute('rotation', `0 0 0`);
-          panel.setAttribute('material', {
-            color: '#001c23',
-            shader: 'flat',
-            opacity: 0.88,
-            transparent: true,
-            side: 'double',
-            emissive: sport.color,
-            emissiveIntensity: 0.19
-          });
-          // Titre et icône
-          const atext = document.createElement('a-text');
-          atext.setAttribute('value', `${sport.icon} ${sport.name} ${sport.icon}`);
-          atext.setAttribute('align', 'center');
-          atext.setAttribute('color', sport.color);
-          atext.setAttribute('width', (width-2).toFixed(2));
-          atext.setAttribute('position', `0 0.45 0.01`);
-          atext.setAttribute('side', 'double');
-          atext.setAttribute('font', 'mozillavr');
-          atext.setAttribute('shader', 'msdf');
-          atext.setAttribute('anchor', 'center');
-          panel.appendChild(atext);
-          // Description
-          const adesc = document.createElement('a-text');
-          adesc.setAttribute('value', `Découvre les activités, clubs et exploits en ${sport.name} !\nClique ici pour en savoir plus.`);
-          adesc.setAttribute('align', 'center');
-          adesc.setAttribute('color', '#fff');
-          adesc.setAttribute('width', (width-2).toFixed(2));
-          adesc.setAttribute('position', `0 -0.9 0.01`);
-          adesc.setAttribute('side', 'double');
-          adesc.setAttribute('font', 'mozillavr');
-          adesc.setAttribute('shader', 'msdf');
-          adesc.setAttribute('anchor', 'center');
-          panel.appendChild(adesc);
-          // Interactivité : Highlight + alert
-          panel.setAttribute('class', 'clickable');
-          panel.addEventListener('mouseenter', () => {
-            panel.setAttribute('material', 'color', sport.color);
-            panel.setAttribute('material', 'emissiveIntensity', 0.36);
-          });
-          panel.addEventListener('mouseleave', () => {
-            panel.setAttribute('material', 'color', '#001c23');
-            panel.setAttribute('material', 'emissiveIntensity', 0.19);
-          });
-          panel.addEventListener('click', () => {
-            alert(`Découvre la section ${sport.name} du lycée ! Contacte le professeur référent ou visite notre site web pour plus d'infos.`);
-          });
-          building.appendChild(panel);
-          container.appendChild(building);
-        }
-      });
-
-      // Performances
-      const scene = document.querySelector('a-scene');
-      scene.addEventListener('loaded', function () {
-        if(scene.renderer) {
-          scene.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-          scene.renderer.shadowMap.enabled = true;
-          scene.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        }
-      });
-      window.addEventListener('resize', function() {
-        const scene = document.querySelector('a-scene');
-        if (scene.renderer) {
-          scene.renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-      });
-    </script>
   </a-scene>
 </body>
 </html>
