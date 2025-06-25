@@ -152,40 +152,47 @@
         const container = this.el;
         const spacing = 12;
         const gridSize = 8;
-        let textureCache = null;
+        let matrixTextures = []; // Tableau pour stocker les textures animées
 
-        // Génération de la texture Matrix ORIGINALE mais synchronisée
-        const createMatrixTexture = () => {
-          if (textureCache) return textureCache;
-          
+        // Génération synchronisée des textures Matrix avec les bâtiments
+        const createSyncedMatrixTexture = (buildingIndex, animationDuration) => {
           const canvas = document.createElement('canvas');
           canvas.width = 128;
           canvas.height = 256;
           const ctx = canvas.getContext('2d');
           
-          // Caractères Matrix ORIGINAUX
+          // Caractères Matrix
           const chars = 'アカサタナハマヤラワ0123456789ABCDEF';
           const fontSize = 8;
           const columns = Math.floor(canvas.width / fontSize);
           const drops = Array(columns).fill(1);
 
           let frameCount = 0;
+          const texture = new THREE.CanvasTexture(canvas);
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.RepeatWrapping;
+          texture.repeat.set(1, 2);
           
+          // Animation synchronisée avec le cycle du bâtiment
           const animateMatrix = () => {
-            // Vitesse synchronisée avec les bâtiments (même durée 6-10 secondes)
-            const syncPhase = Math.sin(Date.now() * 0.001) * 0.5 + 0.5; // 0-1
-            const skipFrames = syncPhase > 0.5 ? 2 : 4; // Plus rapide quand les bâtiments montent
+            // Synchronisation avec l'animation des bâtiments (6-10 secondes)
+            const syncedSpeed = Math.floor(animationDuration / 1000); // Adapte la vitesse à la durée d'animation
             
-            if (frameCount % skipFrames !== 0) {
+            if (frameCount % syncedSpeed !== 0) {
               frameCount++;
               requestAnimationFrame(animateMatrix);
               return;
             }
 
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            // Effet de fade synchronisé avec l'enfoncement du bâtiment
+            const fadeIntensity = 0.05 + (Math.sin(Date.now() / animationDuration * Math.PI * 2) * 0.05);
+            ctx.fillStyle = `rgba(0, 0, 0, ${fadeIntensity})`;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            ctx.fillStyle = '#00ffff';
+            // Couleur qui change selon le cycle d'animation
+            const phase = (Date.now() / animationDuration) % 1;
+            const intensity = 0.7 + Math.sin(phase * Math.PI * 2) * 0.3;
+            ctx.fillStyle = `rgba(0, ${Math.floor(255 * intensity)}, ${Math.floor(255 * intensity)}, 1)`;
             ctx.font = `${fontSize}px monospace`;
             
             for (let i = 0; i < drops.length; i++) {
@@ -193,35 +200,31 @@
               const x = i * fontSize;
               const y = drops[i] * fontSize;
               
+              // Intensité des caractères synchronisée
+              const charIntensity = intensity + (Math.random() - 0.5) * 0.2;
+              ctx.fillStyle = `rgba(0, ${Math.floor(255 * charIntensity)}, ${Math.floor(255 * charIntensity)}, ${0.8 + Math.random() * 0.2})`;
               ctx.fillText(char, x, y);
               
-              // Vitesse de reset synchronisée
-              const resetChance = syncPhase > 0.7 ? 0.98 : 0.975;
-              if (y > canvas.height && Math.random() > resetChance) {
+              // Vitesse de chute synchronisée avec l'animation du bâtiment
+              if (y > canvas.height && Math.random() > (0.975 + phase * 0.02)) {
                 drops[i] = 0;
               }
-              drops[i]++;
+              drops[i] += (1 + phase * 0.5); // Vitesse variable selon le cycle
             }
             
-            textureCache.needsUpdate = true;
+            texture.needsUpdate = true;
             frameCount++;
             requestAnimationFrame(animateMatrix);
           };
 
-          textureCache = new THREE.CanvasTexture(canvas);
-          textureCache.wrapS = THREE.RepeatWrapping;
-          textureCache.wrapT = THREE.RepeatWrapping;
-          textureCache.repeat.set(1, 2);
-          
           animateMatrix();
-          return textureCache;
+          return texture;
         };
 
-        const matrixTexture = createMatrixTexture();
-
-        // Génération des bâtiments fixés au sol
+        // Génération des bâtiments avec textures synchronisées
         const buildingCount = gridSize * gridSize - 8;
         let loadedBuildings = 0;
+        let buildingIndex = 0;
 
         for (let x = -gridSize; x <= gridSize; x += 2) {
           for (let z = -gridSize; z <= gridSize; z += 2) {
@@ -232,16 +235,24 @@
             const posZ = z * spacing;
             const height = Math.random() * 25 + 8;
             const buildingId = `building_${x}_${z}`;
+            
+            // Durée d'animation unique pour chaque bâtiment
+            const animationDuration = 6000 + Math.random() * 4000;
+            
+            // Création de la texture synchronisée pour ce bâtiment
+            const syncedTexture = createSyncedMatrixTexture(buildingIndex, animationDuration);
+            matrixTextures.push(syncedTexture);
 
-            this.createBuilding(container, posX, posZ, height, matrixTexture, buildingId);
+            this.createBuilding(container, posX, posZ, height, syncedTexture, buildingId, animationDuration);
             loadedBuildings++;
+            buildingIndex++;
           }
         }
 
-        console.log(`Ville générée: ${loadedBuildings} bâtiments`);
+        console.log(`Ville générée: ${loadedBuildings} bâtiments avec textures synchronisées`);
       },
 
-      createBuilding: function(container, x, z, height, texture, id) {
+      createBuilding: function(container, x, z, height, texture, id, animationDuration) {
         const building = document.createElement('a-entity');
         building.setAttribute('id', id);
         building.setAttribute('position', `${x} 0 ${z}`);
@@ -263,35 +274,20 @@
         });
         mainBox.setAttribute('shadow', 'cast: true; receive: true');
 
-        // Animation verticale qui s'enfonce dans le sol et ressort
-        const animationDuration = 6000 + Math.random() * 4000;
-        const animationDelay = Math.random() * 2000; // Délai aléatoire pour désynchroniser légèrement
+        // Animation verticale synchronisée
         mainBox.setAttribute('animation__float', {
           property: 'position',
           to: `0 ${height/2} 0`,        // Position normale (base au sol)
           from: `0 ${height/2 - 3} 0`,  // Position enfoncée dans le sol
           dir: 'alternate',
           dur: animationDuration,
-          delay: animationDelay,
-          loop: true,
-          easing: 'easeInOutSine'
-        });
-
-        // Animation de pulsation de l'émission lumineuse synchronisée
-        mainBox.setAttribute('animation__pulse', {
-          property: 'material.emissiveIntensity',
-          to: '0.8',
-          from: '0.1',
-          dir: 'alternate',
-          dur: animationDuration,
-          delay: animationDelay,
           loop: true,
           easing: 'easeInOutSine'
         });
 
         building.appendChild(mainBox);
 
-        // Panneaux Matrix sur les faces - FIXES également
+        // Panneaux Matrix sur les faces - SYNCHRONISÉS avec le bâtiment
         const faces = [
           { pos: [0, height/2, 2.6], rot: [0, 0, 0] },
           { pos: [0, height/2, -2.6], rot: [0, 180, 0] },
@@ -312,34 +308,22 @@
             opacity: 0.8
           });
 
-          // Animation synchronisée avec le bâtiment principal
+          // Animation parfaitement synchronisée avec le bâtiment principal
           panel.setAttribute('animation__float', {
             property: 'position',
             to: `${face.pos[0]} ${face.pos[1]} ${face.pos[2]}`,        // Position normale
             from: `${face.pos[0]} ${face.pos[1] - 3} ${face.pos[2]}`,  // Position enfoncée
             dir: 'alternate',
-            dur: animationDuration,
-            delay: animationDelay,
+            dur: animationDuration, // MÊME durée que le bâtiment
             loop: true,
             easing: 'easeInOutSine'
           });
 
-          // Animation de l'opacité des panneaux Matrix synchronisée
-          panel.setAttribute('animation__matrix', {
-            property: 'material.opacity',
-            to: '0.9',
-            from: '0.3',
-            dir: 'alternate',
-            dur: animationDuration,
-            delay: animationDelay,
-            loop: true,
-            easing: 'easeInOutSine'
-          });
-
+          // Application de la texture synchronisée
           panel.addEventListener('loaded', () => {
             const mesh = panel.getObject3D('mesh');
             if (mesh && mesh.material) {
-              mesh.material.map = texture;
+              mesh.material.map = texture; // Texture avec animation synchronisée
               mesh.material.needsUpdate = true;
             }
           });
@@ -347,7 +331,7 @@
           building.appendChild(panel);
         });
 
-        // Antenne sur le toit - FIXE aussi
+        // Antenne sur le toit - SYNCHRONISÉE aussi
         if (Math.random() > 0.7) {
           const antenna = document.createElement('a-cylinder');
           antenna.setAttribute('radius', '0.1');
@@ -356,35 +340,13 @@
           antenna.setAttribute('color', '#ff0066');
           antenna.setAttribute('material', 'emissive: #ff0066; emissiveIntensity: 0.5');
           
-          // Animation de l'antenne synchronisée
+          // Animation de l'antenne parfaitement synchronisée
           antenna.setAttribute('animation__float', {
             property: 'position',
             to: `0 ${height + 1.5} 0`,        // Position normale
             from: `0 ${height + 1.5 - 3} 0`,  // Position enfoncée
             dir: 'alternate',
-            dur: animationDuration,
-            delay: animationDelay,
-            loop: true,
-            easing: 'easeInOutSine'
-          });
-
-          // Animation de rotation ET pulsation synchronisées
-          antenna.setAttribute('animation__spin', {
-            property: 'rotation',
-            to: '0 360 0',
-            dur: animationDuration * 2,
-            delay: animationDelay,
-            loop: true,
-            easing: 'linear'
-          });
-
-          antenna.setAttribute('animation__glow', {
-            property: 'material.emissiveIntensity',
-            to: '1.0',
-            from: '0.2',
-            dir: 'alternate',
-            dur: animationDuration,
-            delay: animationDelay,
+            dur: animationDuration, // MÊME durée que le bâtiment
             loop: true,
             easing: 'easeInOutSine'
           });
