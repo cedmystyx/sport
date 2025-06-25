@@ -59,13 +59,30 @@
   </style>
 </head>
 <body>
+  <div id="loading">Chargement de la visite virtuelle…</div>
+  <div id="header">
+    Lycée Louis de Cormontaigne – Section Sportive
+    <span id="subtitle">Découvre notre univers sportif en immersion VR</span>
+    <span id="welcome">Explore la ville numérique et la passion du sport ! <br>Utilise ta souris, ton clavier, ou ton casque VR pour naviguer.</span>
+  </div>
+  <div id="controls" style="opacity:0">
+    <b>Contrôles :</b><br>
+    Souris : Regarder autour de soi<br>
+    ZQSD / Flèches : Se déplacer<br>
+    Espace : Monter &nbsp;&nbsp;|&nbsp;&nbsp; Ctrl : Descendre<br>
+    <span style="color:#ff0066">VR :</span> Utilise les contrôleurs pour voir tes mains et pointer/interagir !<br>
+    <span style="color:#ff0066">Astuce :</span> Va vers les bâtiments interactifs pour découvrir des surprises sportives !
+  </div>
 
-  <a-scene loading-screen="enabled: false">
-    <!-- Ciel et environnement réaliste stylisé lycée -->
+  <a-scene loading-screen="enabled: false" vr-mode-ui="enabled: true">
+    <!-- Environnement stylisé -->
     <a-entity environment="preset: starry; skyType: gradient; skyColor: #002244; horizonColor: #00ffff; lighting: distant; ground: hills; groundColor: #001c23; groundYScale: 2.4; groundTexture: none; dressing: trees; dressingAmount: 18; dressingColor: #00ffff; fog: 0.5;"></a-entity>
-    <!-- Caméra centrale immersive -->
+    <!-- Caméra centrale immersive avec mains VR -->
     <a-entity id="cameraRig" position="0 1.6 0">
       <a-entity camera look-controls wasd-controls="acceleration: 18; fly: true" position="0 0 0"></a-entity>
+      <!-- Mains VR (WebXR) -->
+      <a-entity hand-controls="hand: left" id="leftHand"></a-entity>
+      <a-entity hand-controls="hand: right" id="rightHand"></a-entity>
     </a-entity>
     <!-- Lumière douce -->
     <a-entity light="type: ambient; color: #00ffff; intensity: 0.45"></a-entity>
@@ -80,8 +97,8 @@
     <a-entity id="city" generate-city-cormontaigne></a-entity>
     <!-- Particules ambiance -->
     <a-entity particle-system="preset: snow; particleCount: 60; color: #00ffff,#ff0066; size: 0.26; accelerationValue: 0 0.08 0"></a-entity>
-    <!-- Panneau de bienvenue 3D flottant devant la caméra -->
-    <a-entity position="0 6 -22" rotation="0 0 0">
+    <!-- Panneau de bienvenue 3D flottant, un peu plus haut -->
+    <a-entity position="0 8 -22" rotation="0 0 0">
       <a-plane width="26" height="7.2" color="#001c23" opacity="0.92"
                material="shader: flat; side: double; transparent: true; emissive: #00ffff; emissiveIntensity: 0.09"></a-plane>
       <a-text value="Bienvenue au Lycée Louis de Cormontaigne\nSection Sportive"
@@ -90,8 +107,6 @@
       <a-text value="Clique ou approche-toi des bâtiments pour découvrir nos activités !"
               width="23" align="center" color="#fff"
               position="0 -1.3 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"></a-text>
-      <!-- Logo Lycée (optionnel) -->
-      <!-- <a-image src="logo.png" position="0 2.7 0.02" width="2.8" height="2.8"></a-image> -->
     </a-entity>
     <script>
       // Grille lumineuse au sol
