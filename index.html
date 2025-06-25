@@ -5,140 +5,304 @@
   <title>Big Data Digital City</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <style> body { margin: 0; overflow: hidden; background: black; } </style>
+  <style> 
+    body { 
+      margin: 0; 
+      overflow: hidden; 
+      background: black; 
+      font-family: Arial, sans-serif;
+    } 
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      color: #00ffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      font-size: 24px;
+    }
+    #controls {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      color: #00ffff;
+      background: rgba(0,0,0,0.7);
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 100;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
 
-<!-- Son futuriste -->
-<audio autoplay loop>
-  <source src="https://cdn.pixabay.com/audio/2023/03/07/audio_eb50a9b332.mp3" type="audio/mpeg">
-</audio>
+<div id="loading">Chargement de la ville numérique...</div>
 
-<a-scene background="color: #000">
+<div id="controls">
+  <div>🎮 WASD - Se déplacer</div>
+  <div>🖱️ Souris - Regarder autour</div>
+  <div>📱 Mobile - Touch controls</div>
+</div>
 
-  <!-- Caméra centrale immersive -->
-  <a-entity position="0 5 0">
-    <a-entity camera look-controls wasd-controls="enabled: false"></a-entity>
+<a-scene background="color: #000" loading-screen="enabled: false">
+
+  <!-- Caméra avec contrôles activés -->
+  <a-entity id="cameraRig" position="0 8 15">
+    <a-entity 
+      camera 
+      look-controls="pointerLockEnabled: true" 
+      wasd-controls="acceleration: 20; fly: true"
+      position="0 0 0">
+    </a-entity>
   </a-entity>
 
-  <!-- Lumières -->
-  <a-entity light="type: ambient; color: #88ffff; intensity: 0.5"></a-entity>
-  <a-entity light="type: directional; color: #00ffff; intensity: 0.7" position="10 20 10"></a-entity>
+  <!-- Lumières optimisées -->
+  <a-entity light="type: ambient; color: #002244; intensity: 0.3"></a-entity>
+  <a-entity light="type: directional; color: #00ffff; intensity: 0.8" position="20 30 20"></a-entity>
+  <a-entity light="type: point; color: #ff0066; intensity: 0.5" position="-20 15 -20"></a-entity>
+
+  <!-- Sol réfléchissant -->
+  <a-plane 
+    position="0 -0.5 0" 
+    rotation="-90 0 0" 
+    width="200" 
+    height="200" 
+    color="#001122" 
+    material="metalness: 0.8; roughness: 0.2; opacity: 0.3"
+    shadow="receive: true">
+  </a-plane>
 
   <!-- Ville dynamique -->
   <a-entity id="city" generate-city></a-entity>
 
+  <!-- Particules flottantes -->
+  <a-entity particle-system="preset: dust; particleCount: 200; color: #00ffff,#ff0066; size: 0.5"></a-entity>
+
   <script>
+    // Gestion du loading
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('controls').style.opacity = '1';
+      }, 2000);
+    });
+
     AFRAME.registerComponent('generate-city', {
       init: function () {
         const container = this.el;
-        const spacing = 10; // espacement augmenté
-        const size = 60;
+        const spacing = 12;
+        const gridSize = 8; // Réduit pour de meilleures performances
+        let textureCache = null;
 
-        // Génération de la texture "Matrix"
-        const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 512;
-        const ctx = canvas.getContext('2d');
-        const chars = 'アカサタナ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const columns = canvas.width / 10;
-        const drops = Array(Math.floor(columns)).fill(1);
+        // Génération optimisée de la texture Matrix
+        const createMatrixTexture = () => {
+          if (textureCache) return textureCache;
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = 128; // Réduit pour les performances
+          canvas.height = 256;
+          const ctx = canvas.getContext('2d');
+          
+          // Caractères Matrix
+          const chars = 'アカサタナハマヤラワ0123456789ABCDEF';
+          const fontSize = 8;
+          const columns = Math.floor(canvas.width / fontSize);
+          const drops = Array(columns).fill(1);
 
-        function drawMatrix() {
-          ctx.fillStyle = 'rgba(0,0,0,0.05)';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.fillStyle = '#00ffff';
-          ctx.font = '10px monospace';
-          for (let i = 0; i < drops.length; i++) {
-            const text = chars[Math.floor(Math.random() * chars.length)];
-            ctx.fillText(text, i * 10, drops[i] * 10);
-            drops[i]++;
-            if (drops[i] * 10 > canvas.height || Math.random() > 0.975) drops[i] = 0;
+          let frameCount = 0;
+          
+          const animateMatrix = () => {
+            // Animation plus lente pour de meilleures performances
+            if (frameCount % 3 !== 0) {
+              frameCount++;
+              requestAnimationFrame(animateMatrix);
+              return;
+            }
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#00ffff';
+            ctx.font = `${fontSize}px monospace`;
+            
+            for (let i = 0; i < drops.length; i++) {
+              const char = chars[Math.floor(Math.random() * chars.length)];
+              const x = i * fontSize;
+              const y = drops[i] * fontSize;
+              
+              ctx.fillText(char, x, y);
+              
+              if (y > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+              }
+              drops[i]++;
+            }
+            
+            textureCache.needsUpdate = true;
+            frameCount++;
+            requestAnimationFrame(animateMatrix);
+          };
+
+          textureCache = new THREE.CanvasTexture(canvas);
+          textureCache.wrapS = THREE.RepeatWrapping;
+          textureCache.wrapT = THREE.RepeatWrapping;
+          textureCache.repeat.set(1, 2);
+          
+          animateMatrix();
+          return textureCache;
+        };
+
+        const matrixTexture = createMatrixTexture();
+
+        // Génération des bâtiments avec de meilleures performances
+        const buildingCount = gridSize * gridSize - 8; // Moins de bâtiments
+        let loadedBuildings = 0;
+
+        for (let x = -gridSize; x <= gridSize; x += 2) {
+          for (let z = -gridSize; z <= gridSize; z += 2) {
+            // Création d'espaces vides pour la navigation
+            if (Math.abs(x) <= 2 && Math.abs(z) <= 2) continue;
+            
+            const posX = x * spacing;
+            const posZ = z * spacing;
+            const height = Math.random() * 25 + 8;
+            const buildingId = `building_${x}_${z}`;
+
+            this.createBuilding(container, posX, posZ, height, matrixTexture, buildingId);
+            loadedBuildings++;
           }
         }
 
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(1, 1);
-        setInterval(() => {
-          drawMatrix();
-          texture.needsUpdate = true;
-        }, 60); // plus lent
+        console.log(`Ville générée: ${loadedBuildings} bâtiments`);
+      },
 
-        // Génération des bâtiments
-        for (let x = -size; x <= size; x += spacing) {
-          for (let z = -size; z <= size; z += spacing) {
-            // Vide en croix
-            if (Math.abs(x) < spacing * 2 && z === 0) continue;
-            if (Math.abs(z) < spacing * 2 && x === 0) continue;
+      createBuilding: function(container, x, z, height, texture, id) {
+        const building = document.createElement('a-entity');
+        building.setAttribute('id', id);
+        building.setAttribute('position', `${x} 0 ${z}`);
 
-            const h = Math.random() * 20 + 10;
+        // Structure principale plus détaillée
+        const mainBox = document.createElement('a-box');
+        mainBox.setAttribute('width', '5');
+        mainBox.setAttribute('depth', '5');
+        mainBox.setAttribute('height', height.toFixed(2));
+        mainBox.setAttribute('position', `0 ${height/2} 0`);
+        mainBox.setAttribute('material', {
+          color: '#00ffff',
+          opacity: 0.6,
+          transparent: true,
+          emissive: '#002244',
+          emissiveIntensity: 0.3,
+          metalness: 0.7,
+          roughness: 0.3
+        });
+        mainBox.setAttribute('shadow', 'cast: true; receive: true');
 
-            const building = document.createElement('a-entity');
-            building.setAttribute('position', `${x} 0 ${z}`);
+        // Animation verticale optimisée
+        const animationDuration = 6000 + Math.random() * 4000;
+        mainBox.setAttribute('animation__float', {
+          property: 'position',
+          to: `0 ${height * 0.8} 0`,
+          from: `0 ${height * 0.2} 0`,
+          dir: 'alternate',
+          dur: animationDuration,
+          loop: true,
+          easing: 'easeInOutSine'
+        });
 
-            // Bâtiment principal
-            const box = document.createElement('a-box');
-            box.setAttribute('width', '4');
-            box.setAttribute('depth', '4');
-            box.setAttribute('height', h.toFixed(2));
-            box.setAttribute('color', '#00ffff');
-            box.setAttribute('opacity', '0.4');
-            box.setAttribute('material', 'emissive: #00ffff; emissiveIntensity: 0.5;');
-            box.setAttribute('position', `0 ${h / 2} 0`);
+        building.appendChild(mainBox);
 
-            // Animation montée-descente infinie
-            box.setAttribute('animation__move', {
-              property: 'position',
-              dir: 'alternate',
-              dur: 8000,
-              loop: true,
-              easing: 'easeInOutSine',
-              to: `0 ${h} 0`,
-              from: `0 0 0`
-            });
+        // Panneaux Matrix sur les faces
+        const faces = [
+          { pos: [0, height/2, 2.6], rot: [0, 0, 0] },
+          { pos: [0, height/2, -2.6], rot: [0, 180, 0] },
+          { pos: [2.6, height/2, 0], rot: [0, -90, 0] },
+          { pos: [-2.6, height/2, 0], rot: [0, 90, 0] }
+        ];
 
-            building.appendChild(box);
+        faces.forEach((face, index) => {
+          const panel = document.createElement('a-plane');
+          panel.setAttribute('width', '5');
+          panel.setAttribute('height', height.toFixed(2));
+          panel.setAttribute('position', `${face.pos[0]} ${face.pos[1]} ${face.pos[2]}`);
+          panel.setAttribute('rotation', `${face.rot[0]} ${face.rot[1]} ${face.rot[2]}`);
+          panel.setAttribute('material', {
+            shader: 'flat',
+            side: 'double',
+            transparent: true,
+            opacity: 0.8
+          });
 
-            // Faces binaires
-            const faces = [
-              { pos: `0 ${h / 2} 2.01`, rot: '0 0 0' },
-              { pos: `0 ${h / 2} -2.01`, rot: '0 180 0' },
-              { pos: `2.01 ${h / 2} 0`, rot: '0 -90 0' },
-              { pos: `-2.01 ${h / 2} 0`, rot: '0 90 0' }
-            ];
+          // Animation synchronisée
+          panel.setAttribute('animation__float', {
+            property: 'position',
+            to: `${face.pos[0]} ${height * 0.8} ${face.pos[2]}`,
+            from: `${face.pos[0]} ${height * 0.2} ${face.pos[2]}`,
+            dir: 'alternate',
+            dur: animationDuration,
+            loop: true,
+            easing: 'easeInOutSine'
+          });
 
-            faces.forEach(face => {
-              const panel = document.createElement('a-plane');
-              panel.setAttribute('position', face.pos);
-              panel.setAttribute('rotation', face.rot);
-              panel.setAttribute('width', '4');
-              panel.setAttribute('height', h.toFixed(2));
-              panel.setAttribute('material', 'shader: flat; side: double;');
-              panel.addEventListener('loaded', () => {
-                const mesh = panel.getObject3D('mesh');
-                mesh.material.map = texture;
-                mesh.material.needsUpdate = true;
-              });
+          panel.addEventListener('loaded', () => {
+            const mesh = panel.getObject3D('mesh');
+            if (mesh && mesh.material) {
+              mesh.material.map = texture;
+              mesh.material.needsUpdate = true;
+            }
+          });
 
-              // Animation synchronisée avec le cube
-              panel.setAttribute('animation__move', {
-                property: 'position',
-                dir: 'alternate',
-                dur: 8000,
-                loop: true,
-                easing: 'easeInOutSine',
-                to: `${face.pos.split(' ')[0]} ${parseFloat(face.pos.split(' ')[1]) + (h / 2)} ${face.pos.split(' ')[2]}`,
-                from: `${face.pos}`
-              });
+          building.appendChild(panel);
+        });
 
-              building.appendChild(panel);
-            });
+        // Antenne sur le toit
+        if (Math.random() > 0.7) {
+          const antenna = document.createElement('a-cylinder');
+          antenna.setAttribute('radius', '0.1');
+          antenna.setAttribute('height', '3');
+          antenna.setAttribute('position', `0 ${height + 1.5} 0`);
+          antenna.setAttribute('color', '#ff0066');
+          antenna.setAttribute('material', 'emissive: #ff0066; emissiveIntensity: 0.5');
+          
+          // Animation de l'antenne
+          antenna.setAttribute('animation__float', {
+            property: 'position',
+            to: `0 ${height * 0.8 + 1.5} 0`,
+            from: `0 ${height * 0.2 + 1.5} 0`,
+            dir: 'alternate',
+            dur: animationDuration,
+            loop: true,
+            easing: 'easeInOutSine'
+          });
 
-            container.appendChild(building);
-          }
+          building.appendChild(antenna);
         }
+
+        container.appendChild(building);
+      }
+    });
+
+    // Gestion des performances
+    const scene = document.querySelector('a-scene');
+    scene.addEventListener('loaded', function () {
+      console.log('Scène 3D chargée avec succès!');
+      
+      // Optimisation du rendu
+      scene.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      scene.renderer.shadowMap.enabled = true;
+      scene.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    });
+
+    // Gestion responsive
+    window.addEventListener('resize', function() {
+      const scene = document.querySelector('a-scene');
+      if (scene.renderer) {
+        scene.renderer.setSize(window.innerWidth, window.innerHeight);
       }
     });
   </script>
