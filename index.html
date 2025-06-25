@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Big Data Digital City</title>
+  <title>Lycée Louis de Cormontaigne – Section Sportive</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <style>
@@ -12,23 +12,69 @@
       background: #000; color: #00ffff; display: flex; justify-content: center; align-items: center;
       z-index: 1000; font-size: 24px;
     }
+    #controls, #header {
+      position: fixed; left: 20px; z-index: 100;
+    }
     #controls {
-      position: fixed; top: 20px; left: 20px; color: #00ffff;
-      background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px; z-index: 100; font-size: 14px;
+      top: 88px; color: #00ffff;
+      background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px; font-size: 14px;
+    }
+    #header {
+      top: 20px;
+      color: #fff;
+      background: rgba(0,0,0,0.92);
+      padding: 18px 30px;
+      border-radius: 10px;
+      font-size: 2.1rem;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      letter-spacing: 1.5px;
+      box-shadow: 0 3px 24px #00ffff44;
+      border-left: 5px solid #00ffff;
+      text-shadow: 0 2px 20px #00ffff88;
+      max-width: 90vw;
+    }
+    #subtitle {
+      display: block;
+      font-size: 1.1rem;
+      color: #00ffff;
+      margin-top: 8px;
+      letter-spacing: 1px;
+      font-weight: bold;
+      text-shadow: 0 1px 8px #00ffff77;
+    }
+    #welcome {
+      display: block;
+      font-size: 1.15rem;
+      color: #fff;
+      margin-top: 14px;
+      letter-spacing: 0.5px;
+      font-weight: 400;
+      text-shadow: 0 1px 10px #00224488;
+    }
+    @media (max-width: 600px) {
+      #header { font-size: 1.2rem; padding:10px 8px; }
+      #controls { font-size: 12px; }
     }
   </style>
 </head>
 <body>
 
-<div id="loading">Chargement de la ville numérique...</div>
+<div id="loading">Chargement de l'accueil du Lycée...</div>
+<div id="header">
+  Lycée Louis de Cormontaigne
+  <span id="subtitle">Section Sportive</span>
+  <span id="welcome">Bienvenue sur l’espace numérique de la section sportive&nbsp;!<br>
+  Découvrez notre univers, nos valeurs et plongez dans la ville digitale de Cormontaigne.</span>
+</div>
 <div id="controls">
-  <div>🎮 WASD - Se déplacer</div>
-  <div>🖱️ Souris - Regarder autour</div>
-  <div>📱 Mobile/VR - Touch ou regard</div>
+  <div>🎮 WASD – Se déplacer</div>
+  <div>🖱️ Souris – Regarder autour</div>
+  <div>📱 Mobile/VR – Touch ou regard</div>
 </div>
 
 <a-scene loading-screen="enabled: false">
   <a-sky color="#000011" material="shader: gradient; topColor: #000033; bottomColor: #000000"></a-sky>
+  <!-- Caméra au centre, bien dégagée -->
   <a-entity id="cameraRig" position="0 1.5 0">
     <a-entity camera look-controls wasd-controls="acceleration: 20; fly: true" position="0 0 0"></a-entity>
   </a-entity>
@@ -38,16 +84,20 @@
            material="metalness: 0.9; roughness: 0.1; emissive: #001122; emissiveIntensity: 0.2"
            shadow="receive: true"></a-plane>
   <a-entity id="grid" generate-grid></a-entity>
-  <a-entity id="city" generate-city-epilepsy-safe></a-entity>
-  <a-entity particle-system="preset: dust; particleCount: 40; color: #00ffff,#ff0066; size: 0.3; accelerationValue: 0 0.1 0"></a-entity>
-
+  <a-entity id="city" generate-city-cormontaigne></a-entity>
+  <a-entity particle-system="preset: dust; particleCount: 28; color: #00ffff,#ff0066; size: 0.3; accelerationValue: 0 0.1 0"></a-entity>
+  <!-- Panneau de bienvenue flottant en 3D -->
+  <a-entity position="0 7 -25" rotation="0 0 0">
+    <a-plane width="24" height="6.8" color="#000" opacity="0.89" material="shader: flat; side: double; transparent: true; emissive: #00ffff; emissiveIntensity: 0.08"></a-plane>
+    <a-text value="Bienvenue au Lycée Louis de Cormontaigne\nSection Sportive" width="22" align="center" color="#00ffff" position="0 1.2 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"></a-text>
+    <a-text value="Explore la ville numérique et la passion du sport !" width="21" align="center" color="#fff" position="0 -1.2 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"></a-text>
+  </a-entity>
   <script>
-    // Grille au sol
+    // Grille cyberpunk au sol
     AFRAME.registerComponent('generate-grid', {
       init: function () {
         const container = this.el;
-        const gridSize = 100;
-        const spacing = 10;
+        const gridSize = 100, spacing = 10;
         for (let i = -gridSize; i <= gridSize; i += spacing) {
           const line = document.createElement('a-entity');
           line.setAttribute('geometry', { primitive: 'box', width: gridSize*2, height: 0.04, depth: 0.08 });
@@ -65,7 +115,7 @@
       }
     });
 
-    // Loading
+    // Gestion du loading
     document.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => {
         document.getElementById('loading').style.display = 'none';
@@ -73,7 +123,7 @@
       }, 1200);
     });
 
-    // Texture Matrix mutualisée, adoucie
+    // Texture Matrix mutualisée, douce
     let sharedMatrixTexture = null;
     (function createSharedMatrixTexture() {
       const canvas = document.createElement('canvas');
@@ -84,17 +134,16 @@
       const fontSize = 8;
       const columns = Math.floor(canvas.width / fontSize);
       let drops = Array(columns).fill( Math.floor(Math.random() * (canvas.height / fontSize)) );
-
       function animateMatrix() {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.font = `${fontSize}px monospace`;
         for (let i = 0; i < columns; i++) {
           const char = chars[Math.floor(Math.random() * chars.length)];
-          ctx.fillStyle = `rgba(0,220,110,0.55)`;
+          ctx.fillStyle = `rgba(0,220,110,0.58)`;
           ctx.fillText(char, i * fontSize, drops[i] * fontSize);
           if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) drops[i] = 0;
-          drops[i] += 0.5 + Math.random()*0.8; // PLUS LENT
+          drops[i] += 0.55 + Math.random()*0.7;
         }
         sharedMatrixTexture.needsUpdate = true;
         requestAnimationFrame(animateMatrix);
@@ -106,30 +155,29 @@
       animateMatrix();
     })();
 
-    // Ville douce et variée
-    AFRAME.registerComponent('generate-city-epilepsy-safe', {
+    // Ville Cormontaigne : buildings sportifs et Matrix
+    AFRAME.registerComponent('generate-city-cormontaigne', {
       init: function () {
         const container = this.el;
-        const spacing = 9;
+        const spacing = 10;
         const gridSize = 8;
         const emptyRadius = 6;
         for (let x = -gridSize; x <= gridSize; x += 2) {
           for (let z = -gridSize; z <= gridSize; z += 2) {
-            // Zone centrale vide
+            // Zone centrale vide pour l'accueil
             if (Math.abs(x) <= emptyRadius && Math.abs(z) <= emptyRadius) continue;
-            // Dimensions variées
-            const width = 2.1 + Math.random() * 3.6;
-            const depth = 2.1 + Math.random() * 3.6;
-            const height = 18 + Math.random() * 50 + Math.random() * 70 * Math.random(); // Forte variété
-            // PETIT DECALAGE ALEATOIRE pour éviter le "mur"
-            const posX = x * spacing + (Math.random()-0.5)*2;
-            const posZ = z * spacing + (Math.random()-0.5)*2;
+            // Dimensions variées pour l'effet "ville"
+            const width = 2.4 + Math.random() * 4.2;
+            const depth = 2.3 + Math.random() * 3.8;
+            const height = 22 + Math.random() * 64 + Math.random()*24*Math.random();
+            // Décalage léger pour un effet ville réaliste
+            const posX = x * spacing + (Math.random()-0.5)*2.3;
+            const posZ = z * spacing + (Math.random()-0.5)*2.3;
             const animationDuration = 7000 + Math.random()*4000;
             this.createBuilding(container, posX, posZ, width, depth, height, animationDuration);
           }
         }
       },
-
       createBuilding: function(container, x, z, width, depth, height, animationDuration) {
         const building = document.createElement('a-entity');
         building.setAttribute('position', `${x} 0 ${z}`);
@@ -141,11 +189,11 @@
         mainBox.setAttribute('position', `0 ${height/2} 0`);
         mainBox.setAttribute('material', {
           color: '#00ffff',
-          opacity: 0.35,
+          opacity: 0.33,
           transparent: true,
           emissive: '#002244',
-          emissiveIntensity: 0.21,
-          metalness: 0.5,
+          emissiveIntensity: 0.16,
+          metalness: 0.47,
           roughness: 0.3
         });
         mainBox.setAttribute('shadow', 'cast: true; receive: true');
@@ -159,7 +207,7 @@
           easing: 'easeInOutSine'
         });
         building.appendChild(mainBox);
-        // Façades Matrix mutualisées, adoucies
+        // Façades Matrix
         const faces = [
           { pos: [0, height/2, depth/2 + 0.05], rot: [0, 0, 0], w: width, h: height },
           { pos: [0, height/2, -depth/2 - 0.05], rot: [0, 180, 0], w: width, h: height },
@@ -176,7 +224,7 @@
             shader: 'flat',
             side: 'double',
             transparent: true,
-            opacity: 0.42
+            opacity: 0.36
           });
           panel.setAttribute('animation__float', {
             property: 'position',
@@ -196,6 +244,25 @@
           });
           building.appendChild(panel);
         });
+        // Antenne sur le toit (rare, clin d'œil sport)
+        if (Math.random() > 0.8) {
+          const antenna = document.createElement('a-cylinder');
+          antenna.setAttribute('radius', '0.13');
+          antenna.setAttribute('height', '3.5');
+          antenna.setAttribute('position', `0 ${height + 1.8} 0`);
+          antenna.setAttribute('color', '#ff0066');
+          antenna.setAttribute('material', 'emissive: #ff0066; emissiveIntensity: 0.4');
+          antenna.setAttribute('animation__float', {
+            property: 'position',
+            to: `0 ${height + 1.8} 0`,
+            from: `0 ${height + 1.8 - 2} 0`,
+            dir: 'alternate',
+            dur: animationDuration,
+            loop: true,
+            easing: 'easeInOutSine'
+          });
+          building.appendChild(antenna);
+        }
         container.appendChild(building);
       }
     });
