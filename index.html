@@ -5,37 +5,16 @@
   <title>Big Data Digital City</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <style> 
-    body { 
-      margin: 0; 
-      overflow: hidden; 
-      background: black; 
-      font-family: Arial, sans-serif;
-    } 
+  <style>
+    body { margin: 0; overflow: hidden; background: black; font-family: Arial, sans-serif; }
     #loading {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      color: #00ffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      font-size: 24px;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #000; color: #00ffff; display: flex; justify-content: center; align-items: center;
+      z-index: 1000; font-size: 24px;
     }
     #controls {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      color: #00ffff;
-      background: rgba(0,0,0,0.7);
-      padding: 10px;
-      border-radius: 5px;
-      z-index: 100;
-      font-size: 14px;
+      position: fixed; top: 20px; left: 20px; color: #00ffff;
+      background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px; z-index: 100; font-size: 14px;
     }
   </style>
 </head>
@@ -51,42 +30,42 @@
 
 <a-scene loading-screen="enabled: false">
 
-  <!-- Skybox cyberpunk avec dégradé -->
+  <!-- Skybox -->
   <a-sky color="#000011" material="shader: gradient; topColor: #000033; bottomColor: #000000"></a-sky>
   
-  <!-- Caméra très basse -->
-  <a-entity id="cameraRig" position="0 1.5 15">
-    <a-entity 
-      camera 
-      look-controls="pointerLockEnabled: true" 
+  <!-- Caméra bien dégagée au centre -->
+  <a-entity id="cameraRig" position="0 1.5 0">
+    <a-entity
+      camera
+      look-controls="pointerLockEnabled: true"
       wasd-controls="acceleration: 20; fly: true"
       position="0 0 0">
     </a-entity>
   </a-entity>
 
-  <!-- Lumières optimisées -->
+  <!-- Lumières -->
   <a-entity light="type: ambient; color: #002244; intensity: 0.4"></a-entity>
   <a-entity light="type: directional; color: #00ffff; intensity: 0.8" position="20 30 20"></a-entity>
   <a-entity light="type: point; color: #ff0066; intensity: 0.5" position="-20 15 -20"></a-entity>
 
-  <!-- Sol noir avec effet cyberpunk -->
-  <a-plane 
-    position="0 0 0" 
-    rotation="-90 0 0" 
-    width="300" 
-    height="300" 
-    color="#000000" 
+  <!-- Sol -->
+  <a-plane
+    position="0 0 0"
+    rotation="-90 0 0"
+    width="300"
+    height="300"
+    color="#000000"
     material="metalness: 0.9; roughness: 0.1; emissive: #001122; emissiveIntensity: 0.2"
     shadow="receive: true">
   </a-plane>
 
-  <!-- Grille cyberpunk sur le sol -->
+  <!-- Grille -->
   <a-entity id="grid" generate-grid></a-entity>
 
-  <!-- Ville dynamique, densité extrême -->
+  <!-- Ville -->
   <a-entity id="city" generate-city></a-entity>
 
-  <!-- Particules flottantes -->
+  <!-- Particules -->
   <a-entity particle-system="preset: dust; particleCount: 150; color: #00ffff,#ff0066; size: 0.3; accelerationValue: 0 0.1 0"></a-entity>
 
   <script>
@@ -98,38 +77,16 @@
         const spacing = 10;
         for (let i = -gridSize; i <= gridSize; i += spacing) {
           const line = document.createElement('a-entity');
-          line.setAttribute('geometry', {
-            primitive: 'box',
-            width: gridSize * 2,
-            height: 0.05,
-            depth: 0.1
-          });
+          line.setAttribute('geometry', { primitive: 'box', width: gridSize * 2, height: 0.05, depth: 0.1 });
           line.setAttribute('position', `0 0.01 ${i}`);
-          line.setAttribute('material', {
-            color: '#00ffff',
-            emissive: '#00ffff',
-            emissiveIntensity: 0.3,
-            opacity: 0.4,
-            transparent: true
-          });
+          line.setAttribute('material', { color: '#00ffff', emissive: '#00ffff', emissiveIntensity: 0.3, opacity: 0.4, transparent: true });
           container.appendChild(line);
         }
         for (let i = -gridSize; i <= gridSize; i += spacing) {
           const line = document.createElement('a-entity');
-          line.setAttribute('geometry', {
-            primitive: 'box',
-            width: 0.1,
-            height: 0.05,
-            depth: gridSize * 2
-          });
+          line.setAttribute('geometry', { primitive: 'box', width: 0.1, height: 0.05, depth: gridSize * 2 });
           line.setAttribute('position', `${i} 0.01 0`);
-          line.setAttribute('material', {
-            color: '#00ffff',
-            emissive: '#00ffff',
-            emissiveIntensity: 0.3,
-            opacity: 0.4,
-            transparent: true
-          });
+          line.setAttribute('material', { color: '#00ffff', emissive: '#00ffff', emissiveIntensity: 0.3, opacity: 0.4, transparent: true });
           container.appendChild(line);
         }
       }
@@ -143,40 +100,43 @@
       }, 2000);
     });
 
-    // Ville ULTRA dense, buildings géants, tailles variées
+    // Ville dense, buildings géants, tailles variées, zone centrale vide
     AFRAME.registerComponent('generate-city', {
       init: function () {
         const container = this.el;
-        const spacing = 4; // Très serré
-        const gridSize = 18; // Beaucoup de buildings
+        const spacing = 4.2; // serré mais pas collé
+        const gridSize = 18;
+        const emptyRadius = 6; // zone centrale VIDE pour spawn
 
-        // Texture Matrix animée
-        const createSyncedMatrixTexture = (buildingIndex, animationDuration, colorBase) => {
+        // Texture Matrix animée adaptée à la taille du panneau
+        function createMatrixTextureAnim(widthPx, heightPx, colorBase, animationDuration) {
           const canvas = document.createElement('canvas');
-          canvas.width = 192;
-          canvas.height = 320;
+          canvas.width = widthPx;
+          canvas.height = heightPx;
           const ctx = canvas.getContext('2d');
           const chars = 'アカサタナハマヤラワ0123456789ABCDEF';
-          const fontSize = 6;
+          const fontSize = 8;
+          // Calcul dynamique du nombre de colonnes/rows
           const columns = Math.floor(canvas.width / fontSize);
-          let drops = Array(columns).fill(Math.random() * (canvas.height / fontSize));
+          const rows = Math.floor(canvas.height / fontSize);
+          let drops = Array(columns).fill( Math.floor(Math.random() * rows) );
+
           const texture = new THREE.CanvasTexture(canvas);
           texture.wrapS = THREE.RepeatWrapping;
           texture.wrapT = THREE.RepeatWrapping;
-          texture.repeat.set(1, 2);
+          texture.repeat.set(1, 1);
 
           function animateMatrix() {
-            // Synchronisation couleur/intensité, animation matrix fluide
+            // Variation couleur synchronisée, mais animation matrix fluide
             const phase = (Date.now() / animationDuration) % 1;
             const intensity = 0.7 + Math.sin(phase * Math.PI * 2) * 0.3;
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.14)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.16)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.font = `${fontSize}px monospace`;
             for (let i = 0; i < columns; i++) {
               const char = chars[Math.floor(Math.random() * chars.length)];
-              // Teinte Matrix verte ou bleu-cyan selon l'immeuble
               let r = 0, g = Math.floor(255 * intensity), b = Math.floor(200 * colorBase);
-              ctx.fillStyle = `rgba(${r},${g},${b},${0.82 + Math.random()*0.18})`;
+              ctx.fillStyle = `rgba(${r},${g},${b},${0.83 + Math.random()*0.17})`;
               ctx.fillText(char, i * fontSize, drops[i] * fontSize);
 
               if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
@@ -189,32 +149,31 @@
           }
           animateMatrix();
           return texture;
-        };
+        }
 
-        let loadedBuildings = 0;
         let buildingIndex = 0;
-
         for (let x = -gridSize; x <= gridSize; x += 2) {
           for (let z = -gridSize; z <= gridSize; z += 2) {
-            if (Math.abs(x) <= 2 && Math.abs(z) <= 2) continue;
-            // Tailles variables :
-            const width = 1.6 + Math.random() * 3.2;   // 1.6 à 4.8
-            const depth = 1.6 + Math.random() * 3.2;   // 1.6 à 4.8
-            const height = 22 + Math.random() * 110;   // 22 à 132
+            // Zone centrale vide pour le joueur (aucun bat autour du (0,0))
+            if (Math.abs(x) <= emptyRadius && Math.abs(z) <= emptyRadius) continue;
+
+            // Taille variable
+            const width = 1.9 + Math.random() * 3.1;   // 1.9 à 5
+            const depth = 1.9 + Math.random() * 3.1;
+            const height = 24 + Math.random() * 120;   // 24 à 144
             const posX = x * spacing;
             const posZ = z * spacing;
             const buildingId = `building_${x}_${z}`;
             const animationDuration = 6000 + Math.random() * 4000;
-            const colorBase = 0.7 + Math.random() * 0.3; // Cyan/vert Matrix variable
-            const syncedTexture = createSyncedMatrixTexture(buildingIndex, animationDuration, colorBase);
-            this.createBuilding(container, posX, posZ, width, depth, height, syncedTexture, buildingId, animationDuration);
-            loadedBuildings++;
+            const colorBase = 0.7 + Math.random() * 0.3;
+
+            this.createBuilding(container, posX, posZ, width, depth, height, colorBase, buildingId, animationDuration, createMatrixTextureAnim);
             buildingIndex++;
           }
         }
       },
 
-      createBuilding: function(container, x, z, width, depth, height, texture, id, animationDuration) {
+      createBuilding: function(container, x, z, width, depth, height, colorBase, id, animationDuration, createMatrixTextureAnim) {
         const building = document.createElement('a-entity');
         building.setAttribute('id', id);
         building.setAttribute('position', `${x} 0 ${z}`);
@@ -227,10 +186,10 @@
         mainBox.setAttribute('position', `0 ${height/2} 0`);
         mainBox.setAttribute('material', {
           color: '#00ffff',
-          opacity: 0.58,
+          opacity: 0.54,
           transparent: true,
           emissive: '#002244',
-          emissiveIntensity: 0.34,
+          emissiveIntensity: 0.32,
           metalness: 0.7,
           roughness: 0.3
         });
@@ -247,12 +206,12 @@
         });
         building.appendChild(mainBox);
 
-        // Panneaux Matrix animés sur chaque face
+        // Pour chaque face, Matrix "plein", adapté à la taille (pas d'étirement)
         const faces = [
-          { pos: [0, height/2, depth/2 + 0.05], rot: [0, 0, 0], w: width, h: height },
-          { pos: [0, height/2, -depth/2 - 0.05], rot: [0, 180, 0], w: width, h: height },
-          { pos: [width/2 + 0.05, height/2, 0], rot: [0, -90, 0], w: depth, h: height },
-          { pos: [-width/2 - 0.05, height/2, 0], rot: [0, 90, 0], w: depth, h: height }
+          { pos: [0, height/2, depth/2 + 0.06], rot: [0, 0, 0], w: width, h: height },
+          { pos: [0, height/2, -depth/2 - 0.06], rot: [0, 180, 0], w: width, h: height },
+          { pos: [width/2 + 0.06, height/2, 0], rot: [0, -90, 0], w: depth, h: height },
+          { pos: [-width/2 - 0.06, height/2, 0], rot: [0, 90, 0], w: depth, h: height }
         ];
         faces.forEach((face, index) => {
           const panel = document.createElement('a-plane');
@@ -264,7 +223,7 @@
             shader: 'flat',
             side: 'double',
             transparent: true,
-            opacity: 0.85
+            opacity: 0.89
           });
           // Animation synchronisée
           panel.setAttribute('animation__float', {
@@ -276,8 +235,12 @@
             loop: true,
             easing: 'easeInOutSine'
           });
-          // Texture Matrix animée
+          // Texture Matrix animée, adaptée à la taille exacte du panneau
           panel.addEventListener('loaded', () => {
+            // 32px par unité pour une très bonne résolution sur les hautes façades
+            const texWidth = Math.ceil(face.w * 32);
+            const texHeight = Math.ceil(face.h * 32);
+            const texture = createMatrixTextureAnim(texWidth, texHeight, colorBase, animationDuration);
             const mesh = panel.getObject3D('mesh');
             if (mesh && mesh.material) {
               mesh.material.map = texture;
@@ -310,30 +273,22 @@
       }
     });
 
-    // Shader de dégradé ciel
+    // Shader dégradé ciel
     AFRAME.registerShader('gradient', {
-      schema: {
-        topColor: {type: 'color', default: '#000033'},
-        bottomColor: {type: 'color', default: '#000000'}
-      },
+      schema: { topColor: {type: 'color', default: '#000033'}, bottomColor: {type: 'color', default: '#000000'} },
       vertexShader: `
         varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
+        void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);}
       `,
       fragmentShader: `
         uniform vec3 topColor;
         uniform vec3 bottomColor;
         varying vec2 vUv;
-        void main() {
-          gl_FragColor = vec4(mix(bottomColor, topColor, vUv.y), 1.0);
-        }
+        void main() { gl_FragColor = vec4(mix(bottomColor, topColor, vUv.y), 1.0);}
       `
     });
 
-    // Optimisation perf
+    // Performances
     const scene = document.querySelector('a-scene');
     scene.addEventListener('loaded', function () {
       scene.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -347,6 +302,7 @@
       }
     });
   </script>
+
 </a-scene>
 </body>
 </html>
