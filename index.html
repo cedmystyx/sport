@@ -44,9 +44,9 @@
 
 
 <div id="controls">
-  <div>🎮 WASD - Se déplacer</div>
   <div>🖱️ Souris - Regarder autour</div>
-  <div>📱 Mobile - Touch controls</div>
+  <div>📱 Mobile - Touch pour regarder</div>
+  <div>🎯 Position fixe - Vue 360°</div>
 </div>
 
 <a-scene background="color: #000" loading-screen="enabled: false">
@@ -174,27 +174,40 @@
         const matrixTexture = createMatrixTexture();
 
         // Génération des bâtiments avec de meilleures performances
-        const spacing = 8; // Espacement réduit pour plus de proximité
-        const gridSize = 6; // Grille plus compacte
+        const spacing = 6; // Espacement encore plus réduit
+        const gridSize = 4; // Grille plus petite mais visible
         const buildingCount = gridSize * gridSize - 8;
         let loadedBuildings = 0;
 
-        for (let x = -gridSize; x <= gridSize; x += 2) {
-          for (let z = -gridSize; z <= gridSize; z += 2) {
-            // Création d'espaces vides pour la navigation
+        for (let x = -gridSize; x <= gridSize; x += 1) {
+          for (let z = -gridSize; z <= gridSize; z += 1) {
+            // Création d'espaces vides pour la navigation (plus petit)
             if (Math.abs(x) <= 1 && Math.abs(z) <= 1) continue;
             
             const posX = x * spacing;
             const posZ = z * spacing;
-            const height = Math.random() * 20 + 6;
+            const height = Math.random() * 15 + 5; // Hauteurs plus visibles
             const buildingId = `building_${x}_${z}`;
 
+            console.log(`Création bâtiment à: ${posX}, ${posZ}, hauteur: ${height}`);
             this.createBuilding(container, posX, posZ, height, matrixTexture, buildingId);
             loadedBuildings++;
           }
         }
 
         console.log(`Ville générée: ${loadedBuildings} bâtiments`);
+        
+        // Test de visibilité - créer quelques bâtiments de test très visibles
+        for (let i = 0; i < 4; i++) {
+          const testBuilding = document.createElement('a-box');
+          testBuilding.setAttribute('position', `${i * 4 - 6} 5 ${-10}`);
+          testBuilding.setAttribute('width', '2');
+          testBuilding.setAttribute('height', '10');
+          testBuilding.setAttribute('depth', '2');
+          testBuilding.setAttribute('color', '#ff0000'); // Rouge vif pour test
+          testBuilding.setAttribute('material', 'emissive: #ff0000; emissiveIntensity: 0.5');
+          container.appendChild(testBuilding);
+        }
       },
 
       createBuilding: function(container, x, z, height, texture, id) {
