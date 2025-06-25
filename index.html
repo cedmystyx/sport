@@ -5,28 +5,19 @@
   <title>Lycée Louis de Cormontaigne – Section Sportive</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://unpkg.com/aframe-particle-system-component@1.0.1/dist/aframe-particle-system-component.min.js"></script>
   <style>
     body { margin: 0; overflow: hidden; background: black; font-family: Arial, sans-serif; }
     #loading {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: #000; color: #00ffff; display: flex; justify-content: center; align-items: center;
-      z-index: 1000; font-size: 24px; letter-spacing: 2px;
-      animation: pulse 1.2s infinite alternate;
-    }
-    @keyframes pulse {
-      to { color: #ff0066; text-shadow: 0 0 32px #00ffff, 0 0 16px #ff0066; }
+      z-index: 1000; font-size: 24px;
     }
     #controls, #header {
       position: fixed; left: 20px; z-index: 100;
-      transition: opacity 0.8s;
     }
     #controls {
       top: 88px; color: #00ffff;
       background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px; font-size: 14px;
-      box-shadow: 0 2px 12px #00ffff44;
-      opacity: 0;
-      transition: opacity 1.2s;
     }
     #header {
       top: 20px;
@@ -41,11 +32,6 @@
       border-left: 5px solid #00ffff;
       text-shadow: 0 2px 20px #00ffff88;
       max-width: 90vw;
-      animation: header-fade 1.9s ease;
-    }
-    @keyframes header-fade {
-      0% { filter: blur(12px); opacity: 0; }
-      100% { filter: blur(0); opacity: 1; }
     }
     #subtitle {
       display: block;
@@ -65,31 +51,6 @@
       font-weight: 400;
       text-shadow: 0 1px 10px #00224488;
     }
-    .neon-btn {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 8px 20px;
-      background: transparent;
-      color: #00ffff;
-      border: 2px solid #00ffff;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: bold;
-      letter-spacing: 1px;
-      cursor: pointer;
-      box-shadow: 0 0 12px #00ffff77;
-      transition: background 0.3s, color 0.3s, transform 0.2s;
-      animation: btnpulse 2s infinite alternate;
-    }
-    .neon-btn:hover {
-      background: #00ffff33;
-      color: #fff;
-      transform: scale(1.06) rotate(-2deg);
-    }
-    @keyframes btnpulse {
-      0% { box-shadow: 0 0 12px #00ffff77; }
-      100% { box-shadow: 0 0 28px #ff006666, 0 0 18px #00ffff99; }
-    }
     @media (max-width: 600px) {
       #header { font-size: 1.2rem; padding:10px 8px; }
       #controls { font-size: 12px; }
@@ -97,70 +58,12 @@
   </style>
 </head>
 <body>
-<div id="loading">Chargement de la ville...</div>
-<div id="header">
-  Lycée Louis de Cormontaigne – Section Sportive
-  <span id="subtitle">Ville numérique & Sport</span>
-  <span id="welcome">Bienvenue ! Explorez et découvrez nos activités.</span>
-  <button class="neon-btn" onclick="resetView()">Revenir au centre</button>
-</div>
-<div id="controls" style="opacity:0">
-  <b>Contrôles :</b><br>
-  Déplace-toi : <span style="color:#ff0066">Z Q S D</span> ou <span style="color:#ff0066">Flèches</span> <br>
-  Regarde autour : <span style="color:#ff0066">Souris</span><br>
-  Voler / descendre : <span style="color:#ff0066">Espace / Shift</span><br>
-  Recentrer: <span class="neon-btn" style="padding:2px 10px; font-size:0.95em;" onclick="resetView()">Centre</span>
-  <br>
-  <br>
-  <b>Mode VR :</b> <span style="color:#00ffff">Activez le mode VR pour voir vos mains et controllers !</span>
-</div>
-<a-scene loading-screen="enabled: false" shadow="type: pcfsoft">
+
+<a-scene loading-screen="enabled: false">
   <a-sky color="#000011" material="shader: gradient; topColor: #000033; bottomColor: #000000"></a-sky>
+  <!-- Caméra au centre, bien dégagée -->
   <a-entity id="cameraRig" position="0 1.5 0">
-    <a-entity id="mainCamera" camera look-controls wasd-controls="acceleration: 20; fly: true" position="0 0 0"></a-entity>
-    <!-- Mains et contrôleurs VR avancés -->
-    <a-entity id="leftHand"
-        hand-controls="hand: left; handModelStyle: highPoly; color: #00ffff"
-        laser-controls="hand: left"
-        vive-controls="hand: left"
-        oculus-touch-controls="hand: left"
-        windows-motion-controls="hand: left"
-        daydream-controls="hand: left"
-        gearvr-controls="hand: left"
-        magic-leap-controls="hand: left"
-        valve-index-controls="hand: left"
-        universal-controls
-        visible="false">
-      <a-entity geometry="primitive: torus; radius: 0.09; tube: 0.012"
-                material="color: #00ffff; emissive: #00ffff; emissiveIntensity: 0.8; transparent: true; opacity: 0.4"
-                position="0 0.02 0"
-                animation="property: rotation; to: 0 360 0; dur: 3000; loop: true; easing: linear"></a-entity>
-      <a-entity geometry="primitive: sphere; radius: 0.045"
-                material="color: #fff; emissive: #00ffff; emissiveIntensity: 1.4; transparent: true; opacity: 0.13"
-                position="0 0.015 0"
-                animation="property: scale; dir: alternate; from: 1 1 1; to: 1.2 1.2 1.2; dur: 950; loop: true; easing: easeInOutSine"></a-entity>
-    </a-entity>
-    <a-entity id="rightHand"
-        hand-controls="hand: right; handModelStyle: highPoly; color: #ff0066"
-        laser-controls="hand: right"
-        vive-controls="hand: right"
-        oculus-touch-controls="hand: right"
-        windows-motion-controls="hand: right"
-        daydream-controls="hand: right"
-        gearvr-controls="hand: right"
-        magic-leap-controls="hand: right"
-        valve-index-controls="hand: right"
-        universal-controls
-        visible="false">
-      <a-entity geometry="primitive: torus; radius: 0.09; tube: 0.012"
-                material="color: #ff0066; emissive: #ff0066; emissiveIntensity: 0.8; transparent: true; opacity: 0.4"
-                position="0 0.02 0"
-                animation="property: rotation; to: 360 0 0; dur: 3000; loop: true; easing: linear"></a-entity>
-      <a-entity geometry="primitive: sphere; radius: 0.045"
-                material="color: #fff; emissive: #ff0066; emissiveIntensity: 1.4; transparent: true; opacity: 0.13"
-                position="0 0.015 0"
-                animation="property: scale; dir: alternate; from: 1 1 1; to: 1.2 1.2 1.2; dur: 950; loop: true; easing: easeInOutSine"></a-entity>
-    </a-entity>
+    <a-entity camera look-controls wasd-controls="acceleration: 20; fly: true" position="0 0 0"></a-entity>
   </a-entity>
   <a-entity light="type: ambient; color: #002244; intensity: 0.4"></a-entity>
   <a-entity light="type: directional; color: #00ffff; intensity: 0.7" position="20 30 20"></a-entity>
@@ -169,66 +72,14 @@
            shadow="receive: true"></a-plane>
   <a-entity id="grid" generate-grid></a-entity>
   <a-entity id="city" generate-city-cormontaigne></a-entity>
-  <a-entity particle-system="preset: dust; particleCount: 36; color: #00ffff,#ff0066; size: 0.36; accelerationValue: 0 0.10 0"></a-entity>
-  <a-entity position="0 8.3 -25" animation="property: position; dir: alternate; to: 0 8.9 -25; dur: 2200; loop: true; easing: easeInOutSine">
-    <a-plane width="6" height="6" color="#000" opacity="0.77" material="shader: flat; side: double; transparent: true; emissive: #00ffff; emissiveIntensity: 0.12"></a-plane>
-    <a-image src="https://upload.wikimedia.org/wikipedia/commons/7/70/Sport_basketball.svg"
-      width="3.3" height="3.3" position="0 0 0.01" opacity="0.88" transparent="true"
-      animation="property: rotation; to: 0 360 0; loop: true; dur: 10500; easing: linear">
-    </a-image>
-  </a-entity>
-  <a-entity position="0 4.5 -25" rotation="0 0 0" animation="property: position; dir: alternate; to: 0 5.2 -25; dur: 1600; loop: true; easing: easeInOutSine">
-    <a-plane width="24" height="6.8" color="#000" opacity="0.90" material="shader: flat; side: double; transparent: true; emissive: #00ffff; emissiveIntensity: 0.09"></a-plane>
-    <a-text value="Bienvenue au Lycée Louis de Cormontaigne\nSection Sportive" width="22" align="center" color="#00ffff" position="0 1.2 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"
-      animation="property: scale; dir: alternate; to: 1.04 1.04 1.04; dur: 2100; loop: true; easing: easeInOutSine"></a-text>
-    <a-text value="Explore la ville numérique et la passion du sport !" width="21" align="center" color="#fff" position="0 -1.2 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"
-      animation="property: scale; dir: alternate; to: 1.04 1.04 1.04; dur: 1900; loop: true; easing: easeInOutSine"></a-text>
+  <a-entity particle-system="preset: dust; particleCount: 28; color: #00ffff,#ff0066; size: 0.3; accelerationValue: 0 0.1 0"></a-entity>
+  <!-- Panneau de bienvenue flottant en 3D -->
+  <a-entity position="0 7 -25" rotation="0 0 0">
+    <a-plane width="24" height="6.8" color="#000" opacity="0.89" material="shader: flat; side: double; transparent: true; emissive: #00ffff; emissiveIntensity: 0.08"></a-plane>
+    <a-text value="Bienvenue au Lycée Louis de Cormontaigne\nSection Sportive" width="22" align="center" color="#00ffff" position="0 1.2 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"></a-text>
+    <a-text value="Explore la ville numérique et la passion du sport !" width="21" align="center" color="#fff" position="0 -1.2 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"></a-text>
   </a-entity>
   <script>
-    // Texture Matrix mutualisée créée AVANT la ville
-    window.sharedMatrixTexture = null;
-    (function createSharedMatrixTexture() {
-      const canvas = document.createElement('canvas');
-      canvas.width = 128;
-      canvas.height = 256;
-      const ctx = canvas.getContext('2d');
-      const chars = "アカサタナハマヤラワ0123456789ABCDEF";
-      const fontSize = 8;
-      const columns = Math.floor(canvas.width / fontSize);
-      const rows = Math.floor(canvas.height / fontSize);
-      const colOffsets = [];
-      for (let i = 0; i < columns; i++) colOffsets.push(Math.random());
-      let sharedMatrixTexture = new THREE.CanvasTexture(canvas);
-      sharedMatrixTexture.wrapS = THREE.RepeatWrapping;
-      sharedMatrixTexture.wrapT = THREE.RepeatWrapping;
-      sharedMatrixTexture.repeat.set(1, 2);
-      window.sharedMatrixTexture = sharedMatrixTexture;
-
-      function animateMatrix() {
-        const now = performance.now();
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = `${fontSize}px monospace`;
-
-        const T = 10000;
-        const phase = (now % T) / T;
-
-        for (let i = 0; i < columns; i++) {
-          const colPhase = ((phase + colOffsets[i]) % 1);
-          const y = colPhase * canvas.height;
-          ctx.fillStyle = `rgba(0,220,110,0.58)`;
-          for (let step = 0; step < rows; step++) {
-            const char = chars[Math.floor(Math.random() * chars.length)];
-            let dropY = ((y + step * fontSize) % canvas.height);
-            ctx.fillText(char, i * fontSize, dropY);
-          }
-        }
-        sharedMatrixTexture.needsUpdate = true;
-        requestAnimationFrame(animateMatrix);
-      }
-      animateMatrix();
-    })();
-
     // Grille cyberpunk au sol
     AFRAME.registerComponent('generate-grid', {
       init: function () {
@@ -251,6 +102,57 @@
       }
     });
 
+    // Gestion du loading
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('controls').style.opacity = '1';
+      }, 1200);
+    });
+
+    // Texture Matrix mutualisée, descente sur 10 secondes (indépendant du processeur)
+    let sharedMatrixTexture = null;
+    (function createSharedMatrixTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+      const chars = "アカサタナハマヤラワ0123456789ABCDEF";
+      const fontSize = 8;
+      const columns = Math.floor(canvas.width / fontSize);
+      const rows = Math.floor(canvas.height / fontSize);
+      const colOffsets = [];
+      for (let i = 0; i < columns; i++) colOffsets.push(Math.random());
+      sharedMatrixTexture = new THREE.CanvasTexture(canvas);
+      sharedMatrixTexture.wrapS = THREE.RepeatWrapping;
+      sharedMatrixTexture.wrapT = THREE.RepeatWrapping;
+      sharedMatrixTexture.repeat.set(1, 2);
+
+      function animateMatrix() {
+        const now = performance.now();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = `${fontSize}px monospace`;
+
+        const T = 10000; // 10 secondes pour traverser toute la façade
+        const phase = (now % T) / T;
+
+        for (let i = 0; i < columns; i++) {
+          const colPhase = ((phase + colOffsets[i]) % 1);
+          const y = colPhase * canvas.height;
+          ctx.fillStyle = `rgba(0,220,110,0.58)`;
+          for (let step = 0; step < rows; step++) {
+            const char = chars[Math.floor(Math.random() * chars.length)];
+            let dropY = ((y + step * fontSize) % canvas.height);
+            ctx.fillText(char, i * fontSize, dropY);
+          }
+        }
+        sharedMatrixTexture.needsUpdate = true;
+        requestAnimationFrame(animateMatrix);
+      }
+      animateMatrix();
+    })();
+
     // Ville Cormontaigne : buildings sportifs et Matrix
     AFRAME.registerComponent('generate-city-cormontaigne', {
       init: function () {
@@ -260,10 +162,13 @@
         const emptyRadius = 6;
         for (let x = -gridSize; x <= gridSize; x += 2) {
           for (let z = -gridSize; z <= gridSize; z += 2) {
+            // Zone centrale vide pour l'accueil
             if (Math.abs(x) <= emptyRadius && Math.abs(z) <= emptyRadius) continue;
+            // Dimensions variées pour l'effet "ville"
             const width = 2.4 + Math.random() * 4.2;
             const depth = 2.3 + Math.random() * 3.8;
             const height = 22 + Math.random() * 64 + Math.random()*24*Math.random();
+            // Décalage léger pour un effet ville réaliste
             const posX = x * spacing + (Math.random()-0.5)*2.3;
             const posZ = z * spacing + (Math.random()-0.5)*2.3;
             const animationDuration = 7000 + Math.random()*4000;
@@ -300,7 +205,7 @@
           easing: 'easeInOutSine'
         });
         building.appendChild(mainBox);
-        // Façades Matrix animées
+        // Façades Matrix
         const faces = [
           { pos: [0, height/2, depth/2 + 0.05], rot: [0, 0, 0], w: width, h: height },
           { pos: [0, height/2, -depth/2 - 0.05], rot: [0, 180, 0], w: width, h: height },
@@ -328,11 +233,10 @@
             loop: true,
             easing: 'easeInOutSine'
           });
-          // Ajout texture Matrix uniquement si prête
           panel.addEventListener('loaded', () => {
             const mesh = panel.getObject3D('mesh');
-            if (mesh && mesh.material && window.sharedMatrixTexture) {
-              mesh.material.map = window.sharedMatrixTexture;
+            if (mesh && mesh.material) {
+              mesh.material.map = sharedMatrixTexture;
               mesh.material.needsUpdate = true;
             }
           });
@@ -360,59 +264,6 @@
         container.appendChild(building);
       }
     });
-
-    // Mains VR dynamiques (voir plus haut)
-    AFRAME.registerComponent('show-hands-when-present', {
-      init: function () {
-        const left = document.getElementById('leftHand');
-        const right = document.getElementById('rightHand');
-        this.tick = function () {
-          if (left && left.components['hand-controls'] && left.components['hand-controls'].controllerPresent) {
-            left.setAttribute('visible', 'true');
-          } else if (left) {
-            left.setAttribute('visible', 'false');
-          }
-          if (right && right.components['hand-controls'] && right.components['hand-controls'].controllerPresent) {
-            right.setAttribute('visible', 'true');
-          } else if (right) {
-            right.setAttribute('visible', 'false');
-          }
-        };
-      }
-    });
-    document.querySelector('a-scene').setAttribute('show-hands-when-present', '');
-
-    // Optionnel : Effet haptique (vibration) au clic si supporté
-    document.addEventListener('triggerdown', function (e) {
-      if (e.detail && e.detail.target && e.detail.target.components['hand-controls']) {
-        try {
-          const gamepad = e.detail.target.components['hand-controls'].controller;
-          if (gamepad && gamepad.hapticActuators && gamepad.hapticActuators[0]) {
-            gamepad.hapticActuators[0].pulse(0.7, 100);
-          }
-        } catch (err) {}
-      }
-    });
-
-    // Gestion du loading
-    document.addEventListener('DOMContentLoaded', function() {
-      setTimeout(() => {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('controls').style.opacity = '1';
-      }, 1200);
-    });
-
-    // Reset camera position
-    function resetView() {
-      const rig = document.getElementById('cameraRig');
-      if (rig) rig.setAttribute('position', '0 1.5 0');
-      const cam = document.getElementById('mainCamera');
-      if (cam && cam.components['look-controls']) {
-        cam.components['look-controls'].yawObject.rotation.set(0, 0, 0);
-        cam.components['look-controls'].pitchObject.rotation.set(0, 0, 0);
-      }
-    }
-    window.resetView = resetView;
 
     // Shader dégradé ciel
     AFRAME.registerShader('gradient', {
