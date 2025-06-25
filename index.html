@@ -123,7 +123,7 @@
       }, 1200);
     });
 
-    // Texture Matrix mutualisée, descente sur 3 secondes (indépendant du processeur)
+    // Texture Matrix mutualisée, descente sur 10 secondes (indépendant du processeur)
     let sharedMatrixTexture = null;
     (function createSharedMatrixTexture() {
       const canvas = document.createElement('canvas');
@@ -147,7 +147,7 @@
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.font = `${fontSize}px monospace`;
 
-        const T = 3000; // 3 secondes pour traverser toute la façade
+        const T = 10000; // 10 secondes pour traverser toute la façade
         const phase = (now % T) / T;
 
         for (let i = 0; i < columns; i++) {
