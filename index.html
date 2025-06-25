@@ -123,7 +123,7 @@
       }, 1200);
     });
 
-    // Texture Matrix mutualisée, douce
+    // Texture Matrix mutualisée, descente sur 3 secondes (indépendant du processeur)
     let sharedMatrixTexture = null;
     (function createSharedMatrixTexture() {
       const canvas = document.createElement('canvas');
@@ -133,25 +133,36 @@
       const chars = "アカサタナハマヤラワ0123456789ABCDEF";
       const fontSize = 8;
       const columns = Math.floor(canvas.width / fontSize);
-      let drops = Array(columns).fill( Math.floor(Math.random() * (canvas.height / fontSize)) );
-      function animateMatrix() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = `${fontSize}px monospace`;
-        for (let i = 0; i < columns; i++) {
-          const char = chars[Math.floor(Math.random() * chars.length)];
-          ctx.fillStyle = `rgba(0,220,110,0.58)`;
-          ctx.fillText(char, i * fontSize, drops[i] * fontSize);
-          if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) drops[i] = 0;
-          drops[i] += 0.55 + Math.random()*0.7;
-        }
-        sharedMatrixTexture.needsUpdate = true;
-        requestAnimationFrame(animateMatrix);
-      }
+      const rows = Math.floor(canvas.height / fontSize);
+      const colOffsets = [];
+      for (let i = 0; i < columns; i++) colOffsets.push(Math.random());
       sharedMatrixTexture = new THREE.CanvasTexture(canvas);
       sharedMatrixTexture.wrapS = THREE.RepeatWrapping;
       sharedMatrixTexture.wrapT = THREE.RepeatWrapping;
       sharedMatrixTexture.repeat.set(1, 2);
+
+      function animateMatrix() {
+        const now = performance.now();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = `${fontSize}px monospace`;
+
+        const T = 3000; // 3 secondes pour traverser toute la façade
+        const phase = (now % T) / T;
+
+        for (let i = 0; i < columns; i++) {
+          const colPhase = ((phase + colOffsets[i]) % 1);
+          const y = colPhase * canvas.height;
+          ctx.fillStyle = `rgba(0,220,110,0.58)`;
+          for (let step = 0; step < rows; step++) {
+            const char = chars[Math.floor(Math.random() * chars.length)];
+            let dropY = ((y + step * fontSize) % canvas.height);
+            ctx.fillText(char, i * fontSize, dropY);
+          }
+        }
+        sharedMatrixTexture.needsUpdate = true;
+        requestAnimationFrame(animateMatrix);
+      }
       animateMatrix();
     })();
 
