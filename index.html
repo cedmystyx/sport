@@ -52,11 +52,11 @@
 <a-scene background="color: #000" loading-screen="enabled: false">
 
   <!-- Caméra avec contrôles activés -->
-  <a-entity id="cameraRig" position="0 8 15">
+  <a-entity id="cameraRig" position="0 5 8">
     <a-entity 
       camera 
       look-controls="pointerLockEnabled: true" 
-      wasd-controls="acceleration: 20; fly: true"
+      wasd-controls="acceleration: 15; fly: true"
       position="0 0 0">
     </a-entity>
   </a-entity>
@@ -70,8 +70,8 @@
   <a-plane 
     position="0 -0.5 0" 
     rotation="-90 0 0" 
-    width="200" 
-    height="200" 
+    width="120" 
+    height="120" 
     color="#001122" 
     material="metalness: 0.8; roughness: 0.2; opacity: 0.3"
     shadow="receive: true">
@@ -160,17 +160,19 @@
         const matrixTexture = createMatrixTexture();
 
         // Génération des bâtiments avec de meilleures performances
-        const buildingCount = gridSize * gridSize - 8; // Moins de bâtiments
+        const spacing = 8; // Espacement réduit pour plus de proximité
+        const gridSize = 6; // Grille plus compacte
+        const buildingCount = gridSize * gridSize - 8;
         let loadedBuildings = 0;
 
         for (let x = -gridSize; x <= gridSize; x += 2) {
           for (let z = -gridSize; z <= gridSize; z += 2) {
             // Création d'espaces vides pour la navigation
-            if (Math.abs(x) <= 2 && Math.abs(z) <= 2) continue;
+            if (Math.abs(x) <= 1 && Math.abs(z) <= 1) continue;
             
             const posX = x * spacing;
             const posZ = z * spacing;
-            const height = Math.random() * 25 + 8;
+            const height = Math.random() * 20 + 6;
             const buildingId = `building_${x}_${z}`;
 
             this.createBuilding(container, posX, posZ, height, matrixTexture, buildingId);
@@ -186,12 +188,17 @@
         building.setAttribute('id', id);
         building.setAttribute('position', `${x} 0 ${z}`);
 
+        // Animation synchronisée - même durée et phase pour tout le bâtiment
+        const animationDuration = 4000 + (Math.abs(x + z) % 3) * 1000; // Varie selon position
+        const baseY = 0.5; // Position de base
+        const floatHeight = height * 0.15; // Hauteur de flottement réduite
+
         // Structure principale plus détaillée
         const mainBox = document.createElement('a-box');
-        mainBox.setAttribute('width', '5');
-        mainBox.setAttribute('depth', '5');
+        mainBox.setAttribute('width', '4');
+        mainBox.setAttribute('depth', '4');
         mainBox.setAttribute('height', height.toFixed(2));
-        mainBox.setAttribute('position', `0 ${height/2} 0`);
+        mainBox.setAttribute('position', `0 ${height/2 + baseY} 0`);
         mainBox.setAttribute('material', {
           color: '#00ffff',
           opacity: 0.6,
@@ -203,12 +210,11 @@
         });
         mainBox.setAttribute('shadow', 'cast: true; receive: true');
 
-        // Animation verticale optimisée
-        const animationDuration = 6000 + Math.random() * 4000;
+        // Animation verticale synchronisée
         mainBox.setAttribute('animation__float', {
           property: 'position',
-          to: `0 ${height * 0.8} 0`,
-          from: `0 ${height * 0.2} 0`,
+          to: `0 ${height/2 + baseY + floatHeight} 0`,
+          from: `0 ${height/2 + baseY - floatHeight} 0`,
           dir: 'alternate',
           dur: animationDuration,
           loop: true,
@@ -217,17 +223,17 @@
 
         building.appendChild(mainBox);
 
-        // Panneaux Matrix sur les faces
+        // Panneaux Matrix sur les faces - PARFAITEMENT SYNCHRONISÉS
         const faces = [
-          { pos: [0, height/2, 2.6], rot: [0, 0, 0] },
-          { pos: [0, height/2, -2.6], rot: [0, 180, 0] },
-          { pos: [2.6, height/2, 0], rot: [0, -90, 0] },
-          { pos: [-2.6, height/2, 0], rot: [0, 90, 0] }
+          { pos: [0, height/2 + baseY, 2.1], rot: [0, 0, 0] },
+          { pos: [0, height/2 + baseY, -2.1], rot: [0, 180, 0] },
+          { pos: [2.1, height/2 + baseY, 0], rot: [0, -90, 0] },
+          { pos: [-2.1, height/2 + baseY, 0], rot: [0, 90, 0] }
         ];
 
         faces.forEach((face, index) => {
           const panel = document.createElement('a-plane');
-          panel.setAttribute('width', '5');
+          panel.setAttribute('width', '4');
           panel.setAttribute('height', height.toFixed(2));
           panel.setAttribute('position', `${face.pos[0]} ${face.pos[1]} ${face.pos[2]}`);
           panel.setAttribute('rotation', `${face.rot[0]} ${face.rot[1]} ${face.rot[2]}`);
@@ -235,18 +241,18 @@
             shader: 'flat',
             side: 'double',
             transparent: true,
-            opacity: 0.8
+            opacity: 0.9
           });
 
-          // Animation synchronisée
+          // Animation EXACTEMENT synchronisée avec le bâtiment principal
           panel.setAttribute('animation__float', {
             property: 'position',
-            to: `${face.pos[0]} ${height * 0.8} ${face.pos[2]}`,
-            from: `${face.pos[0]} ${height * 0.2} ${face.pos[2]}`,
+            to: `${face.pos[0]} ${face.pos[1] + floatHeight} ${face.pos[2]}`,
+            from: `${face.pos[0]} ${face.pos[1] - floatHeight} ${face.pos[2]}`,
             dir: 'alternate',
-            dur: animationDuration,
+            dur: animationDuration, // MÊME durée exacte
             loop: true,
-            easing: 'easeInOutSine'
+            easing: 'easeInOutSine' // MÊME easing exacte
           });
 
           panel.addEventListener('loaded', () => {
@@ -260,24 +266,24 @@
           building.appendChild(panel);
         });
 
-        // Antenne sur le toit
-        if (Math.random() > 0.7) {
+        // Antenne sur le toit - aussi synchronisée
+        if (Math.random() > 0.6) {
           const antenna = document.createElement('a-cylinder');
           antenna.setAttribute('radius', '0.1');
-          antenna.setAttribute('height', '3');
-          antenna.setAttribute('position', `0 ${height + 1.5} 0`);
+          antenna.setAttribute('height', '2');
+          antenna.setAttribute('position', `0 ${height + baseY + 1} 0`);
           antenna.setAttribute('color', '#ff0066');
-          antenna.setAttribute('material', 'emissive: #ff0066; emissiveIntensity: 0.5');
+          antenna.setAttribute('material', 'emissive: #ff0066; emissiveIntensity: 0.7');
           
-          // Animation de l'antenne
+          // Animation parfaitement synchronisée
           antenna.setAttribute('animation__float', {
             property: 'position',
-            to: `0 ${height * 0.8 + 1.5} 0`,
-            from: `0 ${height * 0.2 + 1.5} 0`,
+            to: `0 ${height + baseY + 1 + floatHeight} 0`,
+            from: `0 ${height + baseY + 1 - floatHeight} 0`,
             dir: 'alternate',
-            dur: animationDuration,
+            dur: animationDuration, // MÊME durée
             loop: true,
-            easing: 'easeInOutSine'
+            easing: 'easeInOutSine' // MÊME easing
           });
 
           building.appendChild(antenna);
