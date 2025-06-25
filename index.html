@@ -54,7 +54,7 @@
   <!-- Skybox cyberpunk avec dégradé -->
   <a-sky color="#000011" material="shader: gradient; topColor: #000033; bottomColor: #000000"></a-sky>
   
-  <!-- Caméra très basse pour accentuer la taille des buildings -->
+  <!-- Caméra très basse -->
   <a-entity id="cameraRig" position="0 1.5 15">
     <a-entity 
       camera 
@@ -90,14 +90,12 @@
   <a-entity particle-system="preset: dust; particleCount: 150; color: #00ffff,#ff0066; size: 0.3; accelerationValue: 0 0.1 0"></a-entity>
 
   <script>
-    // Composant pour générer une grille cyberpunk
+    // Grille cyberpunk
     AFRAME.registerComponent('generate-grid', {
       init: function () {
         const container = this.el;
         const gridSize = 150;
         const spacing = 10;
-
-        // Lignes horizontales
         for (let i = -gridSize; i <= gridSize; i += spacing) {
           const line = document.createElement('a-entity');
           line.setAttribute('geometry', {
@@ -116,8 +114,6 @@
           });
           container.appendChild(line);
         }
-
-        // Lignes verticales
         for (let i = -gridSize; i <= gridSize; i += spacing) {
           const line = document.createElement('a-entity');
           line.setAttribute('geometry', {
@@ -139,7 +135,7 @@
       }
     });
 
-    // Gestion du loading
+    // Loading
     document.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => {
         document.getElementById('loading').style.display = 'none';
@@ -147,22 +143,19 @@
       }, 2000);
     });
 
-    // Ville ULTRA dense avec buildings géants
+    // Ville ULTRA dense, buildings géants, tailles variées
     AFRAME.registerComponent('generate-city', {
       init: function () {
         const container = this.el;
         const spacing = 4; // Très serré
-        const gridSize = 18; // Très grand nombre de buildings
-        let matrixTextures = []; // Tableau pour stocker les textures animées
+        const gridSize = 18; // Beaucoup de buildings
 
-        // Génération synchronisée des textures Matrix avec les bâtiments
-        const createSyncedMatrixTexture = (buildingIndex, animationDuration) => {
+        // Texture Matrix animée
+        const createSyncedMatrixTexture = (buildingIndex, animationDuration, colorBase) => {
           const canvas = document.createElement('canvas');
           canvas.width = 192;
           canvas.height = 320;
           const ctx = canvas.getContext('2d');
-          
-          // Caractères Matrix
           const chars = 'アカサタナハマヤラワ0123456789ABCDEF';
           const fontSize = 6;
           const columns = Math.floor(canvas.width / fontSize);
@@ -171,27 +164,25 @@
           texture.wrapS = THREE.RepeatWrapping;
           texture.wrapT = THREE.RepeatWrapping;
           texture.repeat.set(1, 2);
-          
-          // Animation Matrix continue, couleur synchronisée
+
           function animateMatrix() {
-            // Synchronisation couleur/intensité, mais ANIMATION matrix fluide
+            // Synchronisation couleur/intensité, animation matrix fluide
             const phase = (Date.now() / animationDuration) % 1;
             const intensity = 0.7 + Math.sin(phase * Math.PI * 2) * 0.3;
-
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.14)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-
             ctx.font = `${fontSize}px monospace`;
             for (let i = 0; i < columns; i++) {
               const char = chars[Math.floor(Math.random() * chars.length)];
-              ctx.fillStyle = `rgba(0,${Math.floor(255 * intensity)},${Math.floor(255 * intensity)},${0.8 + Math.random()*0.2})`;
+              // Teinte Matrix verte ou bleu-cyan selon l'immeuble
+              let r = 0, g = Math.floor(255 * intensity), b = Math.floor(200 * colorBase);
+              ctx.fillStyle = `rgba(${r},${g},${b},${0.82 + Math.random()*0.18})`;
               ctx.fillText(char, i * fontSize, drops[i] * fontSize);
 
-              // Pluie matrix animée
               if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
                 drops[i] = 0;
               }
-              drops[i] += 1 + phase * 1.5; // vitesse variable mais animation fluide
+              drops[i] += 1 + phase * 1.5;
             }
             texture.needsUpdate = true;
             requestAnimationFrame(animateMatrix);
@@ -200,143 +191,126 @@
           return texture;
         };
 
-        // Génération des bâtiments avec textures synchronisées
         let loadedBuildings = 0;
         let buildingIndex = 0;
 
         for (let x = -gridSize; x <= gridSize; x += 2) {
           for (let z = -gridSize; z <= gridSize; z += 2) {
-            // Création d'espaces vides pour la navigation
             if (Math.abs(x) <= 2 && Math.abs(z) <= 2) continue;
-            
+            // Tailles variables :
+            const width = 1.6 + Math.random() * 3.2;   // 1.6 à 4.8
+            const depth = 1.6 + Math.random() * 3.2;   // 1.6 à 4.8
+            const height = 22 + Math.random() * 110;   // 22 à 132
             const posX = x * spacing;
             const posZ = z * spacing;
-            const height = Math.random() * 90 + 30; // Très haut
             const buildingId = `building_${x}_${z}`;
-            
-            // Durée d'animation unique pour chaque bâtiment
             const animationDuration = 6000 + Math.random() * 4000;
-            
-            // Création de la texture synchronisée pour ce bâtiment
-            const syncedTexture = createSyncedMatrixTexture(buildingIndex, animationDuration);
-            matrixTextures.push(syncedTexture);
-
-            this.createBuilding(container, posX, posZ, height, syncedTexture, buildingId, animationDuration);
+            const colorBase = 0.7 + Math.random() * 0.3; // Cyan/vert Matrix variable
+            const syncedTexture = createSyncedMatrixTexture(buildingIndex, animationDuration, colorBase);
+            this.createBuilding(container, posX, posZ, width, depth, height, syncedTexture, buildingId, animationDuration);
             loadedBuildings++;
             buildingIndex++;
           }
         }
-
-        console.log(`Ville générée: ${loadedBuildings} bâtiments géants et denses avec textures synchronisées`);
       },
 
-      createBuilding: function(container, x, z, height, texture, id, animationDuration) {
+      createBuilding: function(container, x, z, width, depth, height, texture, id, animationDuration) {
         const building = document.createElement('a-entity');
         building.setAttribute('id', id);
         building.setAttribute('position', `${x} 0 ${z}`);
 
-        // Structure principale FIXÉE AU SOL (position Y = height/2 pour que la base soit à Y=0)
+        // Structure principale (base au sol)
         const mainBox = document.createElement('a-box');
-        mainBox.setAttribute('width', '2'); // Très étroit
-        mainBox.setAttribute('depth', '2');
+        mainBox.setAttribute('width', width.toFixed(2));
+        mainBox.setAttribute('depth', depth.toFixed(2));
         mainBox.setAttribute('height', height.toFixed(2));
-        mainBox.setAttribute('position', `0 ${height/2} 0`); // Base du bâtiment au niveau du sol
+        mainBox.setAttribute('position', `0 ${height/2} 0`);
         mainBox.setAttribute('material', {
           color: '#00ffff',
-          opacity: 0.6,
+          opacity: 0.58,
           transparent: true,
           emissive: '#002244',
-          emissiveIntensity: 0.3,
+          emissiveIntensity: 0.34,
           metalness: 0.7,
           roughness: 0.3
         });
         mainBox.setAttribute('shadow', 'cast: true; receive: true');
-
         // Animation verticale synchronisée
         mainBox.setAttribute('animation__float', {
           property: 'position',
-          to: `0 ${height/2} 0`,        // Position normale (base au sol)
-          from: `0 ${height/2 - 3} 0`,  // Position enfoncée dans le sol
+          to: `0 ${height/2} 0`,
+          from: `0 ${height/2 - 3} 0`,
           dir: 'alternate',
           dur: animationDuration,
           loop: true,
           easing: 'easeInOutSine'
         });
-
         building.appendChild(mainBox);
 
-        // Panneaux Matrix sur les faces - SYNCHRONISÉS avec le bâtiment
+        // Panneaux Matrix animés sur chaque face
         const faces = [
-          { pos: [0, height/2, 1.1], rot: [0, 0, 0] },
-          { pos: [0, height/2, -1.1], rot: [0, 180, 0] },
-          { pos: [1.1, height/2, 0], rot: [0, -90, 0] },
-          { pos: [-1.1, height/2, 0], rot: [0, 90, 0] }
+          { pos: [0, height/2, depth/2 + 0.05], rot: [0, 0, 0], w: width, h: height },
+          { pos: [0, height/2, -depth/2 - 0.05], rot: [0, 180, 0], w: width, h: height },
+          { pos: [width/2 + 0.05, height/2, 0], rot: [0, -90, 0], w: depth, h: height },
+          { pos: [-width/2 - 0.05, height/2, 0], rot: [0, 90, 0], w: depth, h: height }
         ];
-
         faces.forEach((face, index) => {
           const panel = document.createElement('a-plane');
-          panel.setAttribute('width', '2');
-          panel.setAttribute('height', height.toFixed(2));
+          panel.setAttribute('width', face.w.toFixed(2));
+          panel.setAttribute('height', face.h.toFixed(2));
           panel.setAttribute('position', `${face.pos[0]} ${face.pos[1]} ${face.pos[2]}`);
           panel.setAttribute('rotation', `${face.rot[0]} ${face.rot[1]} ${face.rot[2]}`);
           panel.setAttribute('material', {
             shader: 'flat',
             side: 'double',
             transparent: true,
-            opacity: 0.8
+            opacity: 0.85
           });
-
-          // Animation parfaitement synchronisée avec le bâtiment principal
+          // Animation synchronisée
           panel.setAttribute('animation__float', {
             property: 'position',
-            to: `${face.pos[0]} ${face.pos[1]} ${face.pos[2]}`,        // Position normale
-            from: `${face.pos[0]} ${face.pos[1] - 3} ${face.pos[2]}`,  // Position enfoncée
+            to: `${face.pos[0]} ${face.pos[1]} ${face.pos[2]}`,
+            from: `${face.pos[0]} ${face.pos[1] - 3} ${face.pos[2]}`,
             dir: 'alternate',
-            dur: animationDuration, // MÊME durée que le bâtiment
+            dur: animationDuration,
             loop: true,
             easing: 'easeInOutSine'
           });
-
-          // Application de la texture synchronisée
+          // Texture Matrix animée
           panel.addEventListener('loaded', () => {
             const mesh = panel.getObject3D('mesh');
             if (mesh && mesh.material) {
-              mesh.material.map = texture; // Texture avec animation synchronisée
+              mesh.material.map = texture;
               mesh.material.needsUpdate = true;
             }
           });
-
           building.appendChild(panel);
         });
 
-        // Antenne sur le toit - SYNCHRONISÉE aussi
+        // Antenne sur le toit
         if (Math.random() > 0.7) {
           const antenna = document.createElement('a-cylinder');
-          antenna.setAttribute('radius', '0.1');
+          antenna.setAttribute('radius', '0.13');
           antenna.setAttribute('height', '5');
-          antenna.setAttribute('position', `0 ${height + 2.5} 0`); // Position fixe au sommet
+          antenna.setAttribute('position', `0 ${height + 2.5} 0`);
           antenna.setAttribute('color', '#ff0066');
           antenna.setAttribute('material', 'emissive: #ff0066; emissiveIntensity: 0.5');
-          
-          // Animation de l'antenne parfaitement synchronisée
           antenna.setAttribute('animation__float', {
             property: 'position',
-            to: `0 ${height + 2.5} 0`,        // Position normale
-            from: `0 ${height + 2.5 - 3} 0`,  // Position enfoncée
+            to: `0 ${height + 2.5} 0`,
+            from: `0 ${height + 2.5 - 3} 0`,
             dir: 'alternate',
-            dur: animationDuration, // MÊME durée que le bâtiment
+            dur: animationDuration,
             loop: true,
             easing: 'easeInOutSine'
           });
-
           building.appendChild(antenna);
         }
-
         container.appendChild(building);
       }
     });
 
-    // Composant pour créer un shader de dégradé pour le ciel
+    // Shader de dégradé ciel
     AFRAME.registerShader('gradient', {
       schema: {
         topColor: {type: 'color', default: '#000033'},
@@ -359,18 +333,13 @@
       `
     });
 
-    // Gestion des performances
+    // Optimisation perf
     const scene = document.querySelector('a-scene');
     scene.addEventListener('loaded', function () {
-      console.log('Scène 3D chargée avec succès!');
-      
-      // Optimisation du rendu
       scene.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       scene.renderer.shadowMap.enabled = true;
       scene.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     });
-
-    // Gestion responsive
     window.addEventListener('resize', function() {
       const scene = document.querySelector('a-scene');
       if (scene.renderer) {
@@ -378,8 +347,6 @@
       }
     });
   </script>
-
 </a-scene>
-
 </body>
 </html>
