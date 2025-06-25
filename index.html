@@ -161,13 +161,13 @@
           canvas.height = 256;
           const ctx = canvas.getContext('2d');
           
-          // Caractères binaires uniquement
-          const chars = '01';
+          // Caractères Matrix
+          const chars = 'アカサタナハマヤラワ0123456789ABCDEF';
           const fontSize = 8;
           const columns = Math.floor(canvas.width / fontSize);
           const drops = Array(columns).fill(1);
 
-          let startTime = Date.now();
+          let frameCount = 0;
           const texture = new THREE.CanvasTexture(canvas);
           texture.wrapS = THREE.RepeatWrapping;
           texture.wrapT = THREE.RepeatWrapping;
@@ -175,18 +175,23 @@
           
           // Animation synchronisée avec le cycle du bâtiment
           const animateMatrix = () => {
-            const elapsed = Date.now() - startTime;
-            const animationPhase = (elapsed % animationDuration) / animationDuration;
+            // Synchronisation avec l'animation des bâtiments (6-10 secondes)
+            const syncedSpeed = Math.floor(animationDuration / 1000); // Adapte la vitesse à la durée d'animation
             
-            // Efface le canvas avec un effet de traînée
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            if (frameCount % syncedSpeed !== 0) {
+              frameCount++;
+              requestAnimationFrame(animateMatrix);
+              return;
+            }
+
+            // Effet de fade synchronisé avec l'enfoncement du bâtiment
+            const fadeIntensity = 0.05 + (Math.sin(Date.now() / animationDuration * Math.PI * 2) * 0.05);
+            ctx.fillStyle = `rgba(0, 0, 0, ${fadeIntensity})`;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Intensité basée sur la phase d'animation du bâtiment
-            const intensity = animationPhase < 0.5 ? 
-              0.4 + animationPhase * 1.2 : // Plus lumineux en remontant
-              1.6 - (animationPhase - 0.5) * 1.2; // Moins lumineux en descendant
-            
+            // Couleur qui change selon le cycle d'animation
+            const phase = (Date.now() / animationDuration) % 1;
+            const intensity = 0.7 + Math.sin(phase * Math.PI * 2) * 0.3;
             ctx.fillStyle = `rgba(0, ${Math.floor(255 * intensity)}, ${Math.floor(255 * intensity)}, 1)`;
             ctx.font = `${fontSize}px monospace`;
             
@@ -195,21 +200,20 @@
               const x = i * fontSize;
               const y = drops[i] * fontSize;
               
+              // Intensité des caractères synchronisée
+              const charIntensity = intensity + (Math.random() - 0.5) * 0.2;
+              ctx.fillStyle = `rgba(0, ${Math.floor(255 * charIntensity)}, ${Math.floor(255 * charIntensity)}, ${0.8 + Math.random() * 0.2})`;
               ctx.fillText(char, x, y);
               
-              if (y > canvas.height && Math.random() > 0.975) {
+              // Vitesse de chute synchronisée avec l'animation du bâtiment
+              if (y > canvas.height && Math.random() > (0.975 + phase * 0.02)) {
                 drops[i] = 0;
               }
-              
-              // Vitesse synchronisée avec l'animation du bâtiment
-              const speed = animationPhase < 0.5 ? 
-                1 + Math.floor(animationPhase * 3) : // Accélère en remontant
-                4 - Math.floor((animationPhase - 0.5) * 3); // Ralentit en descendant
-              
-              drops[i] += speed;
+              drops[i] += (1 + phase * 0.5); // Vitesse variable selon le cycle
             }
             
             texture.needsUpdate = true;
+            frameCount++;
             requestAnimationFrame(animateMatrix);
           };
 
