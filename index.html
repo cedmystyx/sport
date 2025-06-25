@@ -110,11 +110,63 @@
   Regarde autour : <span style="color:#ff0066">Souris</span><br>
   Voler / descendre : <span style="color:#ff0066">Espace / Shift</span><br>
   Recentrer: <span class="neon-btn" style="padding:2px 10px; font-size:0.95em;" onclick="resetView()">Centre</span>
+  <br>
+  <br>
+  <b>Mode VR :</b> <span style="color:#00ffff">Activez le mode VR pour voir vos mains et controllers !</span>
 </div>
 <a-scene loading-screen="enabled: false" shadow="type: pcfsoft">
   <a-sky color="#000011" material="shader: gradient; topColor: #000033; bottomColor: #000000"></a-sky>
   <a-entity id="cameraRig" position="0 1.5 0">
     <a-entity id="mainCamera" camera look-controls wasd-controls="acceleration: 20; fly: true" position="0 0 0"></a-entity>
+    <!-- Mains et contrôleurs VR avancés -->
+    <!-- Main gauche -->
+    <a-entity id="leftHand"
+        hand-controls="hand: left; handModelStyle: highPoly; color: #00ffff"
+        laser-controls="hand: left"
+        vive-controls="hand: left"
+        oculus-touch-controls="hand: left"
+        windows-motion-controls="hand: left"
+        daydream-controls="hand: left"
+        gearvr-controls="hand: left"
+        magic-leap-controls="hand: left"
+        valve-index-controls="hand: left"
+        universal-controls
+        visible="false">
+      <!-- Anneau lumineux -->
+      <a-entity geometry="primitive: torus; radius: 0.09; tube: 0.012"
+                material="color: #00ffff; emissive: #00ffff; emissiveIntensity: 0.8; transparent: true; opacity: 0.4"
+                position="0 0.02 0"
+                animation="property: rotation; to: 0 360 0; dur: 3000; loop: true; easing: linear"></a-entity>
+      <!-- Surlignage -->
+      <a-entity geometry="primitive: sphere; radius: 0.045"
+                material="color: #fff; emissive: #00ffff; emissiveIntensity: 1.4; transparent: true; opacity: 0.13"
+                position="0 0.015 0"
+                animation="property: scale; dir: alternate; from: 1 1 1; to: 1.2 1.2 1.2; dur: 950; loop: true; easing: easeInOutSine"></a-entity>
+    </a-entity>
+    <!-- Main droite -->
+    <a-entity id="rightHand"
+        hand-controls="hand: right; handModelStyle: highPoly; color: #ff0066"
+        laser-controls="hand: right"
+        vive-controls="hand: right"
+        oculus-touch-controls="hand: right"
+        windows-motion-controls="hand: right"
+        daydream-controls="hand: right"
+        gearvr-controls="hand: right"
+        magic-leap-controls="hand: right"
+        valve-index-controls="hand: right"
+        universal-controls
+        visible="false">
+      <!-- Anneau lumineux -->
+      <a-entity geometry="primitive: torus; radius: 0.09; tube: 0.012"
+                material="color: #ff0066; emissive: #ff0066; emissiveIntensity: 0.8; transparent: true; opacity: 0.4"
+                position="0 0.02 0"
+                animation="property: rotation; to: 360 0 0; dur: 3000; loop: true; easing: linear"></a-entity>
+      <!-- Surlignage -->
+      <a-entity geometry="primitive: sphere; radius: 0.045"
+                material="color: #fff; emissive: #ff0066; emissiveIntensity: 1.4; transparent: true; opacity: 0.13"
+                position="0 0.015 0"
+                animation="property: scale; dir: alternate; from: 1 1 1; to: 1.2 1.2 1.2; dur: 950; loop: true; easing: easeInOutSine"></a-entity>
+    </a-entity>
   </a-entity>
   <a-entity light="type: ambient; color: #002244; intensity: 0.4"></a-entity>
   <a-entity light="type: directional; color: #00ffff; intensity: 0.7" position="20 30 20"></a-entity>
@@ -183,6 +235,39 @@
       }
     }
     window.resetView = resetView;
+
+    // Affichage dynamique des mains si détectées
+    AFRAME.registerComponent('show-hands-when-present', {
+      init: function () {
+        const left = document.getElementById('leftHand');
+        const right = document.getElementById('rightHand');
+        this.tick = function () {
+          if (left && left.components['hand-controls'] && left.components['hand-controls'].controllerPresent) {
+            left.setAttribute('visible', 'true');
+          } else if (left) {
+            left.setAttribute('visible', 'false');
+          }
+          if (right && right.components['hand-controls'] && right.components['hand-controls'].controllerPresent) {
+            right.setAttribute('visible', 'true');
+          } else if (right) {
+            right.setAttribute('visible', 'false');
+          }
+        };
+      }
+    });
+    document.querySelector('a-scene').setAttribute('show-hands-when-present', '');
+
+    // Optionnel : Effet haptique (vibration) au clic si supporté
+    document.addEventListener('triggerdown', function (e) {
+      if (e.detail && e.detail.target && e.detail.target.components['hand-controls']) {
+        try {
+          const gamepad = e.detail.target.components['hand-controls'].controller;
+          if (gamepad && gamepad.hapticActuators && gamepad.hapticActuators[0]) {
+            gamepad.hapticActuators[0].pulse(0.7, 100);
+          }
+        } catch (err) {}
+      }
+    });
 
     // Texture Matrix mutualisée, descente sur 10 secondes (indépendant du processeur)
     let sharedMatrixTexture = null;
