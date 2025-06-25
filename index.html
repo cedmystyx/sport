@@ -4,113 +4,173 @@
   <meta charset="UTF-8">
   <title>Section Sportive – Lycée Louis de Cormontaigne</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- A-Frame pour VR/multiplateforme -->
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <style>
-    body { margin:0; background: #111; font-family: Arial, sans-serif; }
-    #header {
-      position: fixed; left: 0; top: 0; width: 100vw;
-      color: #fff; background: rgba(0,0,0,0.92);
-      padding: 18px 0 10px 0; border-radius: 0 0 18px 18px;
-      font-size: 2.2rem; font-family: 'Segoe UI', Arial, sans-serif;
-      letter-spacing: 1.5px; box-shadow: 0 3px 24px #00ffff44;
-      border-bottom: 5px solid #00ffff; text-shadow: 0 2px 20px #00ffff88;
-      text-align: center; z-index: 10;
+    body {
+      margin: 0;
+      padding: 0;
+      background: #131b24;
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
     }
-    #subtitle {
-      display: block; font-size: 1.08rem; color: #00ffff;
-      margin-top: 8px; letter-spacing: 1px; font-weight: bold;
-      text-shadow: 0 1px 8px #00ffff77;
+    .menu-bg {
+      background: linear-gradient(120deg, #084060 0%, #0d222e 100%);
+      min-height: 100vh;
+      width: 100vw;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 1;
     }
-    #start-btn {
-      display: inline-block; margin-top: 18px; padding: 12px 34px;
-      background: #00ffff; color: #113; font-size: 1.2rem; font-weight: bold;
-      border-radius: 14px; border: none; cursor: pointer; letter-spacing: 2px;
-      box-shadow: 0 2px 14px #00ffff55; transition: background 0.2s;
+    .flex-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100vw;
     }
-    #start-btn:hover { background: #00cfcf; }
-    #infos {
-      display:block; margin: 20px auto 0 auto; color: #e0e0e0;
-      font-size: 1.08rem; letter-spacing: 1px; max-width: 450px;
-      background: rgba(0,0,0,0.48); border-radius: 10px; padding: 10px 16px;
+    .logo-sportif {
+      width: 130px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 2px 16px #00eedd55);
+    }
+    .main-title {
+      font-size: 2.3rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #00ffff;
+      text-shadow: 0 2px 24px #00ffff99;
+      margin-bottom: 0.7em;
       text-align: center;
     }
-    @media (max-width: 600px) {
-      #header { font-size: 1.1rem; padding:10px 0; }
-      #infos { font-size: 0.92rem; }
-      #start-btn { font-size: 1rem; padding: 10px 20px; }
+    .desc {
+      color: #e0e9ef;
+      background: rgba(0,28,36,0.55);
+      padding: 16px 28px;
+      border-radius: 14px;
+      font-size: 1.22rem;
+      box-shadow: 0 2px 32px #00eedd22;
+      margin-bottom: 2em;
+      text-align: center;
+      max-width: 530px;
+    }
+    .buttons-menu {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-bottom: 2em;
+      justify-content: center;
+    }
+    .menu-btn {
+      background: linear-gradient(90deg, #00eedd 0%, #00bfff 100%);
+      color: #003549;
+      font-size: 1.18rem;
+      font-weight: bold;
+      padding: 19px 40px;
+      border: none;
+      border-radius: 18px;
+      box-shadow: 0 2px 18px #00eedd33;
+      cursor: pointer;
+      transition: background 0.18s, box-shadow 0.18s, color 0.18s;
+      letter-spacing: 1.3px;
+      min-width: 210px;
+      margin: 0 3px;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .menu-btn svg {
+      width: 27px;
+      height: 27px;
+      fill: #003549;
+      flex-shrink: 0;
+    }
+    .menu-btn:hover, .menu-btn:focus {
+      background: linear-gradient(90deg, #00ffff 0%, #39e06a 100%);
+      color: #012517;
+      box-shadow: 0 2px 28px #00eedd66;
+    }
+    .credit {
+      color: #00eedd;
+      font-size: 1.01rem;
+      margin-top: 2.5em;
+      opacity: 0.65;
+      text-align: center;
+    }
+    @media (max-width: 700px) {
+      .main-title { font-size: 1.25rem; }
+      .desc { font-size: 1rem; padding: 14px 10px; max-width: 95vw; }
+      .menu-btn { font-size: 1rem; padding: 12px 4vw; min-width: 120px; }
+      .logo-sportif { width: 84px; }
+      .buttons-menu { gap: 12px; }
     }
   </style>
 </head>
 <body>
-  <div id="header">
-    Section Sportive – Lycée Louis de Cormontaigne
-    <span id="subtitle">Bienvenue dans l’espace de présentation sportive en réalité virtuelle</span>
-    <div id="infos">
-      Découvrez les activités Football, Basketball, Handball, Athlétisme et bien plus, dans une visite virtuelle immersive.<br>
-      Compatible PC, mobile et casque VR.<br>
-      <span style="color:#00ffff;"><b>Appuyez sur le bouton ci-dessous pour entrer</b></span>
+  <div class="menu-bg"></div>
+  <div class="flex-center">
+    <!-- Logo sportif stylisé -->
+    <svg class="logo-sportif" viewBox="0 0 110 110">
+      <!-- Cercle fond turquoise -->
+      <circle cx="55" cy="55" r="53" fill="#00eedd" fill-opacity="0.11"/>
+      <!-- Icône flamme/sport -->
+      <path d="M55 23 Q70 35 61 57 Q75 55 75 74 Q75 92 55 92 Q35 92 35 74 Q35 55 49 57 Q40 35 55 23Z"
+        fill="#00eedd" stroke="#00bfff" stroke-width="3"/>
+      <!-- Ballon rond -->
+      <circle cx="55" cy="77" r="10" fill="#fff" stroke="#00bfff" stroke-width="3"/>
+      <circle cx="55" cy="77" r="6" fill="#00eedd"/>
+    </svg>
+    <div class="main-title">Section Sportive<br>Lycée Louis de Cormontaigne</div>
+    <div class="desc">
+      Bienvenue sur l'accueil virtuel de la section sportive du lycée.<br>
+      Explorez nos activités et nos pôles sportifs en immersion&nbsp;:<br>
+      Football, Basketball, Handball, Athlétisme et bien d'autres !
     </div>
-    <button id="start-btn" onclick="document.querySelector('a-scene').style.display='block';this.parentElement.style.display='none';">ENTRER</button>
+    <div class="buttons-menu">
+      <button class="menu-btn" onclick="window.location.href='football.html'">
+        <!-- Football -->
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" /><circle cx="16" cy="16" r="5" fill="#fff"/></svg>
+        Football
+      </button>
+      <button class="menu-btn" onclick="window.location.href='basketball.html'">
+        <!-- Basketball -->
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" /><path d="M16 2 A14 14 0 0 1 16 30" stroke="#fff" stroke-width="2" fill="none"/><path d="M2 16 A14 14 0 0 1 30 16" stroke="#fff" stroke-width="2" fill="none"/></svg>
+        Basketball
+      </button>
+      <button class="menu-btn" onclick="window.location.href='handball.html'">
+        <!-- Handball -->
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" /><circle cx="10" cy="14" r="3" fill="#fff"/><circle cx="22" cy="18" r="2" fill="#fff"/></svg>
+        Handball
+      </button>
+      <button class="menu-btn" onclick="window.location.href='athletisme.html'">
+        <!-- Athlétisme -->
+        <svg viewBox="0 0 32 32"><ellipse cx="16" cy="16" rx="13" ry="7" /><rect x="15" y="6" width="2" height="12" fill="#fff" /></svg>
+        Athlétisme
+      </button>
+      <button class="menu-btn" onclick="window.location.href='presentation.html'">
+        <!-- Présentation générale -->
+        <svg viewBox="0 0 32 32"><rect x="6" y="10" width="20" height="12" rx="3" /><rect x="14" y="8" width="4" height="4" fill="#fff" /></svg>
+        Présentation
+      </button>
+      <button class="menu-btn" onclick="window.location.href='infos.html'">
+        <!-- Infos pratiques -->
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" /><rect x="14" y="10" width="4" height="8" fill="#fff"/><circle cx="16" cy="23" r="2" fill="#fff"/></svg>
+        Infos pratiques
+      </button>
+      <button class="menu-btn" onclick="window.location.href='entree.html'">
+        <!-- Entrer dans la visite -->
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" /><path d="M10 16 L22 16" stroke="#fff" stroke-width="2"/><polygon points="22,16 18,13 18,19" fill="#fff"/></svg>
+        Entrer dans la visite
+      </button>
+    </div>
+    <div class="credit">
+      Lycée Louis de Cormontaigne, Metz &copy; 2024 – Section Sportive virtuelle<br>
+      <span style="color:#00ffff;">Conçu pour tous appareils et la VR</span>
+    </div>
   </div>
-
-  <a-scene style="display: none;" background="color: #212f37">
-    <!-- Ciel doux dégradé -->
-    <a-sky color="#212f37"></a-sky>
-    <!-- Sol -->
-    <a-plane color="#1b2530" width="42" height="42" rotation="-90 0 0" position="0 0 0"></a-plane>
-    <!-- Anneau décor sportif (piste) -->
-    <a-torus color="#00d3aa" opacity="0.16" radius="14" radius-tubular="0.25" arc="360" rotation="90 0 0" position="0 0.03 0"></a-torus>
-
-    <!-- Batiments sportifs simples, centrés en cercle -->
-    <a-box color="#00eedd" width="3.2" height="6" depth="3.2" position="0 3 8" opacity="0.78"></a-box>
-    <a-entity position="0 6.7 8">
-      <a-plane width="4" height="1.1" color="#111" opacity="0.94"></a-plane>
-      <a-text value="Football" width="3.8" align="center" color="#00eedd" position="0 0 0.01" anchor="center"></a-text>
-    </a-entity>
-    <a-box color="#ffad00" width="3.2" height="6" depth="3.2" position="8 3 0" opacity="0.78"></a-box>
-    <a-entity position="8 6.7 0">
-      <a-plane width="4" height="1.1" color="#111" opacity="0.94"></a-plane>
-      <a-text value="Basketball" width="3.8" align="center" color="#ffad00" position="0 0 0.01" anchor="center"></a-text>
-    </a-entity>
-    <a-box color="#00bfff" width="3.2" height="6" depth="3.2" position="0 3 -8" opacity="0.78"></a-box>
-    <a-entity position="0 6.7 -8">
-      <a-plane width="4" height="1.1" color="#111" opacity="0.94"></a-plane>
-      <a-text value="Handball" width="3.8" align="center" color="#00bfff" position="0 0 0.01" anchor="center"></a-text>
-    </a-entity>
-    <a-box color="#8fff8f" width="3.2" height="6" depth="3.2" position="-8 3 0" opacity="0.78"></a-box>
-    <a-entity position="-8 6.7 0">
-      <a-plane width="4" height="1.1" color="#111" opacity="0.94"></a-plane>
-      <a-text value="Athlétisme" width="3.8" align="center" color="#39e06a" position="0 0 0.01" anchor="center"></a-text>
-    </a-entity>
-
-    <!-- Lumière douce -->
-    <a-entity light="type: ambient; color: #5bdcff; intensity: 0.7"></a-entity>
-    <a-entity light="type: directional; color: #d4eeff; intensity: 0.25" position="0 12 2"></a-entity>
-
-    <!-- Caméra + déplacement multiplateforme -->
-    <a-entity id="rig" position="0 1.6 16">
-      <a-entity camera wasd-controls="acceleration: 18" look-controls="pointerLockEnabled: false" touch-controls></a-entity>
-    </a-entity>
-
-    <!-- Panneau d'accueil flottant face à l'utilisateur -->
-    <a-entity id="welcome-panel" position="0 3 6">
-      <a-plane width="10" height="3.3" color="#001c23" opacity="0.92" material="shader: flat; side: double;"></a-plane>
-      <a-text value="Bienvenue dans la section sportive du\nLycée Louis de Cormontaigne"
-              width="9.5" align="center" color="#00ffff"
-              position="0 0.9 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"></a-text>
-      <a-text value="Explorez librement les pôles sportifs en VR, PC ou mobile !"
-              width="8.5" align="center" color="#fff"
-              position="0 -0.6 0.01" side="double" anchor="center" font="mozillavr" shader="msdf"></a-text>
-    </a-entity>
-
-    <!-- Décors sportifs supplémentaires : plots, sphères ambiance -->
-    <a-cylinder color="#ffad00" height="1.1" radius="0.22" position="4 0.55 5"></a-cylinder>
-    <a-cylinder color="#ffad00" height="1.1" radius="0.22" position="-4 0.55 -5"></a-cylinder>
-    <a-sphere color="#00eedd" radius="0.34" position="12 0.7 0" opacity="0.35"></a-sphere>
-    <a-sphere color="#00eedd" radius="0.34" position="-12 0.7 0" opacity="0.35"></a-sphere>
-    <a-sphere color="#00eedd" radius="0.34" position="0 0.7 12" opacity="0.35"></a-sphere>
-    <a-sphere color="#00eedd" radius="0.34" position="0 0.7 -12" opacity="0.35"></a-sphere>
-  </a-scene>
 </body>
 </html>
