@@ -154,7 +154,7 @@
         const gridSize = 8;
         let textureCache = null;
 
-        // Génération optimisée de la texture Matrix synchronisée
+        // Génération de la texture Matrix ORIGINALE mais synchronisée
         const createMatrixTexture = () => {
           if (textureCache) return textureCache;
           
@@ -163,33 +163,29 @@
           canvas.height = 256;
           const ctx = canvas.getContext('2d');
           
-          // Caractères Matrix/Binaire
-          const chars = 'アカサタナハマヤラワ01010101ABCDEF';
+          // Caractères Matrix ORIGINAUX
+          const chars = 'アカサタナハマヤラワ0123456789ABCDEF';
           const fontSize = 8;
           const columns = Math.floor(canvas.width / fontSize);
           const drops = Array(columns).fill(1);
 
           let frameCount = 0;
-          let animationPhase = 0;
           
           const animateMatrix = () => {
-            // Synchronisation avec le rythme des bâtiments (6-10 secondes)
-            const syncSpeed = Math.sin(Date.now() * 0.0005) * 0.5 + 0.5; // Oscillation 0-1
+            // Vitesse synchronisée avec les bâtiments (même durée 6-10 secondes)
+            const syncPhase = Math.sin(Date.now() * 0.001) * 0.5 + 0.5; // 0-1
+            const skipFrames = syncPhase > 0.5 ? 2 : 4; // Plus rapide quand les bâtiments montent
             
-            if (frameCount % (Math.floor(3 + syncSpeed * 2)) !== 0) {
+            if (frameCount % skipFrames !== 0) {
               frameCount++;
               requestAnimationFrame(animateMatrix);
               return;
             }
 
-            // Intensité basée sur la phase d'animation des bâtiments
-            const intensity = 0.1 + syncSpeed * 0.15;
-            ctx.fillStyle = `rgba(0, 0, 0, ${intensity})`;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Couleur qui change avec l'animation
-            const colorIntensity = Math.floor(255 * (0.7 + syncSpeed * 0.3));
-            ctx.fillStyle = `rgb(0, ${colorIntensity}, ${colorIntensity})`;
+            ctx.fillStyle = '#00ffff';
             ctx.font = `${fontSize}px monospace`;
             
             for (let i = 0; i < drops.length; i++) {
@@ -197,24 +193,18 @@
               const x = i * fontSize;
               const y = drops[i] * fontSize;
               
-              // Ajouter de l'aléatoire synchronisé
-              if (syncSpeed > 0.7) {
-                ctx.fillStyle = Math.random() > 0.8 ? '#ff0066' : `rgb(0, ${colorIntensity}, ${colorIntensity})`;
-              }
-              
               ctx.fillText(char, x, y);
               
-              // Vitesse de chute synchronisée avec les bâtiments
-              const resetChance = 0.975 - (syncSpeed * 0.02);
+              // Vitesse de reset synchronisée
+              const resetChance = syncPhase > 0.7 ? 0.98 : 0.975;
               if (y > canvas.height && Math.random() > resetChance) {
                 drops[i] = 0;
               }
-              drops[i] += Math.floor(1 + syncSpeed);
+              drops[i]++;
             }
             
             textureCache.needsUpdate = true;
             frameCount++;
-            animationPhase += 0.01;
             requestAnimationFrame(animateMatrix);
           };
 
