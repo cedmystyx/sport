@@ -5,65 +5,40 @@
   <title>Big Data Digital City</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- A-Frame et extensions -->
+  <!-- A-Frame & extras -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
 
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: black;
-    }
+    body { margin: 0; overflow: hidden; background: black; }
   </style>
 </head>
 <body>
 
-<!-- Son d’ambiance -->
+<!-- Ambiance sonore -->
 <audio autoplay loop>
   <source src="https://cdn.pixabay.com/audio/2023/03/07/audio_eb50a9b332.mp3" type="audio/mpeg">
 </audio>
 
-<a-scene background="color: #000">
+<a-scene background="color: #000" loading-screen="enabled: false">
 
-  <!-- Caméra avec déplacement et oscillation -->
-  <a-entity id="cameraRig" position="0 20 100" rotation="-30 0 0" move-forward oscillate-camera>
-    <a-entity camera look-controls="enabled: false"></a-entity>
+  <!-- Caméra au centre -->
+  <a-entity id="cameraRig" position="0 4 0">
+    <a-entity camera look-controls wasd-controls="enabled: false"></a-entity>
   </a-entity>
 
-  <!-- Lumières ambiance futuriste -->
+  <!-- Lumières -->
   <a-entity light="type: ambient; color: #88ffff; intensity: 0.5"></a-entity>
-  <a-entity light="type: directional; color: #00ffff; intensity: 0.8" position="0 50 50"></a-entity>
+  <a-entity light="type: directional; color: #00ffff; intensity: 0.8" position="10 20 10"></a-entity>
 
-  <!-- Ville générée -->
+  <!-- Ville -->
   <a-entity id="city" generate-city></a-entity>
 
   <script>
-    // Mouvement avant continu
-    AFRAME.registerComponent('move-forward', {
-      schema: { speed: {type: 'number', default: 2} },
-      tick: function (time, delta) {
-        const pos = this.el.getAttribute('position');
-        pos.z -= this.data.speed * (delta / 1000);
-        this.el.setAttribute('position', pos);
-      }
-    });
-
-    // Oscillation douce gauche/droite
-    AFRAME.registerComponent('oscillate-camera', {
-      schema: { amplitude: {default: 1}, frequency: {default: 0.0015} },
-      tick: function (time) {
-        const rig = this.el;
-        const angle = Math.sin(time * this.data.frequency) * this.data.amplitude;
-        rig.setAttribute('rotation', `-30 ${angle} 0`);
-      }
-    });
-
-    // Ville générée avec buildings + texture animée
     AFRAME.registerComponent('generate-city', {
       init: function () {
         const container = this.el;
         const spacing = 6;
+        const size = 60;
         const canvas = document.createElement('canvas');
         canvas.width = 256;
         canvas.height = 512;
@@ -73,7 +48,7 @@
         const drops = Array(Math.floor(columns)).fill(1);
 
         function drawMatrix() {
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+          ctx.fillStyle = 'rgba(0,0,0,0.05)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
           ctx.fillStyle = '#00ffff';
           ctx.font = '10px monospace';
@@ -89,28 +64,43 @@
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
         texture.repeat.set(1, 1);
-
         setInterval(() => {
           drawMatrix();
           texture.needsUpdate = true;
         }, 50);
 
-        for (let x = -60; x <= 60; x += spacing) {
-          for (let z = -60; z >= -600; z -= spacing) {
+        for (let x = -size; x <= size; x += spacing) {
+          for (let z = -size; z <= size; z += spacing) {
+
+            // Laisse un vide en croix (cardinaux)
+            if (Math.abs(x) < spacing * 2 && z === 0) continue;
+            if (Math.abs(z) < spacing * 2 && x === 0) continue;
+
             const h = Math.random() * 20 + 10;
             const building = document.createElement('a-entity');
             building.setAttribute('position', `${x} 0 ${z}`);
 
             const box = document.createElement('a-box');
-            box.setAttribute('position', `0 ${h / 2} 0`);
+            box.setAttribute('position', `0 0 0`);
             box.setAttribute('width', '4');
             box.setAttribute('depth', '4');
             box.setAttribute('height', h.toFixed(2));
             box.setAttribute('color', '#00ffff');
             box.setAttribute('opacity', '0.4');
             box.setAttribute('material', 'emissive: #00ffff; emissiveIntensity: 0.6;');
+
+            // Animation de montée
+            box.setAttribute('animation', {
+              property: 'position',
+              to: `0 ${h / 2} 0`,
+              dur: 2000,
+              easing: 'easeOutCubic',
+              delay: Math.random() * 1000
+            });
+
             building.appendChild(box);
 
+            // Faces animées style Matrix
             const faces = [
               { pos: `0 ${h / 2} 2.01`, rot: '0 0 0' },
               { pos: `0 ${h / 2} -2.01`, rot: '0 180 0' },
@@ -144,6 +134,7 @@
       }
     });
   </script>
+
 </a-scene>
 
 </body>
