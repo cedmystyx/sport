@@ -131,7 +131,7 @@
         <img id="img_3" src="./img/athletisme.png"/>
         <img id="img_4" src="./img/ping-pong.png"/>
         <img id="img_5" src="./img/trampoline.png"/>
-        <img id="moai" src="./img/football.png"/>
+        <img id="img_6" src="./img/football.png"/>
         <!-- Ajoute les autres images manquantes ici -->
         <a-mixin id="main" geometry="primitive: plane; width: 0.58; height: 0.82" material="color: white; shader: shadow"
           animation__scale="property: scale; to: 1.3 1.3 1.3; dur: 200; startEvents: mouseenter"
@@ -159,6 +159,9 @@
           </a-entity>
           <a-entity id="5" position="1.6 1.1 0" mixin="main" class="raycastable menu-button">
             <a-entity material="src: #img_5; alphaTest: 1" mixin="poster"></a-entity>
+          </a-entity>
+          <a-entity id="6" position="2.4 1.1 0" mixin="main" class="raycastable menu-button">
+            <a-entity material="src: #img_6; alphaTest: 1" mixin="poster"></a-entity>
           </a-entity>
           <!-- Ajoute les autres boutons si tu ajoutes des images -->
           <a-video src="#CART_SECRET" toggleclick position="4.4 0 -.5" visible="false" class="raycastable"></a-video>
