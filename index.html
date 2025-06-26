@@ -18,16 +18,24 @@
     <script src="./js/main.js" defer></script>
     <script src="./js/lobby.js" defer></script>
     <link rel="stylesheet" href="style.css">
-    <!-- Composant pour colorer les mains -->
+    <!-- Middle Finger Switch Component -->
     <script>
-    // Ce composant colore les modèles de main après chargement
-    AFRAME.registerComponent('hand-color', {
-      schema: {type: 'color', default: '#FFFFFF'},
+    AFRAME.registerComponent('middle-finger-switch', {
+      schema: {
+        hand: {type: 'string', default: 'left'},
+        mesh: {type: 'selector'}
+      },
       init: function () {
-        this.el.addEventListener('model-loaded', () => {
-          this.el.object3D.traverse((node) => {
-            if (node.isMesh && node.material) node.material.color.set(this.data);
-          });
+        var self = this;
+        window.addEventListener('keydown', function (e) {
+          // 'm' pour la main gauche, 'n' pour la droite
+          if ((self.data.hand === 'left' && e.key === 'm') ||
+              (self.data.hand === 'right' && e.key === 'n')) {
+            if (self.data.mesh) {
+              let v = self.data.mesh.getAttribute('visible');
+              self.data.mesh.setAttribute('visible', !v);
+            }
+          }
         });
       }
     });
@@ -54,11 +62,57 @@
         </a-entity>
       </a-entity>
 
-      <!-- Mains VR stylisées Ready Player Me, personnalisées OR & ARGENT -->
-      <a-entity id="leftHand" hand-tracking-controls="hand: left; handModelStyle: readyPlayerMe"
-        hand-color="#FFD700" raycaster="objects: .raycastable"></a-entity>
-      <a-entity id="rightHand" hand-tracking-controls="hand: right; handModelStyle: readyPlayerMe"
-        hand-color="#C0C0C0" raycaster="objects: .raycastable"></a-entity>
+      <!-- MAIN GAUCHE VR + doigt d'honneur -->
+      <a-entity id="leftHand"
+          hand-controls="hand: left; color: #FFD700"
+          oculus-touch-controls="hand: left"
+          vive-controls="hand: left"
+          windows-motion-controls="hand: left"
+          daydream-controls="hand: left"
+          gearvr-controls="hand: left"
+          magic-leap-controls="hand: left"
+          valve-index-controls="hand: left"
+          oculus-go-controls="hand: left"
+          shadow="cast: true"
+          middle-finger-switch="hand: left; mesh: #leftMiddleFinger"
+      ></a-entity>
+      <!-- Mesh doigt d'honneur gauche -->
+      <a-entity id="leftMiddleFinger" visible="false" position="0 0 0">
+        <!-- Paume -->
+        <a-box width="0.08" height="0.07" depth="0.06" color="#FFD700" position="0 0 0"></a-box>
+        <!-- Doigt majeur tendu -->
+        <a-box width="0.02" height="0.14" depth="0.02" color="#FFD700" position="0 0.09 0"></a-box>
+        <!-- Autres doigts repliés -->
+        <a-box width="0.02" height="0.04" depth="0.02" color="#FFD700" position="-0.03 0.01 0"></a-box>
+        <a-box width="0.02" height="0.04" depth="0.02" color="#FFD700" position="0.03 0.01 0"></a-box>
+        <a-box width="0.02" height="0.04" depth="0.02" color="#FFD700" position="0 0.01 0.03"></a-box>
+        <!-- Pouce replié -->
+        <a-box width="0.03" height="0.02" depth="0.02" color="#FFD700" position="-0.045 -0.02 0"></a-box>
+      </a-entity>
+
+      <!-- MAIN DROITE VR + doigt d'honneur -->
+      <a-entity id="rightHand"
+          hand-controls="hand: right; color: #C0C0C0"
+          oculus-touch-controls="hand: right"
+          vive-controls="hand: right"
+          windows-motion-controls="hand: right"
+          daydream-controls="hand: right"
+          gearvr-controls="hand: right"
+          magic-leap-controls="hand: right"
+          valve-index-controls="hand: right"
+          oculus-go-controls="hand: right"
+          shadow="cast: true"
+          middle-finger-switch="hand: right; mesh: #rightMiddleFinger"
+      ></a-entity>
+      <!-- Mesh doigt d'honneur droite -->
+      <a-entity id="rightMiddleFinger" visible="false" position="0 0 0">
+        <a-box width="0.08" height="0.07" depth="0.06" color="#C0C0C0" position="0 0 0"></a-box>
+        <a-box width="0.02" height="0.14" depth="0.02" color="#C0C0C0" position="0 0.09 0"></a-box>
+        <a-box width="0.02" height="0.04" depth="0.02" color="#C0C0C0" position="-0.03 0.01 0"></a-box>
+        <a-box width="0.02" height="0.04" depth="0.02" color="#C0C0C0" position="0.03 0.01 0"></a-box>
+        <a-box width="0.02" height="0.04" depth="0.02" color="#C0C0C0" position="0 0.01 0.03"></a-box>
+        <a-box width="0.03" height="0.02" depth="0.02" color="#C0C0C0" position="0.045 -0.02 0"></a-box>
+      </a-entity>
 
       <!-- Environnement -->
       <a-entity environment="preset: starry; ground: flat; lighting: none; skyType: gradient; horizonColor: #4d4d4d; skyColor: #acebff"></a-entity>
@@ -131,7 +185,8 @@
 
     <!-- Ecran d'aide utilisateur -->
     <div id="helpBox">
-      <b>Commandes :</b> Utilisez la souris ou le doigt pour regarder autour de vous. Cliquez sur un sport pour voir plus d'infos.
+      <b>Commandes :</b> Utilisez la souris ou le doigt pour regarder autour de vous. Cliquez sur un sport pour voir plus d'infos.<br>
+      Appuyez sur <b>m</b> (main gauche) ou <b>n</b> (main droite) pour le doigt d'honneur !
     </div>
   </body>
 </html>
