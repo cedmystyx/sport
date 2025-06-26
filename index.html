@@ -78,7 +78,6 @@
           raycaster="objects: .raycastable; showLine: true; lineColor: #FFD700"
           line="color: #FFD700; opacity: 0.8"
           >
-        <!-- Le laser est automatiquement géré par le raycaster+line -->
       </a-entity>
       <!-- Mesh doigt d'honneur gauche -->
       <a-entity id="leftMiddleFinger" visible="false" position="0 0 0">
@@ -131,7 +130,7 @@
         <img id="img_2" src="./img/basketball.png"/>
         <img id="img_3" src="./img/athletisme.png"/>
         <img id="img_4" src="./img/ping-pong.png"/>
-        <img id="img_4" src="./img/trampoline.png"/>
+        <img id="img_5" src="./img/trampoline.png"/>
         <img id="moai" src="./img/football.png"/>
         <!-- Ajoute les autres images manquantes ici -->
         <a-mixin id="main" geometry="primitive: plane; width: 0.58; height: 0.82" material="color: white; shader: shadow"
@@ -158,30 +157,33 @@
           <a-entity id="4" position="0.8 1.1 0" mixin="main" class="raycastable menu-button">
             <a-entity material="src: #img_4; alphaTest: 1" mixin="poster"></a-entity>
           </a-entity>
+          <a-entity id="5" position="1.6 1.1 0" mixin="main" class="raycastable menu-button">
+            <a-entity material="src: #img_5; alphaTest: 1" mixin="poster"></a-entity>
+          </a-entity>
           <!-- Ajoute les autres boutons si tu ajoutes des images -->
           <a-video src="#CART_SECRET" toggleclick position="4.4 0 -.5" visible="false" class="raycastable"></a-video>
         </a-entity>
         <!-- Bouton info (redirige) -->
-        <a-entity redirect="info.html" geometry="width: 0.5; height: 0.5" position="-2.4 0 0" material="alphaTest: 1; src: ./resources/images/info.png" mixin="poster" class="raycastable"></a-entity>
+        <a-entity redirect="info.html" geometry="primitive: plane; width: 0.5; height: 0.5" position="-2.4 0 0" material="alphaTest: 1; src: ./resources/images/info.png" mixin="poster" class="raycastable"></a-entity>
         <!-- Panneau d'informations interactif -->
         <!-- ... (conserve le panneau d'info avancé si tu l'utilises dans tes scripts) -->
       </a-entity>
 
       <!-- Grand écran vidéo -->
-      <a-video id="4K1080P" src="#BACKGROUND_VIDEO" position="2.5 86.03 -73.4" class="raycastable" material="alphaTest: 1; fog: false; blending: additive" scale="489 200 1" visible="false" volume="100" sound="src: ./resources/sounds/light.mp3; volume: 10; loop: true;"></a-video>
+      <a-video id="4K1080P" src="#BACKGROUND_VIDEO" position="2.5 86.03 -73.4" class="raycastable" material="alphaTest: 1; fog: false; blending: additive" scale="489 200 1" visible="false" volume="1"></a-video>
 
       <!-- Titres -->
-      <a-entity anchor="center" scale=".5 .5 .01" position="0 3.7 -2.05" rotation="0 0 0" geometry="primitive: plane; width: 4.5; height: .5" material="color: #333; shader: shadow;">
-        <a-text value="LYCEE LOUIS DE CORMONTAIGNE" width="7" height="1" anchor="center" align="center" font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"></a-text>
+      <a-entity scale=".5 .5 .01" position="0 3.7 -2.05" rotation="0 0 0" geometry="primitive: plane; width: 4.5; height: .5" material="color: #333; shader: shadow;">
+        <a-text value="LYCEE LOUIS DE CORMONTAIGNE" width="7" height="1" align="center" font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"></a-text>
       </a-entity>
-      <a-entity anchor="center" scale=".5 .5 .01" position="0 3.5 -2.05" rotation="0 0 0" geometry="primitive: plane; width: 4.5; height: .5" material="color: #333; shader: shadow;" class="raycastable">
-        <a-text value="METZ" width="6" height="1" anchor="center" align="center"></a-text>
+      <a-entity scale=".5 .5 .01" position="0 3.5 -2.05" rotation="0 0 0" geometry="primitive: plane; width: 4.5; height: .5" material="color: #333; shader: shadow;" class="raycastable">
+        <a-text value="METZ" width="6" height="1" align="center"></a-text>
       </a-entity>
       <!-- ... (autres éléments 3D, moai, etc.) -->
 
       <!-- Fond 3D OBJ -->
-      <a-entity anchor="center" position="-3 14 -53" rotation="90 0 0" scale="100 20 100">
-        <a-entity id="panorama" obj-model="obj: ./resources/objects/fond.obj" modify-materials="" position="-0.06 -0.18 -0.40" scale="0.05 0.05 0.05"></a-entity>
+      <a-entity position="-3 14 -53" rotation="90 0 0" scale="100 20 100">
+        <a-entity id="panorama" obj-model="obj: ./resources/objects/fond.obj" modify-materials position="-0.06 -0.18 -0.40" scale="0.05 0.05 0.05"></a-entity>
       </a-entity>
       <!-- Son d'ambiance -->
       <a-entity sound="src: url(./resources/sounds/do.mp3); autoplay: true; loop: true; volume: .1" position=".03 2.8 -2.2"></a-entity>
