@@ -40,7 +40,7 @@
       }
     });
     </script>
-    <!-- Script pour interaction menu sport -->
+    <!-- Script pour interaction menu sport (CORRIGÉ) -->
     <script>
     document.addEventListener("DOMContentLoaded", function() {
       // Mapping id -> page cible
@@ -55,7 +55,18 @@
       document.querySelectorAll('.menu-button').forEach(btn => {
         btn.addEventListener('click', function () {
           const id = btn.getAttribute('id');
-          if (redirections[id]) window.location.href = redirections[id];
+          if (redirections[id]) {
+            const scene = document.querySelector('a-scene');
+            // Teste si on est en VR
+            if (scene && scene.renderer && scene.renderer.xr && scene.renderer.xr.isPresenting) {
+              scene.exitVR();
+              setTimeout(function () {
+                window.location.href = redirections[id];
+              }, 500);
+            } else {
+              window.location.href = redirections[id];
+            }
+          }
         });
         // Pour effet visuel à la souris/VR
         btn.addEventListener('mouseenter', function() {
