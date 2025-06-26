@@ -40,11 +40,9 @@
         </a-entity>
       </a-entity>
 
-      <!-- Contrôleurs VR & Mains -->
-      <a-entity id="leftController" laser-controls="hand: left" raycaster="objects: .raycastable"></a-entity>
-      <a-entity id="rightController" laser-controls="hand: right" raycaster="objects: .raycastable" line="color: #118A7E"></a-entity>
-      <a-entity id="leftHand" hand-tracking-controls="hand: left; handModelStyle: highPoly" raycaster="objects: .raycastable"></a-entity>
-      <a-entity id="rightHand" hand-tracking-controls="hand: right" raycaster="objects: .raycastable"></a-entity>
+      <!-- Mains VR uniquement, personnalisées (OR & ARGENT) -->
+      <a-entity id="leftHand" hand-tracking-controls="hand: left; handModelStyle: highPoly" material="color: #FFD700" raycaster="objects: .raycastable"></a-entity>
+      <a-entity id="rightHand" hand-tracking-controls="hand: right; handModelStyle: highPoly" material="color: #C0C0C0" raycaster="objects: .raycastable"></a-entity>
 
       <!-- Environnement -->
       <a-entity environment="preset: starry; ground: flat; lighting: none; skyType: gradient; horizonColor: #4d4d4d; skyColor: #acebff"></a-entity>
