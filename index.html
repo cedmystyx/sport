@@ -1,176 +1,203 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Section Sportive – Lycée Louis de Cormontaigne</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #131b24;
-      color: #fff;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      min-height: 100vh;
-      overflow: hidden;
-    }
-    .menu-bg {
-      background: linear-gradient(120deg, #084060 0%, #0d222e 100%);
-      min-height: 100vh;
-      width: 100vw;
-      position: fixed;
-      top: 0; left: 0;
-      z-index: 1;
-    }
-    .flex-center {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%,-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100vw;
-    }
-    .logo-sportif {
-      width: 130px;
-      margin-bottom: 20px;
-      filter: drop-shadow(0 2px 16px #00eedd55);
-    }
-    .main-title {
-      font-size: 2.3rem;
-      font-weight: bold;
-      letter-spacing: 2px;
-      color: #00ffff;
-      text-shadow: 0 2px 24px #00ffff99;
-      margin-bottom: 0.7em;
-      text-align: center;
-    }
-    .desc {
-      color: #e0e9ef;
-      background: rgba(0,28,36,0.55);
-      padding: 16px 28px;
-      border-radius: 14px;
-      font-size: 1.22rem;
-      box-shadow: 0 2px 32px #00eedd22;
-      margin-bottom: 2em;
-      text-align: center;
-      max-width: 530px;
-    }
-    .buttons-menu {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 30px;
-      margin-bottom: 2em;
-      justify-content: center;
-    }
-    .menu-btn {
-      background: linear-gradient(90deg, #00eedd 0%, #00bfff 100%);
-      color: #003549;
-      font-size: 1.18rem;
-      font-weight: bold;
-      padding: 19px 40px;
-      border: none;
-      border-radius: 18px;
-      box-shadow: 0 2px 18px #00eedd33;
-      cursor: pointer;
-      transition: background 0.18s, box-shadow 0.18s, color 0.18s;
-      letter-spacing: 1.3px;
-      min-width: 210px;
-      margin: 0 3px;
-      outline: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-    }
-    .menu-btn svg {
-      width: 27px;
-      height: 27px;
-      fill: #003549;
-      flex-shrink: 0;
-    }
-    .menu-btn:hover, .menu-btn:focus {
-      background: linear-gradient(90deg, #00ffff 0%, #39e06a 100%);
-      color: #012517;
-      box-shadow: 0 2px 28px #00eedd66;
-    }
-    .credit {
-      color: #00eedd;
-      font-size: 1.01rem;
-      margin-top: 2.5em;
-      opacity: 0.65;
-      text-align: center;
-    }
-    @media (max-width: 700px) {
-      .main-title { font-size: 1.25rem; }
-      .desc { font-size: 1rem; padding: 14px 10px; max-width: 95vw; }
-      .menu-btn { font-size: 1rem; padding: 12px 4vw; min-width: 120px; }
-      .logo-sportif { width: 84px; }
-      .buttons-menu { gap: 12px; }
-    }
-  </style>
-</head>
-<body>
-  <div class="menu-bg"></div>
-  <div class="flex-center">
-    <!-- Logo sportif stylisé -->
-    <svg class="logo-sportif" viewBox="0 0 110 110">
-      <!-- Cercle fond turquoise -->
-      <circle cx="55" cy="55" r="53" fill="#00eedd" fill-opacity="0.11"/>
-      <!-- Icône flamme/sport -->
-      <path d="M55 23 Q70 35 61 57 Q75 55 75 74 Q75 92 55 92 Q35 92 35 74 Q35 55 49 57 Q40 35 55 23Z"
-        fill="#00eedd" stroke="#00bfff" stroke-width="3"/>
-      <!-- Ballon rond -->
-      <circle cx="55" cy="77" r="10" fill="#fff" stroke="#00bfff" stroke-width="3"/>
-      <circle cx="55" cy="77" r="6" fill="#00eedd"/>
-    </svg>
-    <div class="main-title">Section Sportive<br>Lycée Louis de Cormontaigne</div>
-    <div class="desc">
-      Bienvenue sur l'accueil virtuel de la section sportive du lycée.<br>
-      Explorez nos activités et nos pôles sportifs en immersion&nbsp;:<br>
-      Football, Basketball, Handball, Athlétisme et bien d'autres !
-    </div>
-    <div class="buttons-menu">
-      <button class="menu-btn" onclick="window.location.href='football.html'">
-        <!-- Football -->
-        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" /><circle cx="16" cy="16" r="5" fill="#fff"/></svg>
-        Football
-      </button>
-      <button class="menu-btn" onclick="window.location.href='basketball.html'">
-        <!-- Basketball -->
-        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" /><path d="M16 2 A14 14 0 0 1 16 30" stroke="#fff" stroke-width="2" fill="none"/><path d="M2 16 A14 14 0 0 1 30 16" stroke="#fff" stroke-width="2" fill="none"/></svg>
-        Basketball
-      </button>
-      <button class="menu-btn" onclick="window.location.href='handball.html'">
-        <!-- Handball -->
-        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" /><circle cx="10" cy="14" r="3" fill="#fff"/><circle cx="22" cy="18" r="2" fill="#fff"/></svg>
-        Handball
-      </button>
-      <button class="menu-btn" onclick="window.location.href='athletisme.html'">
-        <!-- Athlétisme -->
-        <svg viewBox="0 0 32 32"><ellipse cx="16" cy="16" rx="13" ry="7" /><rect x="15" y="6" width="2" height="12" fill="#fff" /></svg>
-        Athlétisme
-      </button>
-      <button class="menu-btn" onclick="window.location.href='presentation.html'">
-        <!-- Présentation générale -->
-        <svg viewBox="0 0 32 32"><rect x="6" y="10" width="20" height="12" rx="3" /><rect x="14" y="8" width="4" height="4" fill="#fff" /></svg>
-        Présentation
-      </button>
-      <button class="menu-btn" onclick="window.location.href='infos.html'">
-        <!-- Infos pratiques -->
-        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" /><rect x="14" y="10" width="4" height="8" fill="#fff"/><circle cx="16" cy="23" r="2" fill="#fff"/></svg>
-        Infos pratiques
-      </button>
-      <button class="menu-btn" onclick="window.location.href='entree.html'">
-        <!-- Entrer dans la visite -->
-        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" /><path d="M10 16 L22 16" stroke="#fff" stroke-width="2"/><polygon points="22,16 18,13 18,19" fill="#fff"/></svg>
-        Entrer dans la visite
-      </button>
-    </div>
-    <div class="credit">
-      Lycée Louis de Cormontaigne, Metz &copy; 2024 – Section Sportive virtuelle<br>
-      <span style="color:#00ffff;">Conçu pour tous appareils et la VR</span>
-    </div>
-  </div>
-</body>
+<!-- Cormon VR Experience - Virtual Reality on the Modern Web
+    Copyright (C) 2023-2024  Yanis M., Matthieu Farcot
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
+
+<html>
+  <head>
+        <title>CormonVR</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <!-- Modules Requiring -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <!--<script src="./js/modules/i18n.js"></script> -->
+        <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+       <!-- I love supermedium -->
+       <script src="https://unpkg.com/aframe-environment-component@1.3.0/dist/aframe-environment-component.min.js"></script>
+       <!-- <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-particle-system-component@master/dist/aframe-particle-system-component.min.js"></script> -->
+  </head>
+
+  <body>
+    <a-scene cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .raycastable" fog="far: 150">
+        
+      <a-entity position="0 2.25 -15" particle-system="preset: rain"></a-entity>
+
+        <!-- Locks Mouse & Touch -->
+        <a-entity position="0 1.6 0" camera look-controls="magicWindowTrackingEnabled: true; touchEnabled: true; mouseEnabled: true" renderer="sortObjects: true">
+          <a-entity spotinfo id="NotifPanel" position="0 0 -1.5" visible="true" geometry="primitive: plane; width: 1.5; height: 1" material="color: #333333; shader: flat; transparent: false" class="raycastable">
+            <a-entity id="Info_Description" position="-0.51997 0.00006 0.01288" text="shader: msdf; anchor: left; font: https://cdn.aframe.io/examples/ui/Viga-Regular.json; align: center; color: white; value: N/A"></a-entity>
+          </a-entity>
+        </a-entity>
+
+      <!-- VR -->
+      <a-entity id="leftController" laser-controls="hand: left" raycaster="objects: .raycastable"></a-entity>
+      <a-entity id="rightController" laser-controls="hand: right" raycaster="objects: .raycastable" line="color: #118A7E"></a-entity>
+      <a-entity id="leftHand" hand-tracking-controls="hand: left; handModelStyle: highPoly" raycaster="objects: .raycastable"></a-entity>
+      <a-entity id="rightHand" hand-tracking-controls="hand: right" raycaster="objects: .raycastable"></a-entity>
+  
+      <a-entity environment="preset: starry; ground: flat; lighting: none; skyType: gradient; horizonColor: #4d4d4d; skyColor: #acebff"></a-entity>
+
+      <a-entity light="color: #ffdb6c; type: spot" position="0 6.58005 -143.7904" rotation="0 180 0"></a-entity>
+        
+     <a-assets>
+      <video id="CART_SECRET" loop="true" preload src="./resources/videos/cart.mp4"></video>
+      <video id="BACKGROUND_VIDEO" loop="true" autoplay preload muted src="./resources/videos/cart.mp4"></video>
+
+      <a-asset-item id="background" src="./resources/objects/fond.obj"></a-asset-item>
+      
+      <img id="moai" src="./resources/images/Moai.jpg"/>
+
+      <img id="img_1" src="./resources/images/ACTIVITE-MELEC.png"/>
+
+      <img id="img_2" src="./resources/images/Explo-MELEC.png"/>
+
+      <img id="img_3" src="./resources/images/ACTIVITE-CIEL.png"/>
+
+      <img id="img_4" src="./resources/images/Explo-CIEL.png"/>
+
+      <img id="img_5" src="./resources/images/Explo-BTS.png"/>
+
+      <img id="img_6" src="./resources/images/ACTIVITE-CPGE.png"/>
+
+      <img id="img_7" src="./resources/images/Explo-CPGE.png"/>
+
+      <img id="img_8" src="./resources/images/CYBER.png"/>
+
+      <img id="img_9" src="./resources/images/Explo-TECHNO.png"/>
+
+      <img id="img_10" src="./resources/images/DecouvBTS.png"/>
+
+
+      <a-mixin id="main" geometry="primitive: plane; width: 0.5783552; height: 0.8192" material="color: white; shader: shadow"
+        animation__scale="property: scale; to: 1.3 1.3 1.3; dur: 200; startEvents: mouseenter"
+        animation__scale_reverse="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"
+
+        animation__position="property: rotation; to: 10 0 0; dur: 200; startEvents: mouseenter"
+        animation__position__reverse="property: rotation; to: 0 0 0 dur: 10; startEvents: mouseleave"
+      />
+
+       <a-mixin id="poster" position="0 0 0.005"
+       geometry="primitive: plane; width: 0.7; height: 1.4"
+       material="color: white; shader: flat" />
+    </a-assets>
+
+        <a-entity id="ui" position="0 1.6 -2.5">
+            <!-- Poster menu -->
+            <a-entity id="menu">
+              <a-entity id="1" position="-1.6 1.1 0" mixin="main" class="raycastable menu-button">
+                <a-entity material="src: #img_1; alphaTest: 1" mixin="poster"></a-entity>
+              </a-entity>
+    
+              <a-entity id="2" position="-0.8 1.1 0" mixin="main" class="raycastable menu-button">
+                <a-entity material="src: #img_2; alphaTest: 1" mixin="poster"></a-entity>
+              </a-entity>
+    
+              <a-entity id="3" position="0 1.1 0" mixin="main" class="raycastable menu-button">
+                <a-entity material="src: #img_3; alphaTest: 1" mixin="poster"></a-entity>
+              </a-entity>
+
+              <a-entity id="4" position="0.8 1.1 0" mixin="main" class="raycastable menu-button">
+                <a-entity material="src: #img_4; alphaTest: 1" mixin="poster"></a-entity>
+              </a-entity>
+
+              <a-entity id="5" position="-1.6 -0.4 0" mixin="main" class="raycastable menu-button">
+                <a-entity material="src: #img_5; alphaTest: 1" mixin="poster"></a-entity>
+              </a-entity>
+
+              <!--<a-entity id="6" position="0 -0.4 0" mixin="main" class="raycastable menu-button">
+                <a-entity material="src: #img_6; alphaTest: 1" mixin="poster"></a-entity>
+              </a-entity>-->
+
+              <a-entity id="7" position="0.8 -0.4 0" mixin="main" class="raycastable menu-button">
+                <a-entity material="src: #img_7; alphaTest: 1" mixin="poster"></a-entity>
+              </a-entity>
+
+              <a-entity id="8" position="1.6 -0.4 0" mixin="main" class="raycastable menu-button">
+                <a-entity material="src: #img_8; alphaTest: 1" mixin="poster"></a-entity>
+              </a-entity>
+              
+              <a-entity id="9" position="1.6 1.1 0" mixin="main" class="raycastable menu-button">
+                <a-entity material="src: #img_9; alphaTest: 1" mixin="poster"></a-entity>
+              </a-entity>
+
+              <a-entity id="10" position="-0.8 -0.4 0" mixin="main" class="raycastable menu-button">
+                <a-entity material="src: #img_10; alphaTest: 1" mixin="poster"></a-entity>
+              </a-entity>
+
+              <a-video src="#CART_SECRET" toggleclick position="4.4 0 -.5" visible="false" class="raycastable"></a-video>
+        </a-entity>
+
+        <a-entity redirect="info.html" geometry="width: 0.5; height: 0.5" position="-2.4 0 0" material="alphaTest: 1; src: ./resources/images/info.png" mixin="poster" class="raycastable"></a-entity>
+
+        <a-entity id="infoPanel" position="0 0 1" info-panel
+          geometry="primitive: plane; width: 1.5; height: 1"
+          animation__0="pauseEvents: pause; resumeEvents: resume; property: position; to: 0 .09 1; dir: alternate; loop: true; dur: 1000; autoplay: true; easing: easeInOutQuart"
+          animation__1="property: material.bottomColor; to: #FFFFFF; dur: 200; startEvents: resume"
+          animation__2="property: material.bottomColor; to: #2845ff; dur: 200; startEvents: pause"
+          animation__cancel="property: scale; to: 0 0 0; dur: 500; startEvents: cancel"
+          animation__enter="property: scale; to: 1 1 1; dur: 500; startEvents: enter"
+          material="shader: gradientshader; topColor: #000000; bottomColor: #2833ff" class="raycastable">
+          <a-entity id="Info_Title" position="-0.68 0.25 0"
+            text="shader: msdf; anchor: left; width: 2; font: https://cdn.aframe.io/examples/ui/Viga-Regular.json;  color: white; value: Lorem ipsum"></a-entity>
+          <a-entity id="Info_Description" position="-.7 0.1 0" text="baseline: top; shader: msdf; anchor: left; width: 1.2; font: https://cdn.aframe.io/examples/ui/Viga-Regular.json; align: center; color: white; value: N/A"></a-entity>
+
+          <a-entity class="raycastable" id="Info_Confirm" position=".55 .3 .01"  geometry="primitive: plane; width: .3; height: .18"  material="color: #00FF28; shader: flat; transparent: true" text="value: ENTRER ; align: center; width: 1.4; font: https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; color: black">
+            <a-entity visible="false" class="raycastable" id="Extra1" position="-0.27 0.0886 0.01" geometry="primitive: plane; width: 0.3; height: 0.18" material="color: #ffffff; shader: flat; transparent: true;" scale="0.7 0.7 0.5"> </a-entity>
+            <a-entity visible="false" class="raycastable" id="Extra2" position="-0.27142 -0.1071 0.01" geometry="primitive: plane; width: 0.3; height: 0.18" material="color: #ffffff; shader: flat; transparent: true;" scale="0.7 0.7 0.5"> </a-entity>
+          </a-entity>
+          <a-entity class="raycastable" id="Info_Cancel"  position=".55 -.3 .01" geometry="primitive: plane; width: .3; height: .18"  material="color: #ff0004; shader: flat; transparent: true" text="value: ANNULER; align: center; width: 1.4; font: https://cdn.aframe.io/fonts/Exo2SemiBold.fnt; color: black"> </a-entity>
+        </a-entity>
+      </a-entity>
+
+      <a-video id="4K1080P" src="#BACKGROUND_VIDEO" position="2.5 86.03 -73.4" class="raycastable" material="alphaTest: 1; fog: false; blending: additive" scale="489 200 1" visible="false" volume="100" sound="src: ./resources/sounds/light.mp3; volume: 10; loop: true;"></a-video>
+
+    <a-entity anchor="center" scale=".5 .5 .01" position="0 3.7 -2.05" rotation="0 0 0" geometry="primitive: plane; width: 4.5; height: .5" material="color: #333333; shader: shadow; transparent: false" sound="src: ./resources/sounds/jack.mp3; on: click; poolSize: 100">
+      <a-text value="LYCEE LOUIS DE CORMONTAIGNE" width="7" height="1" anchor="center" align="center" font="https://cdn.aframe.io/fonts/Exo2Bold.fnt" ></a-text>
+    </a-entity>
+    <a-entity test anchor="center" scale=".5 .5 .01" position="0 3.5 -2.05" rotation="0 0 0" geometry="primitive: plane; width: 4.5; height: .5" material="color: #333333; shader: shadow; transparent: false" sound="src: ./resources/sounds/jack.mp3; on: click; poolSize: 100" class="raycastable">
+      <a-text value="METZ" width="6" height="1" anchor="center" align="center" particle-system="color: #EF0000,#44CC00; particleCount: 10000; size: 0.1; duration: 1; positionSpread: 1 1 1; rotationAngleSpread: 2; enabled: false" ></a-text>
+    </a-entity>
+
+    <a-entity moai anchor="center" scale=".5 .5 .01" position="0 1.5 1.5" rotation="0 180 0" particle-system="color: #EF0000,#44CC00; particleCount: 10000; size: 0.1; duration: 1; positionSpread: 1 1 1; rotationAngleSpread: 2; enabled: false" sound="src: ./resources/sounds/waa.mp3; on: click; poolSize: 100" geometry="primitive: plane; width: 1.5; height: 1" material="color: #333333; shader: shadow; transparent: false" class="raycastable">
+      <a-text value="Behind you" anchor="center" align="center"></a-text>
+    </a-entity>
+
+    <a-entity id="moai_entity" scale="3 1 1" position="0 1.5 5" rotation="0 180 0" visible="false"
+    animation__1="property: position; from: 0 1.5 100; to: 0 1.5 1 ; dur: 100; easing: linear; startEvents: in"
+    animation__2="property: position; to: 0 1.5 100 ; dur: 500; easing: linear; startEvents: out">
+      <a-entity material="src: #moai; alphaTest: 1" mixin="poster"></a-entity>
+    </a-entity>
+
+    <a-entity anchor="center" scale=".5 .5 .01" position="1.5 1.5 0" rotation="0 -90 0" geometry="primitive: plane; width: 1.5; height: 1" material="color: #333333; shader: shadow; transparent: false" class="raycastable">
+      <a-text value="Wrong Side" anchor="center" align="center" class="Side_Bad" ></a-text>
+    </a-entity>
+
+    <a-entity anchor="center" scale=".5 .5 .01" position="-1.5 1.5 0" rotation="0 90 0" geometry="primitive: plane; width: 1.5; height: 1" material="color: #333333; shader: shadow; transparent: false" class="raycastable">
+      <a-text value="Wrong Side" anchor="center" align="center" class="Side_Bad" ></a-text>
+    </a-entity>
+
+    <!-- Background -->
+    <a-entity anchor="center" position="-3 14 -53" rotation="90 0 0" scale="100 20 100" color="#333333">
+      <a-entity id="panorama" obj-model="obj: ./resources/objects/fond.obj" modify-materials="" position="-0.06467 -0.18539 -0.40787" scale="0.05 0.05 0.05"></a-entity>
+    </a-entity>
+
+    <a-entity sound="src: url(./resources/sounds/do.mp3); autoplay: true; loop: true; volume: .1" position=".03 2.8 -2.2"></a-entity>
+
+    </a-scene>
+  </body>
+
+  <!-- Main Scripts -->
+  <script src="./js/main.js"></script>
+  <script src="./js/lobby.js"></script>
+
 </html>
