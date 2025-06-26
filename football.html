@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Football - CormonVR</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <!-- Pour la compatibilité WebXR multiplateforme -->
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.loaders.min.js"></script>
+  <style>
+    body {margin:0;}
+  </style>
+</head>
+<body>
+  <a-scene background="color: #aaddff" embedded>
+    <a-assets>
+      <a-asset-item id="football-field" src="model/football/scene.gltf"></a-asset-item>
+      <!-- Mets ici ton modèle de main personnalisée si tu en as un, sinon on utilise hand-controls natif -->
+    </a-assets>
+    <!-- Terrain de football -->
+    <a-entity gltf-model="#football-field" position="0 0 0" scale="1 1 1"></a-entity>
+
+    <!-- MAIN GAUCHE VR style footballeur -->
+    <a-entity id="leftHand"
+      hand-controls="hand: left; color: #228b22"
+      oculus-touch-controls="hand: left"
+      vive-controls="hand: left"
+      windows-motion-controls="hand: left"
+      daydream-controls="hand: left"
+      gearvr-controls="hand: left"
+      magic-leap-controls="hand: left"
+      valve-index-controls="hand: left"
+      oculus-go-controls="hand: left"
+      shadow="cast: true"
+      raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
+      line="color: #228b22; opacity: 0.8"
+    ></a-entity>
+
+    <!-- MAIN DROITE VR style footballeur -->
+    <a-entity id="rightHand"
+      hand-controls="hand: right; color: #228b22"
+      oculus-touch-controls="hand: right"
+      vive-controls="hand: right"
+      windows-motion-controls="hand: right"
+      daydream-controls="hand: right"
+      gearvr-controls="hand: right"
+      magic-leap-controls="hand: right"
+      valve-index-controls="hand: right"
+      oculus-go-controls="hand: right"
+      shadow="cast: true"
+      raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
+      line="color: #228b22; opacity: 0.8"
+    ></a-entity>
+
+    <!-- Bouton retour menu -->
+    <a-entity geometry="primitive: plane; width: 0.7; height: 0.25"
+              material="color: #333"
+              position="0 2 -2"
+              text="value: Retour au menu; align: center; color: #fff"
+              class="raycastable"
+              onclick="window.location.href='index.html'"></a-entity>
+    <a-camera position="0 2 6"></a-camera>
+  </a-scene>
+</body>
+</html>
