@@ -18,6 +18,20 @@
     <script src="./js/main.js" defer></script>
     <script src="./js/lobby.js" defer></script>
     <link rel="stylesheet" href="style.css">
+    <!-- Composant pour colorer les mains -->
+    <script>
+    // Ce composant colore les modèles de main après chargement
+    AFRAME.registerComponent('hand-color', {
+      schema: {type: 'color', default: '#FFFFFF'},
+      init: function () {
+        this.el.addEventListener('model-loaded', () => {
+          this.el.object3D.traverse((node) => {
+            if (node.isMesh && node.material) node.material.color.set(this.data);
+          });
+        });
+      }
+    });
+    </script>
   </head>
 
   <body>
@@ -40,9 +54,11 @@
         </a-entity>
       </a-entity>
 
-      <!-- Mains VR uniquement, personnalisées (OR & ARGENT) -->
-      <a-entity id="leftHand" hand-tracking-controls="hand: left; handModelStyle: highPoly" material="color: #FFD700" raycaster="objects: .raycastable"></a-entity>
-      <a-entity id="rightHand" hand-tracking-controls="hand: right; handModelStyle: highPoly" material="color: #C0C0C0" raycaster="objects: .raycastable"></a-entity>
+      <!-- Mains VR stylisées Ready Player Me, personnalisées OR & ARGENT -->
+      <a-entity id="leftHand" hand-tracking-controls="hand: left; handModelStyle: readyPlayerMe"
+        hand-color="#FFD700" raycaster="objects: .raycastable"></a-entity>
+      <a-entity id="rightHand" hand-tracking-controls="hand: right; handModelStyle: readyPlayerMe"
+        hand-color="#C0C0C0" raycaster="objects: .raycastable"></a-entity>
 
       <!-- Environnement -->
       <a-entity environment="preset: starry; ground: flat; lighting: none; skyType: gradient; horizonColor: #4d4d4d; skyColor: #acebff"></a-entity>
@@ -111,7 +127,6 @@
       </a-entity>
       <!-- Son d'ambiance -->
       <a-entity sound="src: url(./resources/sounds/do.mp3); autoplay: true; loop: true; volume: .1" position=".03 2.8 -2.2"></a-entity>
-
     </a-scene>
 
     <!-- Ecran d'aide utilisateur -->
