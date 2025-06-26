@@ -5,8 +5,6 @@
   <title>Football - CormonVR</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <!-- Pour la compatibilité WebXR multiplateforme -->
-  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.loaders.min.js"></script>
   <style>
     body {margin:0;}
   </style>
@@ -15,10 +13,20 @@
   <a-scene background="color: #aaddff" embedded>
     <a-assets>
       <a-asset-item id="football-field" src="model/football/scene.gltf"></a-asset-item>
-      <!-- Mets ici ton modèle de main personnalisée si tu en as un, sinon on utilise hand-controls natif -->
     </a-assets>
-    <!-- Terrain de football -->
-    <a-entity gltf-model="#football-field" position="0 0 0" scale="1 1 1"></a-entity>
+
+    <!-- Terrain de football, 20x plus grand -->
+    <a-entity gltf-model="#football-field" position="0 0 0" scale="20 20 20"></a-entity>
+
+    <!-- Décor autour du stade -->
+    <a-cylinder radius="120" height="30" position="0 15 0" color="#d4af37" side="double" opacity="0.25"></a-cylinder>
+    <a-circle radius="110" position="0 0.01 0" rotation="-90 0 0" color="#4caf50" segments="64"></a-circle>
+    <a-sky color="#b3e0ff"></a-sky>
+    <a-entity light="type: spot; color: #fff; intensity: 0.6; angle:60" position="60 40 60" rotation="-60 45 0"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.6; angle:60" position="-60 40 60" rotation="-60 -45 0"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.6; angle:60" position="60 40 -60" rotation="-60 135 0"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.6; angle:60" position="-60 40 -60" rotation="-60 -135 0"></a-entity>
+    <a-entity light="type: ambient; color: #ffffff; intensity: 0.35"></a-entity>
 
     <!-- MAIN GAUCHE VR style footballeur -->
     <a-entity id="leftHand"
@@ -59,7 +67,9 @@
               text="value: Retour au menu; align: center; color: #fff"
               class="raycastable"
               onclick="window.location.href='index.html'"></a-entity>
-    <a-camera position="0 2 6"></a-camera>
+    
+    <!-- Caméra placée au centre du stade, hauteur réaliste -->
+    <a-entity camera look-controls wasd-controls position="0 1.6 0"></a-entity>
   </a-scene>
 </body>
 </html>
