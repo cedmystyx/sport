@@ -1,0 +1,11 @@
+Model Information:
+* title:	Stade Olympique d'Athlétisme de Rades
+* source:	https://sketchfab.com/3d-models/stade-olympique-dathletisme-de-rades-94c2931bfc134a0b996eb2ce50078b27
+* author:	حسان علية (https://sketchfab.com/HasseneALAYA)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Stade Olympique d'Athlétisme de Rades" (https://sketchfab.com/3d-models/stade-olympique-dathletisme-de-rades-94c2931bfc134a0b996eb2ce50078b27) by حسان علية (https://sketchfab.com/HasseneALAYA) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
