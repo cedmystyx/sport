@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>WHD 2025 VR - Joueur Mobile</title>
+  <title>Handball - Vrcormont</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -16,7 +16,7 @@
     .help-ui {position:absolute;left:24px;bottom:24px;z-index:10001;font-family:'Segoe UI',Arial,sans-serif;background:#fff8;border-radius:13px;box-shadow:0 2px 16px #00335511;padding:1em 2em;color:#184e77;font-size:1.09em;pointer-events:none;user-select:none;line-height:1.42em;}
   </style>
   <script>
-    // --- UI & GAME STATE (simplifié pour démo)
+    // --- UI & GAME STATE
     let scoreJ = 0, scoreBot = 0, chronoSec = 60, playing = false, ballInHand = false, lastHolder = "player";
     function updateScoreUI() {
       let ui = document.getElementById("score-ui");
@@ -284,7 +284,7 @@
       document.body.appendChild(timerDiv);
       let helpDiv = document.createElement('div');
       helpDiv.className = "help-ui";
-      helpDiv.innerHTML = "<b>WHD 2025 VR (Mobile)</b><br>Stick gauche : Déplacement<br>Appui stick : Sprint<br>Stick droit : Rotation<br>Bouton A/X : Saut<br>Attrape/lance le ballon : main/trigger<br>Marque plus que le bot !<br><i>Restart = touche R</i>";
+      helpDiv.innerHTML = "<b>Handball VR</b><br>Stick gauche : Déplacement<br>Appui stick : Sprint<br>Stick droit : Rotation<br>Bouton A/X : Saut<br>Attrape/lance le ballon : main/trigger<br>Marque plus que le bot !<br><i>Restart = touche R</i>";
       document.body.appendChild(helpDiv);
       setTimeout(()=>{helpDiv.style.display="none"}, 14000);
       restartGame(); updateTimerUI();
