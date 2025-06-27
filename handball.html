@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball VR - Terrain Réaliste</title>
+  <title>Handball VR - Terrain Officiel Mondial</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -16,80 +16,320 @@
     .help-ui {position:absolute;left:24px;bottom:24px;z-index:10001;font-family:'Segoe UI',Arial,sans-serif;background:#fff8;border-radius:13px;box-shadow:0 2px 16px #00335511;padding:1em 2em;color:#184e77;font-size:1.09em;pointer-events:none;user-select:none;line-height:1.42em;}
   </style>
   <script>
-    // ... (CODE JEU INCHANGÉ, identique à la version précédente, conserve tout le JS du gameplay)
-    // Pour la lisibilité, reporte ici tout le JS de la dernière version que tu as validée !
-    // (Section trop longue pour être collée ici, à récupérer tel quel)
+    // -------------------- JEU JS (identique aux versions précédentes, gameplay mondial prêt)
+    let scoreJ = 0, scoreBot = 0, chronoSec = 60, playing = false, ballInHand = false, lastHolder = "player";
+    function updateScoreUI() {
+      let ui = document.getElementById("score-ui");
+      if (ui) ui.innerHTML = `🏆 <b>${scoreJ}</b> — <b>${scoreBot}</b> 🤖`;
+      let sb = document.getElementById("scoreboard");
+      if(sb) sb.setAttribute("text", "value", scoreJ+" - "+scoreBot);
+    }
+    function updateTimerUI() {
+      let ui = document.getElementById("timer-ui");
+      if (ui) ui.innerHTML = chronoSec>0 ? `⏰ <b>${Math.floor(chronoSec/60)}:${("0"+(chronoSec%60)).slice(-2)}</b>` : "⏰ <b>0:00</b>";
+    }
+    function showMessage(txt, dur=1800) {
+      let el = document.getElementById('msg-ui');
+      if (!el) {
+        el = document.createElement('div'); el.id = 'msg-ui'; el.className = 'msg-ui';
+        document.body.appendChild(el);
+      }
+      el.innerText = txt; el.style.display = 'block';
+      setTimeout(()=>{el.style.display='none';},dur);
+    }
+    function resetBall(center=0) {
+      let ball = document.getElementById('handball');
+      if(ball) {
+        ball.setAttribute("position",`${center} 1.2 0`);
+        ball.body.velocity.set(0,0,0); ball.body.angularVelocity.set(0,0,0);
+      }
+      ballInHand = false; lastHolder="player";
+    }
+    function resetBot() {
+      let bot = document.getElementById('bot');
+      bot.setAttribute("position","0 1 7");
+      bot.setAttribute("rotation","0 0 0");
+    }
+    function resetGardien() {
+      let gardien = document.getElementById('gardien');
+      gardien.setAttribute("position","0 1 13.3");
+    }
+    function restartGame() {
+      scoreJ = 0; scoreBot = 0; chronoSec = 60; playing = true;
+      updateScoreUI(); updateTimerUI(); resetBall();
+      resetBot(); resetGardien();
+      showMessage("NOUVELLE PARTIE !");
+    }
+    function startTimer() {
+      let t = setInterval(()=>{
+        if(!playing) return clearInterval(t);
+        chronoSec--;
+        updateTimerUI();
+        if(chronoSec<=0) {
+          playing=false;
+          let winner = scoreJ>scoreBot ? "VICTOIRE !" : (scoreJ==scoreBot ? "ÉGALITÉ" : "Défaite...");
+          showMessage(winner+" (R pour rejouer)",3800);
+          clearInterval(t);
+        }
+      },1000);
+    }
+    // Déplacement foot-move (VR+PC)
+    AFRAME.registerComponent('foot-move', {
+      schema: {speed:{default:0.11}, sprint:{default:0.19}, jump:{default:0.32}},
+      init: function () {
+        this.velocity = new THREE.Vector3();
+        this.grounded = true; this.jumpCooldown = 0; this.rotY = 0;
+      },
+      tick: function () {
+        if(!playing) return;
+        let rig = this.el, moveX=0, moveY=0;
+        let leftHand = document.getElementById("leftHand");
+        let rightHand = document.getElementById("rightHand");
+        let gamepadL = leftHand && leftHand.components["hand-controls"] ? leftHand.components["hand-controls"].controller : null;
+        let gamepadR = rightHand && rightHand.components["hand-controls"] ? rightHand.components["hand-controls"].controller : null;
+        if (gamepadL && gamepadL.axes && gamepadL.axes.length>=2) {
+          moveX = gamepadL.axes[2] || gamepadL.axes[0] || 0;
+          moveY = -gamepadL.axes[3] || -gamepadL.axes[1] || 0;
+        }
+        if (!AFRAME.utils.device.checkHeadsetConnected() && window.keyState) {
+          moveX = (window.keyState["KeyD"]||window.keyState["ArrowRight"]?1:0)-(window.keyState["KeyQ"]||window.keyState["KeyA"]||window.keyState["ArrowLeft"]?1:0);
+          moveY = (window.keyState["KeyZ"]||window.keyState["ArrowUp"]?1:0)-(window.keyState["KeyS"]||window.keyState["ArrowDown"]?1:0);
+        }
+        let dir = new THREE.Vector3(moveX,0,moveY);
+        if (dir.length()>1) dir.normalize();
+        if (gamepadR && gamepadR.axes && Math.abs(gamepadR.axes[2])>0.5) this.rotY += Math.sign(gamepadR.axes[2])*2.5;
+        if (!AFRAME.utils.device.checkHeadsetConnected() && window.keyState) {
+          if(window.keyState["KeyE"]) this.rotY += 2;
+          if(window.keyState["KeyR"]) this.rotY -= 2;
+        }
+        let sprint = (gamepadL && gamepadL.buttons && gamepadL.buttons[3] && gamepadL.buttons[3].pressed) || (!AFRAME.utils.device.checkHeadsetConnected() && window.keyState && window.keyState["ShiftLeft"]);
+        let jump = ((gamepadL && gamepadL.buttons && gamepadL.buttons[4] && gamepadL.buttons[4].pressed) || (gamepadL && gamepadL.buttons && gamepadL.buttons[0] && gamepadL.buttons[0].pressed)) || (!AFRAME.utils.device.checkHeadsetConnected() && window.keyState && window.keyState["Space"]);
+        let speed = sprint ? this.data.sprint : this.data.speed;
+        let pos = rig.object3D.position, theta = this.rotY*Math.PI/180;
+        let moveDir = new THREE.Vector3(Math.cos(theta)*dir.x - Math.sin(theta)*dir.z, 0, Math.sin(theta)*dir.x + Math.cos(theta)*dir.z);
+        pos.x += moveDir.x * speed; pos.z += moveDir.z * speed;
+        if (pos.y<=1.6) { this.grounded=true; pos.y=1.6; }
+        if (jump && this.grounded && this.jumpCooldown<=0) { this.velocity.y = this.data.jump; this.grounded = false; this.jumpCooldown = 20; }
+        if (!this.grounded) { this.velocity.y -= 0.016; pos.y += this.velocity.y; if (pos.y<=1.6) { pos.y=1.6; this.velocity.y=0; this.grounded=true; } }
+        if (this.jumpCooldown>0) this.jumpCooldown--;
+        rig.setAttribute('position',pos); rig.setAttribute('rotation',{x:0,y:this.rotY,z:0});
+      }
+    });
+    window.keyState = {}; document.addEventListener('keydown',e=>window.keyState[e.code]=true); document.addEventListener('keyup',e=>window.keyState[e.code]=false);
+
+    // Ballon
+    AFRAME.registerComponent('throwable', {
+      schema: { force: {default: 16} },
+      init: function () {
+        this.el.addEventListener('grab-start',()=>{ ballInHand=true; lastHolder='player'; });
+        this.el.addEventListener('grab-end', evt => {
+          ballInHand = false;
+          let hand = evt.detail.hand;
+          let dir = new THREE.Vector3(0,0,-1);
+          hand.object3D.getWorldDirection(dir); dir.normalize();
+          let force = dir.multiplyScalar(this.data.force);
+          this.el.body.velocity.set(force.x, force.y, force.z);
+          this.el.body.angularVelocity.set(Math.random()*14-7, Math.random()*5-2, Math.random()*12-6);
+        });
+        this.el.addEventListener('click', evt => {
+          ballInHand = false;
+          let cam = document.querySelector('[camera]'); if (!cam) return;
+          let dir = new THREE.Vector3(0,0,-1); cam.object3D.getWorldDirection(dir); dir.normalize();
+          let force = dir.multiplyScalar(this.data.force);
+          this.el.body.velocity.set(force.x, force.y+2, force.z);
+          this.el.body.angularVelocity.set(Math.random()*13-6, Math.random()*6-3, Math.random()*13-6);
+        });
+        this.el.addEventListener('body-loaded', ()=>{
+          this.el.body.addEventListener('sleep', ()=>{
+            let pos = this.el.object3D.position;
+            if (Math.abs(pos.x) > 25 || pos.y < -2 || Math.abs(pos.z) > 30) {
+              this.el.setAttribute("position","0 1.2 0");
+              this.el.body.velocity.set(0,0,0);
+              this.el.body.angularVelocity.set(0,0,0);
+            }
+          });
+        });
+      }
+    });
+    // Bot IA
+    let botHasBall = false, botCooldown = 0;
+    function botThink() {
+      if(!playing) return setTimeout(botThink, 40);
+      const bot = document.getElementById('bot');
+      const ball = document.getElementById('handball');
+      let botPos = bot.object3D.position;
+      let ballPos = ball.object3D.position;
+      if(ballInHand && !botHasBall) {
+        let player = document.getElementById('rig').object3D.position;
+        let t = {x: player.x*0.56, y:1, z: (player.z+10.5)*0.5};
+        moveBotToward(bot, t, 0.13);
+        if(dist(botPos, ballPos)<1.1 && Math.abs(botPos.y-ballPos.y)<1.2) {
+          botHasBall=true; ballInHand=false; lastHolder='bot';
+          ball.setAttribute('position',`${botPos.x} ${botPos.y+0.82} ${botPos.z+0.43}`);
+          ball.body.velocity.set(0,0,0); ball.body.angularVelocity.set(0,0,0);
+          showMessage("Le bot intercepte !");
+          botCooldown = 18+Math.random()*12;
+        }
+        return setTimeout(botThink, 40);
+      }
+      if(botHasBall) {
+        if(botCooldown<=0) {
+          let target = {x:0.1+1*(Math.random()-0.5), y:1.13+Math.random()*0.2, z:13.1+Math.random()*0.19};
+          let ballBody = ball.body;
+          ball.setAttribute('dynamic-body','mass:0.36;linearDamping:0.07;angularDamping:0.13;restitution:0.78;friction:0.32');
+          ball.setAttribute('position',`${botPos.x} ${botPos.y+0.82} ${botPos.z+0.43}`);
+          ballBody.velocity.set(0,0,0); ballBody.angularVelocity.set(0,0,0);
+          let dir = new THREE.Vector3(target.x-botPos.x, target.y-(botPos.y+0.82), target.z-botPos.z).normalize();
+          let power = 18 + Math.random()*2.5;
+          ballBody.velocity.set(dir.x*power, dir.y*10+Math.random()*2.2, dir.z*power);
+          ballBody.angularVelocity.set(Math.random()*16-8, Math.random()*5-2.5, Math.random()*14-7);
+          botHasBall = false; lastHolder='bot';
+          showMessage("Le bot tire !");
+        } else botCooldown--;
+        return setTimeout(botThink, 40);
+      }
+      if(!botHasBall && !ballInHand) {
+        let t = {x: ballPos.x, y:1, z: ballPos.z-0.6};
+        moveBotToward(bot, t, 0.15);
+        if(dist(botPos, ballPos)<1.1 && Math.abs(botPos.y-ballPos.y)<1.2) {
+          botHasBall=true; ballInHand=false; lastHolder='bot';
+          ball.setAttribute('position',`${botPos.x} ${botPos.y+0.82} ${botPos.z+0.43}`);
+          ball.body.velocity.set(0,0,0); ball.body.angularVelocity.set(0,0,0);
+          showMessage("Le bot prend la balle !");
+          botCooldown = 18+Math.random()*12;
+        }
+        return setTimeout(botThink, 40);
+      }
+      setTimeout(botThink, 40);
+    }
+    function moveBotToward(bot, target, speed=0.12) {
+      let pos = bot.object3D.position;
+      let dir = {x: target.x-pos.x, y: 0, z: target.z-pos.z};
+      let len = Math.sqrt(dir.x*dir.x+dir.z*dir.z);
+      if(len>0.02) {
+        dir.x/=len; dir.z/=len;
+        bot.setAttribute('position',{x:pos.x+dir.x*speed,y:pos.y,z:pos.z+dir.z*speed});
+      }
+    }
+    function dist(a, b) {let dx=a.x-b.x,dy=a.y-b.y,dz=a.z-b.z;return Math.sqrt(dx*dx+dy*dy+dz*dz);}
+    // Gardien IA
+    setInterval(()=>{
+      let gardien = document.getElementById('gardien');
+      let ball = document.getElementById('handball');
+      if(gardien && ball && playing) {
+        let bx = ball.object3D.position.x;
+        gardien.object3D.position.x += (bx-gardien.object3D.position.x)*0.19;
+      }
+    },45);
+    // Buts & score
+    AFRAME.registerComponent('goal-detect', {
+      schema: {scoreEl: {type: "selector"}},
+      init: function () {
+        this.goal = false;
+        this.el.addEventListener('collide', (e) => {
+          if (e.detail.body.el && e.detail.body.el.id==="gardien") {
+            showMessage("Arrêt du gardien !",1300);
+            this.el.body.velocity.set(0,0,0);
+            this.el.body.angularVelocity.set(0,0,0);
+            setTimeout(()=>{resetBall();},900);
+            return;
+          }
+          if (e.detail.body.el && e.detail.body.el.id==="goal-trigger") {
+            if (!this.goal && playing) {
+              this.goal = true;
+              if(lastHolder==='player') {
+                scoreJ++; showMessage("BUT !!!",1400); document.getElementById("applaud").play();
+              }
+              if(lastHolder==='bot') {
+                scoreBot++; showMessage("BUT du bot !",1400); document.getElementById("applaud").play();
+              }
+              updateScoreUI();
+              setTimeout(()=>{
+                resetBall();
+                resetBot();
+                resetGardien();
+                this.goal = false;
+              }, 1200);
+            }
+          }
+        });
+      }
+    });
+    window.addEventListener('DOMContentLoaded', ()=>{
+      let scoreDiv = document.createElement('div');
+      scoreDiv.id = "score-ui"; scoreDiv.className = "score-ui";
+      document.body.appendChild(scoreDiv);
+      let timerDiv = document.createElement('div');
+      timerDiv.id = "timer-ui"; timerDiv.className = "timer-ui";
+      document.body.appendChild(timerDiv);
+      let helpDiv = document.createElement('div');
+      helpDiv.className = "help-ui";
+      helpDiv.innerHTML = "<b>Handball VR</b><br>Stick gauche/ZQSD : Déplacement<br>Appui stick/Shift : Sprint<br>Stick droit/E/R : Rotation<br>Bouton A/X/Espace : Saut<br>Attrape/lance le ballon : main/trigger/clic<br>Marque plus que le bot !<br><i>Restart = R</i>";
+      document.body.appendChild(helpDiv);
+      setTimeout(()=>{helpDiv.style.display="none"}, 14000);
+      restartGame(); updateScoreUI(); updateTimerUI();
+      setTimeout(()=>{playing=true;startTimer();botThink();},1200);
+      document.body.onkeydown = e => { if(e.key=="r"||e.key=="R") window.location.reload(); }
+    });
   </script>
 </head>
 <body>
   <a-scene physics="gravity:-9.8; restitution:0.81; friction:0.32;" background="color: #e5f6ff" loading-screen="enabled:false">
     <a-assets>
       <img id="parquet" src="https://cdn.aframe.io/a-painter/images/floor.jpg">
-      <img id="tribune" src="https://cdn.pixabay.com/photo/2016/11/29/04/17/audience-1866738_1280.jpg">
       <img id="filet" src="https://cdn.pixabay.com/photo/2017/09/06/19/54/net-2726429_1280.png">
-      <img id="balltex" src="https://cdn.pixabay.com/photo/2017/01/30/22/50/handball-2023531_1280.jpg">
+      <img id="tribune" src="https://cdn.pixabay.com/photo/2016/11/29/04/17/audience-1866738_1280.jpg">
       <img id="sky" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg">
-      <audio id="goal-audio" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12e6c7b2bb.mp3"></audio>
-      <audio id="ambiance" src="https://cdn.pixabay.com/audio/2022/11/16/audio_12e9c1f3c3.mp3" preload="auto"></audio>
+      <img id="balltex" src="https://cdn.pixabay.com/photo/2017/01/30/22/50/handball-2023531_1280.jpg">
       <audio id="applaud" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b0e6db1.mp3" preload="auto"></audio>
     </a-assets>
-    <!-- Sol parquet main court 40x20m (scale 1=1m, ici x0.35) -->
-    <a-box position="0 0 0" width="14" height="0.12" depth="28" src="#parquet" repeat="7 14" color="#f7e1b5" static-body></a-box>
-    <!-- Contour terrain -->
-    <a-box position="0 0.065 0" width="14.4" height="0.02" depth="28.4" color="#1e90ff"></a-box>
-    <!-- Lignes principales (blanches) -->
-    <a-box position="0 0.07 0" width="14" height="0.01" depth="0.12" color="#fff"></a-box> <!-- milieu -->
-    <a-box position="0 0.07 14" width="14" height="0.01" depth="0.12" color="#fff"></a-box> <!-- but haut -->
-    <a-box position="0 0.07 -14" width="14" height="0.01" depth="0.12" color="#fff"></a-box> <!-- but bas -->
-    <a-box position="7 0.07 0" width="0.12" height="0.01" depth="28" color="#fff"></a-box>
-    <a-box position="-7 0.07 0" width="0.12" height="0.01" depth="28" color="#fff"></a-box>
-    <!-- Surface de but (6m) avant/arrière -->
-    <a-ring position="0 0.08 11.2" rotation="-90 0 0" radius-inner="2.1" radius-outer="2.17" theta-start="270" theta-length="180" color="#fae600"></a-ring>
-    <a-box position="0 0.08 13.3" width="4.2" height="0.01" depth="0.13" color="#fae600"></a-box>
-    <a-box position="2.1 0.08 12.25" width="0.13" height="0.01" depth="2.1" color="#fae600"></a-box>
-    <a-box position="-2.1 0.08 12.25" width="0.13" height="0.01" depth="2.1" color="#fae600"></a-box>
-    <a-ring position="0 0.08 -11.2" rotation="-90 0 0" radius-inner="2.1" radius-outer="2.17" theta-start="90" theta-length="180" color="#fae600"></a-ring>
-    <a-box position="0 0.08 -13.3" width="4.2" height="0.01" depth="0.13" color="#fae600"></a-box>
-    <a-box position="2.1 0.08 -12.25" width="0.13" height="0.01" depth="2.1" color="#fae600"></a-box>
-    <a-box position="-2.1 0.08 -12.25" width="0.13" height="0.01" depth="2.1" color="#fae600"></a-box>
-    <!-- Ligne des 7m -->
-    <a-box position="0 0.08 9.2" width="1.2" height="0.01" depth="0.09" color="#c0392b"></a-box>
-    <a-box position="0 0.08 -9.2" width="1.2" height="0.01" depth="0.09" color="#c0392b"></a-box>
-    <!-- Ligne des 9m (pointillés) -->
-    <a-entity>
-      <a-ring position="0 0.081 9.2" rotation="-90 0 0" radius-inner="3.0" radius-outer="3.07" color="#ff9800" theta-length="180" theta-start="270" segments-theta="32" segments-phi="2" material="side:double;repeat:8 1"></a-ring>
-      <a-ring position="0 0.081 -9.2" rotation="-90 0 0" radius-inner="3.0" radius-outer="3.07" color="#ff9800" theta-length="180" theta-start="90" segments-theta="32" segments-phi="2" material="side:double;repeat:8 1"></a-ring>
-    </a-entity>
-    <!-- Ligne de centre -->
-    <a-circle position="0 0.081 0" rotation="-90 0 0" radius="0.23" color="#1976d2"></a-circle>
-    <!-- Tribunes -->
-    <a-plane position="0 2.7 15.4" width="14" height="5" src="#tribune" rotation="0 0 0"></a-plane>
-    <a-plane position="0 2.7 -15.4" width="14" height="5" src="#tribune" rotation="0 180 0"></a-plane>
-    <a-plane position="7.3 2.7 0" width="5" height="5" src="#tribune" rotation="0 -90 0"></a-plane>
-    <a-plane position="-7.3 2.7 0" width="5" height="5" src="#tribune" rotation="0 90 0"></a-plane>
-    <!-- Skybox gymnase -->
-    <a-sky src="#sky" rotation="0 -80 0"></a-sky>
-    <!-- But avant réaliste -->
+    <!-- Terrain officiel -->
+    <a-box position="0 0 0" width="14" height="0.12" depth="28" src="#parquet" repeat="7 14" color="#efd6a2" static-body></a-box>
+    <a-box position="0 0.07 0" width="14.4" height="0.01" depth="28.4" color="#004aad"></a-box>
+    <a-box position="0 0.075 14" width="14" height="0.012" depth="0.16" color="#fff"></a-box>
+    <a-box position="0 0.075 -14" width="14" height="0.012" depth="0.16" color="#fff"></a-box>
+    <a-box position="7 0.075 0" width="0.16" height="0.012" depth="28" color="#fff"></a-box>
+    <a-box position="-7 0.075 0" width="0.16" height="0.012" depth="28" color="#fff"></a-box>
+    <a-box position="0 0.075 0" width="14" height="0.012" depth="0.13" color="#fff"></a-box>
+    <a-circle position="0 0.081 0" rotation="-90 0 0" radius="0.19" color="#1976d2"></a-circle>
+    <a-ring position="0 0.08 11.2" rotation="-90 0 0" radius-inner="2.09" radius-outer="2.16" theta-start="270" theta-length="180" color="#fae600"></a-ring>
+    <a-box position="2.09 0.08 12.25" width="0.13" height="0.01" depth="2.1" color="#fae600"></a-box>
+    <a-box position="-2.09 0.08 12.25" width="0.13" height="0.01" depth="2.1" color="#fae600"></a-box>
+    <a-box position="0 0.08 13.3" width="4.18" height="0.01" depth="0.13" color="#fae600"></a-box>
+    <a-ring position="0 0.08 -11.2" rotation="-90 0 0" radius-inner="2.09" radius-outer="2.16" theta-start="90" theta-length="180" color="#fae600"></a-ring>
+    <a-box position="2.09 0.08 -12.25" width="0.13" height="0.01" depth="2.1" color="#fae600"></a-box>
+    <a-box position="-2.09 0.08 -12.25" width="0.13" height="0.01" depth="2.1" color="#fae600"></a-box>
+    <a-box position="0 0.08 -13.3" width="4.18" height="0.01" depth="0.13" color="#fae600"></a-box>
+    <a-box position="0 0.08 9.2" width="1.2" height="0.012" depth="0.09" color="#c0392b"></a-box>
+    <a-box position="0 0.08 -9.2" width="1.2" height="0.012" depth="0.09" color="#c0392b"></a-box>
+    <a-ring position="0 0.081 9.2" rotation="-90 0 0" radius-inner="3.0" radius-outer="3.07" color="#ff9800" theta-length="180" theta-start="270" segments-theta="32"></a-ring>
+    <a-ring position="0 0.081 -9.2" rotation="-90 0 0" radius-inner="3.0" radius-outer="3.07" color="#ff9800" theta-length="180" theta-start="90" segments-theta="32"></a-ring>
+    <a-box position="0 0.061 13.5" width="3" height="0.01" depth="0.7" color="#d2e6fa" opacity="0.45"></a-box>
+    <a-box position="0 0.061 -13.5" width="3" height="0.01" depth="0.7" color="#d2e6fa" opacity="0.45"></a-box>
+    <a-box position="5.6 0.062 0" width="2.8" height="0.01" depth="6.6" color="#e1e2e2" opacity="0.27"></a-box>
+    <a-box position="-5.6 0.062 0" width="2.8" height="0.01" depth="6.6" color="#e1e2e2" opacity="0.27"></a-box>
     <a-box position="0 1 13.7" width="3" height="2" depth="0.18" color="#f44336" static-body></a-box>
     <a-box position="-1.5 1 13.7" width="0.13" height="2" depth="0.22" color="#f44336" static-body></a-box>
     <a-box position="1.5 1 13.7" width="0.13" height="2" depth="0.22" color="#f44336" static-body></a-box>
     <a-box position="0 2 13.7" width="3" height="0.09" depth="0.22" color="#f44336" static-body></a-box>
     <a-plane position="0 1.01 13.8" width="2.7" height="1.82" src="#filet" rotation="0 0 0" opacity="0.7"></a-plane>
-    <!-- Zone de détection du but -->
     <a-box id="goal-trigger" position="0 1 13.6" width="2.6" height="1.75" depth="0.1" opacity="0" visible="false" static-body></a-box>
-    <!-- But arrière décor -->
     <a-box position="0 1 -13.7" width="3" height="2" depth="0.18" color="#f44336" opacity="0.25" static-body></a-box>
     <a-plane position="0 1.01 -13.8" width="2.7" height="1.82" src="#filet" rotation="0 180 0" opacity="0.2"></a-plane>
-    <!-- Scoreboard stylé -->
+    <a-plane position="0 2.7 15.4" width="14" height="5" src="#tribune" rotation="0 0 0"></a-plane>
+    <a-plane position="0 2.7 -15.4" width="14" height="5" src="#tribune" rotation="0 180 0"></a-plane>
+    <a-plane position="7.3 2.7 0" width="5" height="5" src="#tribune" rotation="0 -90 0"></a-plane>
+    <a-plane position="-7.3 2.7 0" width="5" height="5" src="#tribune" rotation="0 90 0"></a-plane>
+    <a-sky src="#sky" rotation="0 -80 0"></a-sky>
     <a-box position="0 3.11 11.2" width="2.8" height="0.7" depth="0.15" color="#fff8" roughness="0.4" metalness="0.7"></a-box>
     <a-entity id="scoreboard" position="0 3.18 11.2" text="value: 0 - 0; color: #1e90ff; width: 4.5; align: center; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"></a-entity>
-    <!-- Gardien IA look cartoon -->
+    <!-- Gardien -->
     <a-cylinder id="gardien" position="0 1 13.3" radius="0.32" height="1.8" color="#eaf05a" segments-radial="6"></a-cylinder>
     <a-sphere position="0 1.82 13.3" radius="0.19" color="#bab600"></a-sphere>
-    <!-- Bot adverse look cartoon -->
+    <!-- Bot adverse -->
     <a-cylinder id="bot" position="0 1 7" radius="0.37" height="2" color="#aad4f7" segments-radial="6"></a-cylinder>
     <a-sphere position="0 2.24 7.47" radius="0.27" color="#0a3a74"></a-sphere>
-    <!-- Ballon main texture -->
+    <!-- Ballon -->
     <a-sphere id="handball" class="raycastable grabbable" position="0 1.2 0" radius="0.23" src="#balltex" roughness="0.34" metalness="0.12" dynamic-body="mass: 0.36; linearDamping:0.07; angularDamping:0.13; restitution:0.81; friction:0.33" super-hands throwable goal-detect="scoreEl: #score-text" shadow="cast:true"></a-sphere>
     <!-- Rig joueur + mains VR -->
     <a-entity id="rig" position="0 1.6 -7" foot-move>
@@ -98,11 +338,9 @@
       <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: highPoly; color: #d7a878" shadow="cast: true" super-hands raycaster="objects: .raycastable, .grabbable; showLine: true; lineColor: #228b22" line="color: #228b22; opacity: 0.8"></a-entity>
     </a-entity>
     <a-entity id="score-text" position="0 3.5 3" text="value: 0; color: #1e90ff; width: 4.5; align: center; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt" visible="true"></a-entity>
-    <!-- Lumières dynamiques -->
-    <a-light type="ambient" color="#fff" intensity="0.59"></a-light>
-    <a-light type="directional" color="#fffbe8" intensity="0.41" position="0 8 9" target="#bot"></a-light>
-    <a-light type="spot" color="#fff4d1" intensity="0.27" position="0 7 0"></a-light>
+    <a-light type="ambient" color="#fff" intensity="0.62"></a-light>
+    <a-light type="directional" color="#fffbe8" intensity="0.41" position="0 8 9"></a-light>
+    <a-light type="spot" color="#fff4d1" intensity="0.25" position="0 7 0"></a-light>
   </a-scene>
-  <audio id="ambiance-audio" src="https://cdn.pixabay.com/audio/2022/11/16/audio_12e9c1f3c3.mp3" autoplay loop></audio>
 </body>
 </html>
