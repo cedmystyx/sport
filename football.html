@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <title>Football - CormonVR</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
-  <script src="https://unpkg.com/aframe-teleport-controls@^0.4.0/dist/aframe-teleport-controls.min.js"></script>
   <style>
     body {margin:0;}
     .a-enter-vr-button {
@@ -18,8 +15,44 @@
       pointer-events: auto !important;
       display: block !important;
     }
+    .menu-button[selected] {
+      outline: 4px solid #1e90ff;
+      outline-offset: 8px;
+      filter: drop-shadow(0 0 8px #1e90ff99);
+      scale: 1.15 1.15 1.15;
+    }
   </style>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+  <script src="https://unpkg.com/aframe-teleport-controls@^0.4.0/dist/aframe-teleport-controls.min.js"></script>
   <script>
+    // Composant pour bouton menu stylé façon chargement.html
+    AFRAME.registerComponent('menu-selectable', {
+      init: function () {
+        this.el.addEventListener('mouseenter', () => {
+          document.querySelectorAll('.menu-button[selected]').forEach(btn => btn.removeAttribute('selected'));
+          this.el.setAttribute('selected', '');
+          this.el.setAttribute('scale', '1.15 1.15 1.15');
+          this.el.setAttribute('material', 'color', '#ffdb6c');
+        });
+        this.el.addEventListener('mouseleave', () => {
+          this.el.removeAttribute('selected');
+          this.el.setAttribute('scale', '1 1 1');
+          this.el.setAttribute('material', 'color', '#1e90ff');
+        });
+      }
+    });
+    // Interaction bouton menu (clic souris ou trigger VR)
+    AFRAME.registerComponent('menu-back', {
+      init: function () {
+        this.el.addEventListener('click', function () {
+          window.location.href = 'chargement.html';
+        });
+        this.el.addEventListener('triggerdown', function () {
+          window.location.href = 'chargement.html';
+        });
+      }
+    });
     // Sauter avec A et courir avec X
     AFRAME.registerComponent('jump-run', {
       schema: {
@@ -32,12 +65,6 @@
         this.rig = this.el;
         this.velocityY = 0;
         this.isJumping = false;
-        this.groundY = null;
-
-        // Recalcule la hauteur du sol au spawn
-        this.el.addEventListener('loaded', () => {
-          this.groundY = this.rig.object3D.position.y;
-        });
 
         // Saut : bouton A
         window.addEventListener('abuttondown', () => {
@@ -78,30 +105,38 @@
         }
       }
     });
-
-    // Bouton retour au menu (VR + PC, seulement si on vise/click sur le bouton)
-    AFRAME.registerComponent('menu-back', {
-      init: function () {
-        this.el.addEventListener('click', function () {
-          window.location.href = 'chargement.html';
-        });
-        // Pour VR: activer le click avec le trigger ou l'interaction
-        this.el.addEventListener('triggerdown', function () {
-          window.location.href = 'chargement.html';
-        });
-      }
-    });
   </script>
 </head>
 <body>
-  <a-scene background="color: #aaddff" embedded>
+  <a-scene background="color: #aaddff" embedded
+    cursor="rayOrigin: mouse; fuse: false"
+    raycaster="objects: .raycastable"
+    loading-screen="enabled:false"
+  >
     <a-assets>
       <a-asset-item id="football-field" src="model/football/scene.gltf"></a-asset-item>
       <a-asset-item id="cr7-statue" src="model/cr7/statue-or.glb"></a-asset-item>
+      <img id="icon_menu" src="./img/icon-menu.png">
     </a-assets>
 
     <!-- Terrain de football -->
-    <a-entity gltf-model="model/football/scene.gltf" position="-41.99565 0 716.71286" scale="20 20 20"></a-entity>
+    <a-entity gltf-model="#football-field" position="0 0 0" scale="20 20 20"></a-entity>
+    <!-- Statue CR7 -->
+    <a-entity gltf-model="#cr7-statue"
+              position="0 0 -5"
+              scale="3 3 3"
+              rotation="0 180 0"
+              material="color: #FFD700"></a-entity>
+
+    <!-- Décor -->
+    <a-cylinder radius="120" height="30" position="0 15 0" color="#d4af37" side="double" opacity="0.25"></a-cylinder>
+    <a-circle radius="110" position="0 0.01 0" rotation="-90 0 0" color="#4caf50" segments="64"></a-circle>
+    <a-sky color="#b3e0ff"></a-sky>
+    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="60 40 60" rotation="-60 45 0"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="-60 40 60" rotation="-60 -45 0"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="60 40 -60" rotation="-60 135 0"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="-60 40 -60" rotation="-60 -135 0"></a-entity>
+    <a-entity light="type: ambient; color: #ffffff; intensity: 0.3"></a-entity>
 
     <!-- RIG central : spawn au centre, mains enfants du rig -->
     <a-entity id="rig"
@@ -136,13 +171,16 @@
       </a-entity>
     </a-entity>
 
-    <!-- Bouton retour menu (cliquable à la souris et au trigger) -->
-    <a-entity geometry="primitive: plane; width: 0.7; height: 0.25"
-              material="color: #333"
-              position="0 2 -2"
-              text="value: Retour au menu; align: center; color: #fff"
-              class="raycastable"
-              menu-back></a-entity>
+    <!-- Bouton retour menu façon icône/menu stylé chargement.html -->
+    <a-entity id="retour-menu"
+          position="-2.2 2.3 -2"
+          geometry="primitive: circle; radius: 0.22"
+          material="color: #1e90ff; src: #icon_menu; alphaTest: 0.1; transparent: true"
+          class="raycastable menu-button"
+          menu-selectable
+          menu-back>
+      <a-image src="#icon_menu" width="0.32" height="0.32" position="0 0 0.01"></a-image>
+    </a-entity>
   </a-scene>
 </body>
 </html>
