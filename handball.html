@@ -1,327 +1,39 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Handball - Tir au but VR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {margin:0;}
-    .a-enter-vr-button {
-      position: fixed !important;
-      bottom: 24px !important;
-      right: 24px !important;
-      z-index: 9999 !important;
-    }
-    .score-ui {
-      position: absolute;
-      top: 24px;
-      right: 24px;
-      background: #fff9;
-      color: #0a3a74;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      font-size: 1.2em;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px #0002;
-      padding: 0.7em 1.6em;
-      z-index: 10002;
-      pointer-events: none;
-      user-select: none;
-      text-align: right;
-    }
-    .floating-ui {
-      position: absolute;
-      left: 24px;
-      top: 24px;
-      z-index: 10001;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #fff7;
-      border-radius: 10px;
-      box-shadow: 0 2px 12px #0002;
-      padding: 1em 2em;
-      color: #184e77;
-      font-size: 1.08em;
-      pointer-events: none;
-      user-select: none;
-    }
-  </style>
+  <meta charset="utf-8">
+  <title>Handball VR Test</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
-  <script src="https://unpkg.com/aframe-teleport-controls@^0.4.0/dist/aframe-teleport-controls.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
-  <script>
-    // Effet bouton menu
-    AFRAME.registerComponent('buzzer-hover', {
-      init: function () {
-        const baseScale = {x: 1, y: 1, z: 1};
-        const hoverScale = {x: 1.22, y: 1.22, z: 1.22};
-        this.el.addEventListener('mouseenter', () => {
-          this.el.setAttribute('scale', hoverScale);
-          this.el.setAttribute('material', 'color', '#ff4444');
-        });
-        this.el.addEventListener('mouseleave', () => {
-          this.el.setAttribute('scale', baseScale);
-          this.el.setAttribute('material', 'color', '#d32f2f');
-        });
-      }
-    });
-    // Retour menu
-    AFRAME.registerComponent('menu-back', {
-      init: function () {
-        this.el.addEventListener('click', function () {
-          window.location.href = 'chargement.html';
-        });
-        this.el.addEventListener('triggerdown', function () {
-          window.location.href = 'chargement.html';
-        });
-      }
-    });
-    // Saut/courir
-    AFRAME.registerComponent('jump-run', {
-      schema: {
-        jumpHeight: {default: 8},
-        runSpeed: {default: 1.6},
-        walkSpeed: {default: 0.6},
-        acceleration: {default: 280}
-      },
-      init: function () {
-        this.isRunning = false;
-        this.rig = this.el;
-        this.velocityY = 0;
-        this.isJumping = false;
-        window.addEventListener('abuttondown', () => {
-          if (!this.isJumping) {
-            this.isJumping = true;
-            this.velocityY = this.data.jumpHeight;
-          }
-        });
-        window.addEventListener('xbuttondown', () => {
-          this.isRunning = true;
-          this.updateSpeed();
-        });
-        window.addEventListener('xbuttonup', () => {
-          this.isRunning = false;
-          this.updateSpeed();
-        });
-      },
-      tick: function (time, dt) {
-        if (this.isJumping) {
-          this.velocityY -= 0.32;
-          let pos = this.rig.object3D.position;
-          pos.y += this.velocityY * (dt/1000);
-          if (pos.y <= 1.6) {
-            pos.y = 1.6;
-            this.isJumping = false;
-            this.velocityY = 0;
-          }
-          this.rig.object3D.position.y = pos.y;
-        }
-      },
-      updateSpeed: function() {
-        let mc = this.el.components['movement-controls'];
-        if (mc) {
-          mc.data.speed = this.isRunning ? this.data.runSpeed : this.data.walkSpeed;
-          mc.data.acceleration = this.data.acceleration;
-        }
-      }
-    });
-
-    // Détection but
-    AFRAME.registerComponent('goal-detect', {
-      schema: {scoreEl: {type: "selector"}},
-      init: function () {
-        this.goal = false;
-        this.el.addEventListener('collide', (e) => {
-          if (e.detail.body.el && (e.detail.body.el.classList.contains("goal") || e.detail.body.el.id==="goal-trigger")) {
-            if (!this.goal) {
-              this.goal = true;
-              let current = parseInt(localStorage.getItem('handball_score')||"0",10);
-              current++;
-              localStorage.setItem('handball_score', current);
-              if (this.data.scoreEl) this.data.scoreEl.setAttribute("text","value",`Score : ${current}`);
-              this.el.setAttribute("material","color","#6fff81");
-              let snd = document.getElementById("goal-audio");
-              if (snd) snd.play();
-              setTimeout(()=>{
-                this.el.setAttribute("material","color","#ffb300");
-                this.el.body.velocity.set(0,0,0);
-                this.el.body.angularVelocity.set(0,0,0);
-                this.el.setAttribute("position","0 1.2 -6");
-                this.goal = false;
-              }, 900);
-              let ui = document.getElementById("score-ui");
-              if (ui) ui.innerHTML = `Score<br><span style="font-size:1.25em;font-weight:bold;">${current}</span>`;
-            }
-          }
-        });
-      }
-    });
-
-    // Ballon attrapable/lancable
-    AFRAME.registerComponent('throwable', {
-      schema: { force: {default: 14} },
-      init: function () {
-        this.el.addEventListener('grab-end', evt => {
-          let hand = evt.detail.hand;
-          let dir = new THREE.Vector3(0,0,-1);
-          hand.object3D.getWorldDirection(dir);
-          dir.normalize();
-          let force = dir.multiplyScalar(this.data.force);
-          this.el.body.velocity.set(force.x, force.y, force.z);
-        });
-        this.el.addEventListener('click', evt => {
-          let cam = document.querySelector('[camera]');
-          if (!cam) return;
-          let dir = new THREE.Vector3(0,0,-1);
-          cam.object3D.getWorldDirection(dir);
-          dir.normalize();
-          let force = dir.multiplyScalar(this.data.force);
-          this.el.body.velocity.set(force.x, force.y+2, force.z);
-        });
-        this.el.addEventListener('body-loaded', ()=>{
-          this.el.body.addEventListener('sleep', ()=>{
-            let pos = this.el.object3D.position;
-            if (Math.abs(pos.x) > 25 || pos.y < -2 || Math.abs(pos.z) > 30) {
-              this.el.setAttribute("position","0 1.2 -6");
-              this.el.body.velocity.set(0,0,0);
-              this.el.body.angularVelocity.set(0,0,0);
-            }
-          });
-        });
-      }
-    });
-
-    function updateScoreUI() {
-      let sc = parseInt(localStorage.getItem('handball_score')||"0",10);
-      let ui = document.getElementById("score-ui");
-      if (ui) ui.innerHTML = `Score<br><span style="font-size:1.25em;font-weight:bold;">${sc}</span>`;
-    }
-    window.addEventListener('DOMContentLoaded', ()=>{
-      // UI aide
-      const el = document.createElement('div');
-      el.className = "floating-ui";
-      el.innerHTML = "<b>Handball VR – Tir au but</b><br>Attrape le ballon (main/trigger VR ou clic), vise et lance&nbsp;!<br>Un point à chaque but marqué.<br><b>A</b> : sauter, <b>X</b> : courir, <b>MENU</b> : retour.";
-      document.body.appendChild(el);
-      setTimeout(()=>{el.style.display="none"}, 10500);
-
-      let scoreDiv = document.createElement('div');
-      scoreDiv.id = "score-ui";
-      scoreDiv.className = "score-ui";
-      document.body.appendChild(scoreDiv);
-      updateScoreUI();
-
-      // Reset score à chaque chargement
-      localStorage.setItem('handball_score', "0");
-      updateScoreUI();
-    });
-    window.addEventListener('storage', updateScoreUI);
-  </script>
 </head>
 <body>
-  <a-scene 
-    physics="gravity:-8.5;"
-    background="color: #d1e8f7"
-    embedded
-    cursor="rayOrigin: mouse; fuse: false"
-    raycaster="objects: .raycastable"
-    loading-screen="enabled:false"
-  >
-    <a-assets>
-      <a-asset-item id="handball-field" src="model/handball/scene.gltf"></a-asset-item>
-      <a-asset-item id="handball-goal" src="model/handball/goal.gltf"></a-asset-item>
-      <audio id="goal-audio" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12e6c7b2bb.mp3"></audio>
-    </a-assets>
-
-    <!-- Terrain de handball -->
-    <a-entity gltf-model="#handball-field" position="0 0 0" scale="20 20 20"></a-entity>
-    <!-- But avant -->
-    <a-entity gltf-model="#handball-goal" position="0 0 12" scale="3.3 3.3 3.3"></a-entity>
-    <!-- Ligne de but invisible -->
-    <a-box id="goal-trigger" class="goal"
-      position="0 2.1 11.5"
-      width="2.5" height="2.1" depth="0.3"
-      opacity="0" visible="false"
-      static-body></a-box>
-    <!-- But arrière -->
-    <a-entity gltf-model="#handball-goal" position="0 0 -15" rotation="0 180 0" scale="3.3 3.3 3.3"></a-entity>
-    <!-- Sol & ambiance -->
-    <a-circle radius="18" position="0 0.01 0" rotation="-90 0 0" color="#c2dafc" segments="64"></a-circle>
-    <a-sky color="#d1e8f7"></a-sky>
-    <a-entity light="type: spot; color: #fff; intensity: 0.60; angle:60" position="20 40 20" rotation="-60 45 0"></a-entity>
-    <a-entity light="type: spot; color: #fff; intensity: 0.60; angle:60" position="-20 40 20" rotation="-60 -45 0"></a-entity>
-    <a-entity light="type: ambient; color: #ffffff; intensity: 0.42"></a-entity>
-
-    <!-- Ballon handball (physique, VR/PC attrapable et lançable) -->
-    <a-entity id="handball"
-      class="raycastable grabbable"
-      geometry="primitive: sphere; radius: 0.21"
-      material="color: #ffb300; roughness: 0.36; metalness:0.19"
-      position="0 1.2 -6"
-      dynamic-body="mass: 0.35; linearDamping:0.05; angularDamping:0.13"
-      super-hands
-      throwable
-      goal-detect="scoreEl: #score-text"
-      shadow="cast:true"
-    ></a-entity>
-
-    <!-- Rig joueur + mains VR -->
-    <a-entity id="rig"
-      position="0 1.6 0"
-      movement-controls="fly: false; speed: 0.6; acceleration: 280"
-      jump-run>
-      <a-entity id="camera" camera wasd-controls look-controls position="0 0 0"></a-entity>
-      <!-- Main gauche VR -->
-      <a-entity id="leftHand"
-        hand-controls="hand: left; color: #e5b285"
-        shadow="cast: true"
-        super-hands="colliderEvent: raycaster-intersection; colliderEventProperty: els"
-        raycaster="objects: .raycastable, .grabbable; showLine: true; lineColor: #228b22"
-        line="color: #228b22; opacity: 0.8"
-        teleport-controls="hand: left; cameraRig: #rig; teleportOrigin: #camera; button: trigger"
-      >
-        <a-box width="0.045" height="0.045" depth="0.009"
-               color="#228b22"
-               position="0 0.06 0.035"></a-box>
-      </a-entity>
-      <!-- Main droite VR -->
-      <a-entity id="rightHand"
-        hand-controls="hand: right; color: #d7a878"
-        shadow="cast: true"
-        super-hands="colliderEvent: raycaster-intersection; colliderEventProperty: els"
-        raycaster="objects: .raycastable, .grabbable; showLine: true; lineColor: #228b22"
-        line="color: #228b22; opacity: 0.8"
-        teleport-controls="hand: right; cameraRig: #rig; teleportOrigin: #camera; button: trigger"
-      >
-        <a-box width="0.045" height="0.045" depth="0.009"
-               color="#228b22"
-               position="0 0.06 0.035"></a-box>
-      </a-entity>
-      <!-- Bouton retour menu -->
-      <a-entity id="retour-menu"
-        position="-0.75 0.6 -1.25"
-        geometry="primitive: cylinder; radius: 0.22; height: 0.12"
-        material="color: #d32f2f; metalness: 0.7; roughness: 0.2; opacity: 0.93"
-        class="raycastable menu-button"
-        buzzer-hover
-        menu-back>
-        <a-entity geometry="primitive: circle; radius: 0.2"
-                  position="0 0.065 0"
-                  material="color: #fff176; opacity:0.78; emissive: #fff176; emissiveIntensity:0.76"></a-entity>
-        <a-entity
-          text="value: MENU; align: center; color: #222; width: 0.85; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-          position="0 0.09 0.01"
-          scale="1 1 1"
-          rotation="-90 0 0"
-        ></a-entity>
-      </a-entity>
+  <a-scene physics="gravity:-8.5;">
+    <!-- Sol -->
+    <a-box position="0 0 0" width="12" height="0.1" depth="24" color="#c2dafc"></a-box>
+    <!-- But (avant) -->
+    <a-box position="0 1 10" width="2.5" height="2" depth="0.3" color="#1e90ff"></a-box>
+    <!-- But (arrière) -->
+    <a-box position="0 1 -10" width="2.5" height="2" depth="0.3" color="#1e90ff"></a-box>
+    <!-- Ballon VR -->
+    <a-sphere id="ball"
+              position="0 1.2 -6"
+              radius="0.2"
+              color="#ffb300"
+              dynamic-body="mass: 0.35"
+              class="grabbable"
+              super-hands
+    ></a-sphere>
+    <!-- Caméra + mains VR -->
+    <a-entity id="rig" position="0 1.6 0">
+      <a-entity camera look-controls wasd-controls position="0 0 0"></a-entity>
+      <a-entity hand-controls="hand: left"></a-entity>
+      <a-entity hand-controls="hand: right"></a-entity>
+      <!-- Bouton MENU -->
+      <a-box position="0.7 0.3 -1" width="0.25" height="0.1" depth="0.25" color="#d32f2f"
+             events="click: function(){window.location='chargement.html'}"></a-box>
     </a-entity>
-
-    <!-- Score texte dans la scène -->
-    <a-entity id="score-text"
-      position="0 3.5 -4"
-      text="value: Score : 0; color: #1e90ff; width: 4.5; align: center; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-      visible="true"
-    ></a-entity>
+    <a-sky color="#d1e8f7"></a-sky>
   </a-scene>
 </body>
 </html>
