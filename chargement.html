@@ -18,6 +18,13 @@
         pointer-events: auto !important;
         display: block !important;
       }
+      .menu-button[selected] {
+        outline: 4px solid #1e90ff;
+        outline-offset: 8px;
+        /* Optionnel : effet visuel */
+        filter: drop-shadow(0 0 8px #1e90ff99);
+        scale: 1.15 1.15 1.15;
+      }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
@@ -41,9 +48,44 @@
         });
       }
     });
-    </script>
-    <script>
-    // Menu redirection logic
+
+    // Composant pour marquer le menu sélectionné à la souris ou avec le contrôleur (raycaster)
+    AFRAME.registerComponent('menu-selectable', {
+      init: function () {
+        this.el.addEventListener('mouseenter', () => {
+          document.querySelectorAll('.menu-button[selected]').forEach(btn => btn.removeAttribute('selected'));
+          this.el.setAttribute('selected', '');
+        });
+        this.el.addEventListener('mouseleave', () => {
+          this.el.removeAttribute('selected');
+        });
+      }
+    });
+
+    // Composant pour navigation VR avec bouton B
+    AFRAME.registerComponent('vr-b-navigation', {
+      init: function () {
+        const redirections = {
+          1: "handball.html",
+          2: "basketball.html",
+          3: "athletisme.html",
+          4: "pingpong.html",
+          5: "trampoline.html",
+          6: "football.html"
+        };
+        this.el.addEventListener('bbuttondown', () => {
+          let selected = document.querySelector('.menu-button[selected]');
+          if (selected) {
+            let id = selected.getAttribute('id');
+            if (redirections[id]) {
+              window.location.href = redirections[id];
+            }
+          }
+        });
+      }
+    });
+
+    // Menu redirection logic (clic souris)
     document.addEventListener("DOMContentLoaded", function() {
       const redirections = {
         "1": "handball.html",
@@ -130,6 +172,7 @@
       <!-- MAIN DROITE VR - main stylisée peau réaliste -->
       <a-entity id="rightHand"
           hand-controls="hand: right; color: #d7a878"
+          vr-b-navigation
           oculus-touch-controls="hand: right"
           vive-controls="hand: right"
           windows-motion-controls="hand: right"
@@ -185,22 +228,22 @@
       <!-- UI principale / Menu sport -->
       <a-entity id="ui" position="0 1.6 -2.5">
         <a-entity id="menu">
-          <a-entity id="1" position="-2.0 1.1 0" mixin="main" class="raycastable menu-button">
+          <a-entity id="1" position="-2.0 1.1 0" mixin="main" class="raycastable menu-button" menu-selectable>
             <a-entity material="src: #img_1; alphaTest: 1" mixin="poster"></a-entity>
           </a-entity>
-          <a-entity id="2" position="-1.2 1.1 0" mixin="main" class="raycastable menu-button">
+          <a-entity id="2" position="-1.2 1.1 0" mixin="main" class="raycastable menu-button" menu-selectable>
             <a-entity material="src: #img_2; alphaTest: 1" mixin="poster"></a-entity>
           </a-entity>
-          <a-entity id="3" position="-0.4 1.1 0" mixin="main" class="raycastable menu-button">
+          <a-entity id="3" position="-0.4 1.1 0" mixin="main" class="raycastable menu-button" menu-selectable>
             <a-entity material="src: #img_3; alphaTest: 1" mixin="poster"></a-entity>
           </a-entity>
-          <a-entity id="4" position="0.4 1.1 0" mixin="main" class="raycastable menu-button">
+          <a-entity id="4" position="0.4 1.1 0" mixin="main" class="raycastable menu-button" menu-selectable>
             <a-entity material="src: #img_4; alphaTest: 1" mixin="poster"></a-entity>
           </a-entity>
-          <a-entity id="5" position="1.2 1.1 0" mixin="main" class="raycastable menu-button">
+          <a-entity id="5" position="1.2 1.1 0" mixin="main" class="raycastable menu-button" menu-selectable>
             <a-entity material="src: #img_5; alphaTest: 1" mixin="poster"></a-entity>
           </a-entity>
-          <a-entity id="6" position="2.0 1.1 0" mixin="main" class="raycastable menu-button">
+          <a-entity id="6" position="2.0 1.1 0" mixin="main" class="raycastable menu-button" menu-selectable>
             <a-entity material="src: #img_6; alphaTest: 1" mixin="poster"></a-entity>
           </a-entity>
           <a-video src="#CART_SECRET" toggleclick position="4.4 0 -.5" visible="false" class="raycastable"></a-video>
