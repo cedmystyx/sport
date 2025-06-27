@@ -53,12 +53,13 @@
         });
       }
     });
-    // Sauter avec A et courir avec X
+    // Sauter avec A et courir avec X, vitesse et accélération x4
     AFRAME.registerComponent('jump-run', {
       schema: {
-        jumpHeight: {default: 2},
-        runSpeed: {default: 0.4},
-        walkSpeed: {default: 0.15}
+        jumpHeight: {default: 8},        // x4
+        runSpeed: {default: 1.6},        // x4
+        walkSpeed: {default: 0.6},       // x4
+        acceleration: {default: 280}     // x4 (optionnel, dépend du mouvement-controls)
       },
       init: function () {
         this.isRunning = false;
@@ -87,7 +88,7 @@
       tick: function (time, dt) {
         // Gestion du saut (physique simple)
         if (this.isJumping) {
-          this.velocityY -= 0.08; // gravité
+          this.velocityY -= 0.32; // gravité x4
           let pos = this.rig.object3D.position;
           pos.y += this.velocityY * (dt/1000);
           if (pos.y <= 1.6) { // sol (hauteur yeux)
@@ -102,6 +103,7 @@
         let mc = this.el.components['movement-controls'];
         if (mc) {
           mc.data.speed = this.isRunning ? this.data.runSpeed : this.data.walkSpeed;
+          mc.data.acceleration = this.data.acceleration; // Optionnel, dépend si movement-controls supporte acceleration
         }
       }
     });
@@ -125,7 +127,7 @@
     <!-- RIG central : spawn au centre, mains enfants du rig -->
     <a-entity id="rig"
       position="0 1.6 0"
-      movement-controls="fly: false; speed: 0.15"
+      movement-controls="fly: false; speed: 0.6; acceleration: 280"
       jump-run>
       <!-- Caméra -->
       <a-entity id="camera" camera wasd-controls look-controls position="0 0 0"></a-entity>
