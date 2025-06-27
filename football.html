@@ -20,11 +20,74 @@
     }
   </style>
   <script>
-    // Retour au menu avec bouton B du contrôleur VR (partout)
-    AFRAME.registerComponent('vr-b-menu', {
+    // Sauter avec A et courir avec X
+    AFRAME.registerComponent('jump-run', {
+      schema: {
+        jumpHeight: {default: 2},
+        runSpeed: {default: 0.4},
+        walkSpeed: {default: 0.15}
+      },
       init: function () {
-        this.el.addEventListener('bbuttondown', function () {
-          window.location.href = "chargement.html";
+        this.isRunning = false;
+        this.rig = this.el;
+        this.velocityY = 0;
+        this.isJumping = false;
+        this.groundY = null;
+
+        // Recalcule la hauteur du sol au spawn
+        this.el.addEventListener('loaded', () => {
+          this.groundY = this.rig.object3D.position.y;
+        });
+
+        // Saut : bouton A
+        window.addEventListener('abuttondown', () => {
+          if (!this.isJumping) {
+            this.isJumping = true;
+            this.velocityY = this.data.jumpHeight;
+          }
+        });
+
+        // Courir : bouton X
+        window.addEventListener('xbuttondown', () => {
+          this.isRunning = true;
+          this.updateSpeed();
+        });
+        window.addEventListener('xbuttonup', () => {
+          this.isRunning = false;
+          this.updateSpeed();
+        });
+      },
+      tick: function (time, dt) {
+        // Gestion du saut (physique simple)
+        if (this.isJumping) {
+          this.velocityY -= 0.08; // gravité
+          let pos = this.rig.object3D.position;
+          pos.y += this.velocityY * (dt/1000);
+          if (pos.y <= 1.6) { // sol (hauteur yeux)
+            pos.y = 1.6;
+            this.isJumping = false;
+            this.velocityY = 0;
+          }
+          this.rig.object3D.position.y = pos.y;
+        }
+      },
+      updateSpeed: function() {
+        let mc = this.el.components['movement-controls'];
+        if (mc) {
+          mc.data.speed = this.isRunning ? this.data.runSpeed : this.data.walkSpeed;
+        }
+      }
+    });
+
+    // Bouton retour au menu (VR + PC, seulement si on vise/click sur le bouton)
+    AFRAME.registerComponent('menu-back', {
+      init: function () {
+        this.el.addEventListener('click', function () {
+          window.location.href = 'chargement.html';
+        });
+        // Pour VR: activer le click avec le trigger ou l'interaction
+        this.el.addEventListener('triggerdown', function () {
+          window.location.href = 'chargement.html';
         });
       }
     });
@@ -37,10 +100,9 @@
       <a-asset-item id="cr7-statue" src="model/cr7/statue-or.glb"></a-asset-item>
     </a-assets>
 
-    <!-- Terrain de football, 20x plus grand -->
+    <!-- Terrain de football -->
     <a-entity gltf-model="#football-field" position="0 0 0" scale="20 20 20"></a-entity>
-
-    <!-- Statue en or de CR7 derrière les mains VR -->
+    <!-- Statue CR7 -->
     <a-entity gltf-model="#cr7-statue"
               position="0 0 -5"
               scale="3 3 3"
@@ -48,52 +110,38 @@
               material="color: #FFD700">
     </a-entity>
 
-    <!-- Décor autour du stade -->
+    <!-- Décor -->
     <a-cylinder radius="120" height="30" position="0 15 0" color="#d4af37" side="double" opacity="0.25"></a-cylinder>
     <a-circle radius="110" position="0 0.01 0" rotation="-90 0 0" color="#4caf50" segments="64"></a-circle>
     <a-sky color="#b3e0ff"></a-sky>
-    <a-entity light="type: spot; color: #fff; intensity: 0.6; angle:60" position="60 40 60" rotation="-60 45 0"></a-entity>
-    <a-entity light="type: spot; color: #fff; intensity: 0.6; angle:60" position="-60 40 60" rotation="-60 -45 0"></a-entity>
-    <a-entity light="type: spot; color: #fff; intensity: 0.6; angle:60" position="60 40 -60" rotation="-60 135 0"></a-entity>
-    <a-entity light="type: spot; color: #fff; intensity: 0.6; angle:60" position="-60 40 -60" rotation="-60 -135 0"></a-entity>
-    <a-entity light="type: ambient; color: #ffffff; intensity: 0.35"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="60 40 60" rotation="-60 45 0"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="-60 40 60" rotation="-60 -45 0"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="60 40 -60" rotation="-60 135 0"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="-60 40 -60" rotation="-60 -135 0"></a-entity>
+    <a-entity light="type: ambient; color: #ffffff; intensity: 0.3"></a-entity>
 
-    <!-- RIG central = caméra + mains dedans pour suivre le déplacement + retour menu partout -->
-    <a-entity id="rig" vr-b-menu movement-controls="fly: false; speed: 0.15" position="0 1.6 0">
+    <!-- RIG central : spawn au centre, mains enfants du rig -->
+    <a-entity id="rig"
+      position="0 1.6 0"
+      movement-controls="fly: false; speed: 0.15"
+      jump-run>
       <!-- Caméra -->
       <a-entity id="camera" camera wasd-controls look-controls position="0 0 0"></a-entity>
-
-      <!-- Mains VR à l'intérieur du rig (elles suivent le joueur) -->
+      <!-- MAIN GAUCHE VR -->
       <a-entity id="leftHand"
         hand-controls="hand: left; color: #e5b285"
-        oculus-touch-controls="hand: left"
-        vive-controls="hand: left"
-        windows-motion-controls="hand: left"
-        daydream-controls="hand: left"
-        gearvr-controls="hand: left"
-        magic-leap-controls="hand: left"
-        valve-index-controls="hand: left"
-        oculus-go-controls="hand: left"
         shadow="cast: true"
         raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
         line="color: #228b22; opacity: 0.8"
         teleport-controls="hand: left; cameraRig: #rig; teleportOrigin: #camera; button: trigger"
       >
-        <!-- Patch vert sur le dos de la main -->
         <a-box width="0.045" height="0.045" depth="0.009"
                color="#228b22"
                position="0 0.06 0.035"></a-box>
       </a-entity>
+      <!-- MAIN DROITE VR -->
       <a-entity id="rightHand"
         hand-controls="hand: right; color: #d7a878"
-        oculus-touch-controls="hand: right"
-        vive-controls="hand: right"
-        windows-motion-controls="hand: right"
-        daydream-controls="hand: right"
-        gearvr-controls="hand: right"
-        magic-leap-controls="hand: right"
-        valve-index-controls="hand: right"
-        oculus-go-controls="hand: right"
         shadow="cast: true"
         raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
         line="color: #228b22; opacity: 0.8"
@@ -105,13 +153,13 @@
       </a-entity>
     </a-entity>
 
-    <!-- Bouton retour menu (clic souris ou VR) -->
+    <!-- Bouton retour menu (cliquable à la souris et au trigger) -->
     <a-entity geometry="primitive: plane; width: 0.7; height: 0.25"
               material="color: #333"
               position="0 2 -2"
               text="value: Retour au menu; align: center; color: #fff"
               class="raycastable"
-              onclick="window.location.href='chargement.html'"></a-entity>
+              menu-back></a-entity>
   </a-scene>
 </body>
 </html>
