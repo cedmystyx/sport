@@ -21,6 +21,24 @@
       filter: drop-shadow(0 0 8px #1e90ff99);
       scale: 1.15 1.15 1.15;
     }
+    .floating-ui {
+      position: absolute;
+      left: 24px;
+      top: 24px;
+      z-index: 10000;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #fff7;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px #0002;
+      padding: 1em 2em;
+      color: #184e77;
+      font-size: 1.15em;
+      pointer-events: none;
+      user-select: none;
+    }
+    @media (max-width: 700px) {
+      .floating-ui { font-size: 0.85em; padding: .5em 1em;}
+    }
   </style>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
@@ -106,6 +124,15 @@
         }
       }
     });
+
+    // Affichage de message d'accueil/contextuel
+    window.addEventListener('DOMContentLoaded', ()=>{
+      const el = document.createElement('div');
+      el.className = "floating-ui";
+      el.innerHTML = "<b>Handball VR 🏐</b><br>Utilise <span style='color:#d32f2f;font-weight:bold'>A</span> pour sauter, <span style='color:#d32f2f;font-weight:bold'>X</span> pour courir.<br>Appuie sur le buzzer <b>MENU</b> pour revenir au menu principal.";
+      document.body.appendChild(el);
+      setTimeout(()=>{el.style.display="none"}, 9500);
+    });
   </script>
 </head>
 <body>
@@ -123,18 +150,18 @@
 
     <!-- Terrain de handball -->
     <a-entity gltf-model="#handball-field" position="0 0 0" scale="20 20 20"></a-entity>
-    <!-- Buts de handball (optionnel, adapte le modèle/chemin si besoin) -->
+    <!-- Buts de handball -->
     <a-entity gltf-model="#handball-goal" position="15 0 0" scale="3 3 3"></a-entity>
     <a-entity gltf-model="#handball-goal" position="-15 0 0" rotation="0 180 0" scale="3 3 3"></a-entity>
     
-    <!-- Décor - cercle coloré et ambiance -->
+    <!-- Décor - sol et ambiance -->
     <a-circle radius="18" position="0 0.01 0" rotation="-90 0 0" color="#c2dafc" segments="64"></a-circle>
     <a-sky color="#d1e8f7"></a-sky>
-    <a-entity light="type: spot; color: #fff; intensity: 0.55; angle:60" position="20 40 20" rotation="-60 45 0"></a-entity>
-    <a-entity light="type: spot; color: #fff; intensity: 0.55; angle:60" position="-20 40 20" rotation="-60 -45 0"></a-entity>
-    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="20 40 -20" rotation="-60 135 0"></a-entity>
-    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="-20 40 -20" rotation="-60 -135 0"></a-entity>
-    <a-entity light="type: ambient; color: #ffffff; intensity: 0.38"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.60; angle:60" position="20 40 20" rotation="-60 45 0"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.60; angle:60" position="-20 40 20" rotation="-60 -45 0"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.52; angle:60" position="20 40 -20" rotation="-60 135 0"></a-entity>
+    <a-entity light="type: spot; color: #fff; intensity: 0.52; angle:60" position="-20 40 -20" rotation="-60 -135 0"></a-entity>
+    <a-entity light="type: ambient; color: #ffffff; intensity: 0.41"></a-entity>
 
     <!-- RIG central : spawn au centre, mains enfants du rig -->
     <a-entity id="rig"
@@ -170,7 +197,7 @@
       
       <!-- BOUTON BUZZER MENU FIXE DEVANT LA CAMERA (HUD) -->
       <a-entity id="retour-menu"
-            position="-0.7 0.6 -1.3"
+            position="-0.75 0.6 -1.25"
             geometry="primitive: cylinder; radius: 0.22; height: 0.12"
             material="color: #d32f2f; metalness: 0.7; roughness: 0.2; opacity: 0.93"
             class="raycastable menu-button"
@@ -178,9 +205,9 @@
             menu-back>
         <a-entity geometry="primitive: circle; radius: 0.2"
                   position="0 0.065 0"
-                  material="color: #fff176; opacity:0.75; emissive: #fff176; emissiveIntensity:0.7"></a-entity>
+                  material="color: #fff176; opacity:0.78; emissive: #fff176; emissiveIntensity:0.76"></a-entity>
         <a-entity
-          text="value: MENU; align: center; color: #222; width: 0.8; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+          text="value: MENU; align: center; color: #222; width: 0.85; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"
           position="0 0.09 0.01"
           scale="1 1 1"
           rotation="-90 0 0"
@@ -189,8 +216,8 @@
       <!-- /bouton buzzer -->
     </a-entity>
 
-    <!-- Optionnel : icône Handball flottant pour l'ambiance -->
-    <a-image src="#handball-icon" position="0 6 -7" scale="2.5 2.5 2.5" opacity="0.45"></a-image>
+    <!-- Icône Handball flottant pour l'ambiance -->
+    <a-image src="#handball-icon" position="0 6 -7" scale="2.5 2.5 2.5" opacity="0.41"></a-image>
     <a-entity position="0 6 -7" text="value: Handball; color: #1e90ff; width: 8; align: center"></a-entity>
   </a-scene>
 </body>
