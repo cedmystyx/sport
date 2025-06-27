@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball VR - Simulation Ultra</title>
+  <title>Handball VR - Bot Réel & Physique Maximale</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -10,171 +10,128 @@
   <script src="https://unpkg.com/aframe-teleport-controls@^0.4.0/dist/aframe-teleport-controls.min.js"></script>
   <style>
     body {margin:0;}
-    .score-ui {position: absolute; top: 24px; right: 24px; background: #fff9; color: #0a3a74; font-family: 'Segoe UI', Arial, sans-serif; font-size: 1.2em; border-radius: 10px; box-shadow: 0 2px 10px #0002; padding: 0.7em 1.6em; z-index: 10002; pointer-events: none; user-select: none; text-align: right;}
-    .chrono-ui {position:absolute;top:24px;left:24px;font-family:'Segoe UI',Arial,sans-serif; background:#113a; color:#fff; border-radius:8px; padding:0.4em 1.2em;font-size:1.1em;z-index:10003; box-shadow:0 2px 10px #0002; letter-spacing:0.09em;}
-    .combo-ui {position:absolute;left:0;right:0;top:90px;text-align:center;z-index:10010;font-family:Impact,Arial,sans-serif;font-size:2.3em;letter-spacing:0.05em;color:#e63946;text-shadow:0 2px 20px #fff,0 0 30px #e63946aa;}
+    .score-ui {position: absolute; top:24px; right:24px; background:#fff9; color:#0a3a74; font-family:'Segoe UI',Arial,sans-serif; font-size:1.2em; border-radius:10px; box-shadow:0 2px 10px #0002; padding:0.7em 1.6em; z-index:10002; pointer-events:none; user-select:none; text-align:right;}
+    .bot-ui {position:absolute;left:24px;top:24px;z-index:10001;font-family:'Segoe UI',Arial,sans-serif;background:#fff8;border-radius:13px;box-shadow:0 2px 16px #00335511;padding:1em 2em;color:#184e77;font-size:1.1em;pointer-events:none;user-select:none;line-height:1.42em;}
   </style>
   <script>
-    // ---------- Gardien IA avancé
-    let gardienDir = 1;
-    let gardienJumping = false;
-    setInterval(()=>{
-      let g = document.getElementById("gardien");
-      let ball = document.getElementById("handball");
-      if(!g || !ball) return;
-      let pos = g.getAttribute("position");
-      let ballPos = ball.getAttribute("position");
-      // Suivi horizontal du ballon
-      let dx = ballPos.x - pos.x;
-      if(Math.abs(dx) > 0.1) pos.x += Math.sign(dx)*0.075;
-      // Saute aléatoirement si le ballon arrive vite
-      if(!gardienJumping && Math.abs(ballPos.z-10.6) < 5 && Math.random() > 0.8) {
-        gardienJumping = true;
-        g.setAttribute("animation__jump","property:position;to:"+pos.x+" 2.1 10.6;dur:250;easing:easeOutCubic;dir:alternate;loop:2");
-        setTimeout(()=>{gardienJumping=false;g.removeAttribute("animation__jump");},600);
+    let botHasBall = false, playerHasBall = false, gameStarted = false, botCooldown = 0, botTarget = null;
+    // Utils
+    function dist(a, b) {let dx=a.x-b.x,dy=a.y-b.y,dz=a.z-b.z;return Math.sqrt(dx*dx+dy*dy+dz*dz);}
+    // BOT IA
+    function botThink() {
+      if(!gameStarted) return setTimeout(botThink, 30);
+      const bot = document.getElementById('bot');
+      const ball = document.getElementById('handball');
+      const player = document.getElementById('rig');
+      if(!bot||!ball||!player) return setTimeout(botThink, 30);
+
+      let botPos = bot.object3D.position;
+      let ballPos = ball.object3D.position;
+      let playerPos = player.object3D.position;
+
+      // Si le bot tient la balle, il la lance vers le but (ou vers toi s'il défend)
+      if(botHasBall) {
+        if(botCooldown<=0) {
+          // Lancer vers le but
+          let target = {x:0, y:1.2, z:11.5};
+          // Si le joueur est devant et proche, il tente de viser le joueur
+          if(dist(botPos,playerPos)<3) target = {x:playerPos.x, y:1.3, z:playerPos.z};
+          let ballBody = ball.body;
+          ball.setAttribute('dynamic-body','mass:0.35;linearDamping:0.07;angularDamping:0.13');
+          ball.setAttribute('position',`${botPos.x} ${botPos.y+0.6} ${botPos.z+0.8}`);
+          ballBody.velocity.set(0,0,0); ballBody.angularVelocity.set(0,0,0);
+          let dir = new THREE.Vector3(target.x-botPos.x, target.y-botPos.y, target.z-botPos.z).normalize();
+          ballBody.velocity.set(dir.x*18, dir.y*12+Math.random()*1.5, dir.z*18);
+          ballBody.angularVelocity.set(Math.random()*12-6, Math.random()*4-2, Math.random()*12-6);
+          botHasBall = false;
+          botCooldown = 40 + Math.random()*30;
+        } else botCooldown--;
+        setTimeout(botThink, 30); return;
       }
-      g.setAttribute("position",pos);
-    }, 33);
 
-    // ---------- Replay instantané
-    let replaying = false, lastPath = [];
-    function recordBallPath(){
-      let ball = document.getElementById("handball");
-      if(!ball) return;
-      let path = [];
-      let rec = setInterval(()=>{
-        if(replaying) return clearInterval(rec);
-        let pos = Object.assign({}, ball.getAttribute("position"));
-        path.push(pos);
-        if(path.length>60) path.shift();
-        lastPath = [...path];
-      },16);
-    }
-    function playReplay(){
-      if(lastPath.length<2) return;
-      replaying = true;
-      let cam = document.getElementById("camera");
-      let i=0;
-      let replay = setInterval(()=>{
-        if(i>=lastPath.length) {replaying=false;return clearInterval(replay);}
-        let pos = lastPath[i];
-        cam.setAttribute("position",{x:pos.x+0.2,y:pos.y+0.7,z:pos.z-2});
-        i++;
-      },30);
-      setTimeout(()=>{replaying=false;cam.setAttribute("position","0 1.6 -8");},Math.max(1500,lastPath.length*30));
-    }
-
-    // ---------- Chrono
-    let chronoSec = 45, chronoInterval;
-    function startChrono() {
-      chronoSec = 45;
-      document.getElementById("chrono-ui").innerText = formatChrono(chronoSec);
-      if(chronoInterval) clearInterval(chronoInterval);
-      chronoInterval = setInterval(()=>{
-        chronoSec--;
-        document.getElementById("chrono-ui").innerText = formatChrono(chronoSec);
-        if(chronoSec <= 0) {
-          clearInterval(chronoInterval);
-          alert("FIN DU MATCH ! Score : "+(localStorage.getItem('handball_score')||0));
-          window.location.reload();
+      // Si le joueur tient la balle, le bot tente de s'approcher et attraper
+      if(playerHasBall) {
+        // Si assez proche, "vole" la balle !
+        if(dist(botPos, ballPos)<1.0) {
+          playerHasBall = false;
+          botHasBall = true;
+          ball.setAttribute('position',`${botPos.x} ${botPos.y+0.6} ${botPos.z+0.7}`);
+          ball.body.velocity.set(0,0,0);
+          ball.body.angularVelocity.set(0,0,0);
+          showBotText("😈 Le bot t'a volé la balle !");
+          setTimeout(()=>{showBotText("");}, 1200);
+        } else {
+          // S'approche de la balle
+          moveBotToward(bot, ballPos, 0.11);
         }
-      }, 1000);
-    }
-    function formatChrono(s) {
-      let m = Math.floor(s/60); let sec = s%60;
-      return m+":"+(sec<10?"0":"")+sec;
-    }
-
-    // ---------- Combo/bonus UI
-    function showCombo(text) {
-      let el = document.getElementById('combo-ui');
-      if (!el) {
-        el = document.createElement('div'); el.id = 'combo-ui'; el.className = 'combo-ui';
-        document.body.appendChild(el);
+        setTimeout(botThink, 30); return;
       }
-      el.innerText = text;
-      el.style.display = 'block';
-      setTimeout(()=>{el.style.display='none';},1200);
-    }
 
-    // ---------- Super tir (traînée)
-    AFRAME.registerComponent('supertrail', {
-      tick: function() {
-        let v = this.el.body ? this.el.body.velocity : {x:0,y:0,z:0};
-        let speed = Math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z);
-        if(speed>11) {
-          if(!this.trail) {
-            this.trail = document.createElement('a-ring');
-            this.trail.setAttribute('radius-inner','0.25');
-            this.trail.setAttribute('radius-outer','0.33');
-            this.trail.setAttribute('color','#fdc500');
-            this.trail.setAttribute('opacity','0.32');
-            this.trail.setAttribute('rotation','90 0 0');
-            this.el.appendChild(this.trail);
-          }
-          this.trail.setAttribute('visible','true');
-        } else if(this.trail) {
-          this.trail.setAttribute('visible','false');
+      // Si la balle est libre, le bot essaie de l'attraper
+      if(!botHasBall) {
+        // Si assez proche
+        if(dist(botPos, ballPos)<1.0 && ballPos.y<2) {
+          botHasBall = true;
+          ball.setAttribute('position',`${botPos.x} ${botPos.y+0.6} ${botPos.z+0.7}`);
+          ball.body.velocity.set(0,0,0);
+          ball.body.angularVelocity.set(0,0,0);
+          showBotText("🤖 Le bot prend la balle !");
+          setTimeout(()=>{showBotText("");}, 1200);
+        } else {
+          moveBotToward(bot, ballPos, 0.09+Math.random()*0.04);
         }
+        setTimeout(botThink, 30); return;
       }
-    });
-
-    // ---------- Cible bonus
-    function popTarget() {
-      let t = document.getElementById('bonus-target');
-      if(!t) return;
-      let x = (Math.random()-0.5)*2.2, y = 1+Math.random()*0.7, z = 10.7;
-      t.setAttribute('position',{x,y,z});
-      t.setAttribute('visible','true');
-      setTimeout(()=>{t.setAttribute('visible','false');},1700+Math.random()*1200);
+      setTimeout(botThink, 30);
     }
-    setInterval(()=>{if(Math.random()>0.67) popTarget();},2600);
-
-    // ---------- Détection but + combo/bonus
-    let lastGoalTime = 0, streak = 0;
-    AFRAME.registerComponent('goal-detect', {
-      schema: {scoreEl: {type: "selector"}},
-      init: function () {
-        this.goal = false;
-        this.el.addEventListener('collide', (e) => {
-          if (e.detail.body.el && e.detail.body.el.id==="goal-trigger") {
-            if (!this.goal) {
-              this.goal = true;
-              let now = performance.now();
-              streak = (now-lastGoalTime)<2200 ? streak+1 : 1;
-              lastGoalTime = now;
-              let current = parseInt(localStorage.getItem('handball_score')||"0",10);
-              let v = this.el.body.velocity, speed = Math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z);
-              let comboText = "But !";
-              if (streak>=3) comboText = "COMBO x"+streak;
-              if (speed>13) comboText += " SUPER TIR !";
-              current += 1 + Math.floor(speed/10) + (streak>1?streak-1:0);
-              localStorage.setItem('handball_score', current);
-              if (this.data.scoreEl) this.data.scoreEl.setAttribute("text","value",`Score : ${current}`);
-              showCombo(comboText);
-              this.el.setAttribute("material","color","#6fff81");
-              let snd = document.getElementById("goal-audio");
-              if (snd) snd.play();
-              setTimeout(()=>{
-                this.el.setAttribute("material","color","#ffb300");
-                this.el.body.velocity.set(0,0,0);
-                this.el.body.angularVelocity.set(0,0,0);
-                this.el.setAttribute("position","0 1.2 -6");
-                this.goal = false;
-                playReplay();
-              }, 1300);
-              let ui = document.getElementById("score-ui");
-              if (ui) ui.innerHTML = `Score<br><span style="font-size:1.25em;font-weight:bold;">${current}</span>`;
-            }
-          }
-        });
+    function moveBotToward(bot, target, speed=0.09) {
+      let pos = bot.object3D.position;
+      let dir = {x: target.x-pos.x, y: 0, z: target.z-pos.z};
+      let len = Math.sqrt(dir.x*dir.x+dir.z*dir.z);
+      if(len>0.02) {
+        dir.x/=len; dir.z/=len;
+        bot.setAttribute('position',{x:pos.x+dir.x*speed,y:pos.y,z:pos.z+dir.z*speed});
       }
+    }
+    // UI bot
+    function showBotText(txt) {
+      let el = document.getElementById('bot-ui');
+      if(el) el.innerText = txt;
+    }
+    // Detection prise balle par joueur
+    function playerGrab() { playerHasBall = true; }
+    function playerRelease() { playerHasBall = false; }
+
+    // SCORE UI
+    function updateScoreUI() {
+      let sc = parseInt(localStorage.getItem('handball_score')||"0",10);
+      let ui = document.getElementById("score-ui");
+      if (ui) ui.innerHTML = `Score<br><span style="font-size:1.25em;font-weight:bold;">${sc}</span>`;
+    }
+    window.addEventListener('DOMContentLoaded', ()=>{
+      let scoreDiv = document.createElement('div');
+      scoreDiv.id = "score-ui";
+      scoreDiv.className = "score-ui";
+      document.body.appendChild(scoreDiv);
+      let botDiv = document.createElement('div');
+      botDiv.id = 'bot-ui'; botDiv.className = 'bot-ui'; botDiv.innerText = '';
+      document.body.appendChild(botDiv);
+      updateScoreUI();
+      // Reset score à chaque chargement
+      localStorage.setItem('handball_score', "0");
+      updateScoreUI();
+      // Démarre la logique bot après chargement
+      setTimeout(()=>{gameStarted=true;botThink();},600);
     });
-    // ---------- Ballon attrapable/lancable avec spin
+    window.addEventListener('storage', updateScoreUI);
+
+    // PHYSIQUE AVANCÉE
     AFRAME.registerComponent('throwable', {
-      schema: { force: {default: 17} },
+      schema: { force: {default: 16} },
       init: function () {
+        this.el.addEventListener('grab-start',()=>{playerGrab();});
         this.el.addEventListener('grab-end', evt => {
+          playerRelease();
           let hand = evt.detail.hand;
           let dir = new THREE.Vector3(0,0,-1);
           hand.object3D.getWorldDirection(dir);
@@ -189,6 +146,7 @@
           );
         });
         this.el.addEventListener('click', evt => {
+          playerRelease();
           let cam = document.querySelector('[camera]');
           if (!cam) return;
           let dir = new THREE.Vector3(0,0,-1);
@@ -214,63 +172,45 @@
         });
       }
     });
-    // ---------- Cible bonus
-    AFRAME.registerComponent('bonus-detect', {
+    // Détection but
+    AFRAME.registerComponent('goal-detect', {
+      schema: {scoreEl: {type: "selector"}},
       init: function () {
+        this.goal = false;
         this.el.addEventListener('collide', (e) => {
-          if (e.detail.body.el && e.detail.body.el.id==="handball") {
-            let current = parseInt(localStorage.getItem('handball_score')||"0",10);
-            current += 5;
-            localStorage.setItem('handball_score', current);
-            showCombo("BONUS +5 !");
-            let snd = document.getElementById("bonus-audio");
-            if (snd) snd.play();
-            this.el.setAttribute('visible','false');
-            let ui = document.getElementById("score-ui");
-            if (ui) ui.innerHTML = `Score<br><span style="font-size:1.25em;font-weight:bold;">${current}</span>`;
+          if (e.detail.body.el && e.detail.body.el.id==="goal-trigger") {
+            if (!this.goal) {
+              this.goal = true;
+              let current = parseInt(localStorage.getItem('handball_score')||"0",10);
+              current++;
+              localStorage.setItem('handball_score', current);
+              if (this.data.scoreEl) this.data.scoreEl.setAttribute("text","value",`Score : ${current}`);
+              this.el.setAttribute("material","color","#6fff81");
+              let snd = document.getElementById("goal-audio");
+              if (snd) snd.play();
+              setTimeout(()=>{
+                this.el.setAttribute("material","color","#ffb300");
+                this.el.body.velocity.set(0,0,0);
+                this.el.body.angularVelocity.set(0,0,0);
+                this.el.setAttribute("position","0 1.2 -6");
+                this.goal = false;
+              }, 1200);
+              let ui = document.getElementById("score-ui");
+              if (ui) ui.innerHTML = `Score<br><span style="font-size:1.25em;font-weight:bold;">${current}</span>`;
+            }
           }
         });
       }
     });
-
-    // ---------- Score UI
-    function updateScoreUI() {
-      let sc = parseInt(localStorage.getItem('handball_score')||"0",10);
-      let ui = document.getElementById("score-ui");
-      if (ui) ui.innerHTML = `Score<br><span style="font-size:1.25em;font-weight:bold;">${sc}</span>`;
-    }
-    window.addEventListener('DOMContentLoaded', ()=>{
-      let scoreDiv = document.createElement('div');
-      scoreDiv.id = "score-ui";
-      scoreDiv.className = "score-ui";
-      document.body.appendChild(scoreDiv);
-      let chronoDiv = document.createElement('div');
-      chronoDiv.id = "chrono-ui";
-      chronoDiv.className = "chrono-ui";
-      document.body.appendChild(chronoDiv);
-      updateScoreUI();
-      localStorage.setItem('handball_score', "0");
-      updateScoreUI();
-      startChrono();
-      recordBallPath();
-    });
-    window.addEventListener('storage', updateScoreUI);
   </script>
 </head>
 <body>
-  <a-scene
-    physics="gravity:-9.8; restitution:0.68;"
-    background="color: #d1e8f7"
-    cursor="rayOrigin: mouse; fuse: false"
-    raycaster="objects: .raycastable"
-    loading-screen="enabled:false"
-  >
+  <a-scene physics="gravity:-9.8; restitution:0.73;" background="color: #d1e8f7" cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .raycastable" loading-screen="enabled:false">
     <a-assets>
       <audio id="goal-audio" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12e6c7b2bb.mp3"></audio>
-      <audio id="bonus-audio" src="https://cdn.pixabay.com/audio/2022/12/21/audio_12e2dbe8b4.mp3"></audio>
       <audio id="ambiance" src="https://cdn.pixabay.com/audio/2022/11/16/audio_12e9c1f3c3.mp3" preload="auto"></audio>
     </a-assets>
-    <!-- Terrain et murs physiques -->
+    <!-- Terrain handball, murs physiques -->
     <a-box position="0 0 0" width="12" height="0.1" depth="24" color="#c2dafc" static-body></a-box>
     <a-box position="6.1 1 0" width="0.2" height="2" depth="24.2" color="#888" opacity="0.09" static-body></a-box>
     <a-box position="-6.1 1 0" width="0.2" height="2" depth="24.2" color="#888" opacity="0.09" static-body></a-box>
@@ -283,23 +223,11 @@
     <a-plane position="0 1.01 11" width="2.8" height="1.95" rotation="0 0 0" color="#fff" opacity="0.13"></a-plane>
     <!-- Trigger but -->
     <a-box id="goal-trigger" position="0 1 10.6" width="2.6" height="1.75" depth="0.1" opacity="0" visible="false" static-body></a-box>
-    <!-- Gardien IA avancé -->
-    <a-box id="gardien" position="0 1 10.6" width="0.7" height="1.5" depth="0.2" color="#333" dynamic-body mass="2"></a-box>
-    <!-- Ballon handball physique + supertrail -->
-    <a-sphere id="handball"
-      class="raycastable grabbable"
-      position="0 1.2 -6"
-      radius="0.22"
-      color="#ffb300"
-      dynamic-body="mass: 0.35; linearDamping:0.06; angularDamping:0.12; restitution:0.71; friction:0.42"
-      super-hands
-      throwable
-      supertrail
-      goal-detect="scoreEl: #score-text"
-      shadow="cast:true"
-    ></a-sphere>
-    <!-- Cible bonus -->
-    <a-torus id="bonus-target" visible="false" position="0 1.7 10.7" radius="0.21" radius-tubular="0.04" color="#fdc500" bonus-detect static-body></a-torus>
+    <!-- Bot joueur -->
+    <a-cylinder id="bot" position="0 1 6" radius="0.33" height="2" color="#7dd6f6" segments-radial="6"></a-cylinder>
+    <a-sphere position="0 2.24 6.1" radius="0.22" color="#0a3a74"></a-sphere>
+    <!-- Ballon handball physique -->
+    <a-sphere id="handball" class="raycastable grabbable" position="0 1.2 -6" radius="0.22" color="#ffb300" dynamic-body="mass: 0.35; linearDamping:0.06; angularDamping:0.12; restitution:0.77; friction:0.38" super-hands throwable goal-detect="scoreEl: #score-text" shadow="cast:true"></a-sphere>
     <!-- Rig joueur + mains VR -->
     <a-entity id="rig" position="0 1.6 -8" movement-controls="fly: false; speed: 0.7; acceleration: 250">
       <a-entity id="camera" camera wasd-controls look-controls position="0 0 0"></a-entity>
