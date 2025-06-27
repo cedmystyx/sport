@@ -13,19 +13,6 @@
     <script src="./js/main.js" defer></script>
     <script src="./js/lobby.js" defer></script>
     <script>
-    // Loader hide logic
-    document.addEventListener("DOMContentLoaded", function() {
-      const scene = document.querySelector('a-scene');
-      const loadingScreen = document.getElementById('loadingScreen');
-      if (scene && loadingScreen) {
-        scene.addEventListener('loaded', () => {
-          loadingScreen.classList.add('hide');
-          setTimeout(() => loadingScreen.style.display = "none", 700);
-        });
-      }
-    });
-    </script>
-    <script>
     // middle-finger-switch component
     AFRAME.registerComponent('middle-finger-switch', {
       schema: { hand: {type: 'string', default: 'left'}, mesh: {type: 'selector'} },
@@ -80,12 +67,6 @@
     </script>
   </head>
   <body>
-    <!-- Loader Modern -->
-    <div id="loadingScreen">
-      <div class="loader"></div>
-      <div class="loader-text">Chargement en cours...</div>
-    </div>
-
     <a-scene 
       cursor="rayOrigin: mouse; fuse: false" 
       raycaster="objects: .raycastable" 
