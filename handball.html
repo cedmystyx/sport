@@ -15,12 +15,6 @@
       pointer-events: auto !important;
       display: block !important;
     }
-    .menu-button[selected] {
-      outline: 4px solid #1e90ff;
-      outline-offset: 8px;
-      filter: drop-shadow(0 0 8px #1e90ff99);
-      scale: 1.15 1.15 1.15;
-    }
     .floating-ui {
       position: absolute;
       left: 24px;
@@ -32,19 +26,42 @@
       box-shadow: 0 2px 12px #0002;
       padding: 1em 2em;
       color: #184e77;
-      font-size: 1.15em;
+      font-size: 1.1em;
       pointer-events: none;
       user-select: none;
     }
+    .score-ui {
+      position: absolute;
+      right: 24px;
+      top: 24px;
+      z-index: 10001;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #eef8ffbb;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px #0001;
+      padding: 1em 2em;
+      color: #0a3a74;
+      font-size: 1.15em;
+      pointer-events: none;
+      user-select: none;
+      text-align: right;
+    }
     @media (max-width: 700px) {
-      .floating-ui { font-size: 0.85em; padding: .5em 1em;}
+      .floating-ui, .score-ui { font-size: 0.85em; padding: .5em 1em;}
+    }
+    .menu-button[selected] {
+      outline: 4px solid #1e90ff;
+      outline-offset: 8px;
+      filter: drop-shadow(0 0 8px #1e90ff99);
+      scale: 1.15 1.15 1.15;
     }
   </style>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
   <script src="https://unpkg.com/aframe-teleport-controls@^0.4.0/dist/aframe-teleport-controls.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
   <script>
-    // Composant pour effet buzzer sur le bouton menu
+    // Buzzer MENU
     AFRAME.registerComponent('buzzer-hover', {
       init: function () {
         const baseScale = {x: 1, y: 1, z: 1};
@@ -59,7 +76,7 @@
         });
       }
     });
-    // Interaction bouton menu (clic souris ou trigger VR)
+    // Retour menu
     AFRAME.registerComponent('menu-back', {
       init: function () {
         this.el.addEventListener('click', function () {
@@ -83,16 +100,12 @@
         this.rig = this.el;
         this.velocityY = 0;
         this.isJumping = false;
-
-        // Saut : bouton A
         window.addEventListener('abuttondown', () => {
           if (!this.isJumping) {
             this.isJumping = true;
             this.velocityY = this.data.jumpHeight;
           }
         });
-
-        // Courir : bouton X
         window.addEventListener('xbuttondown', () => {
           this.isRunning = true;
           this.updateSpeed();
@@ -103,12 +116,11 @@
         });
       },
       tick: function (time, dt) {
-        // Gestion du saut (physique simple)
         if (this.isJumping) {
-          this.velocityY -= 0.32; // gravité x4
+          this.velocityY -= 0.32;
           let pos = this.rig.object3D.position;
           pos.y += this.velocityY * (dt/1000);
-          if (pos.y <= 1.6) { // sol (hauteur yeux)
+          if (pos.y <= 1.6) {
             pos.y = 1.6;
             this.isJumping = false;
             this.velocityY = 0;
@@ -125,45 +137,173 @@
       }
     });
 
-    // Affichage de message d'accueil/contextuel
+    // Jeu de tir au but : logique score et relance
+    AFRAME.registerComponent('goal-detect', {
+      schema: {scoreEl: {type: "selector"}},
+      init: function () {
+        this.goal = false;
+        this.el.addEventListener('collide', (e) => {
+          if (e.detail.body.el && (e.detail.body.el.classList.contains("goal") || e.detail.body.el.id==="goal-trigger")) {
+            if (!this.goal) {
+              this.goal = true;
+              let current = parseInt(localStorage.getItem('handball_score')||"0",10);
+              current++;
+              localStorage.setItem('handball_score', current);
+              if (this.data.scoreEl) this.data.scoreEl.setAttribute("text","value",`Score : ${current}`);
+              // Animation + son de goal
+              this.el.setAttribute("material","color","#6fff81");
+              let snd = document.getElementById("goal-audio");
+              if (snd) snd.play();
+              setTimeout(()=>{
+                this.el.setAttribute("material","color","#ffb300");
+                this.el.body.velocity.set(0,0,0);
+                this.el.body.angularVelocity.set(0,0,0);
+                this.el.setAttribute("position","0 1.2 -6");
+                this.goal = false;
+              }, 900);
+              // Met à jour le score UI écran
+              let ui = document.getElementById("score-ui");
+              if (ui) ui.innerHTML = `Score<br><span style="font-size:1.3em;font-weight:bold;">${current}</span>`;
+            }
+          }
+        });
+      }
+    });
+
+    // Lancer le ballon au trigger ou clic/tap (VR/PC)
+    AFRAME.registerComponent('throwable', {
+      schema: {
+        force: {default: 14}
+      },
+      init: function () {
+        this.isHeld = false;
+        this.controller = null;
+        this.startPos = null;
+
+        // VR (trigger)
+        this.el.addEventListener('grab-start', evt => {
+          this.isHeld = true;
+          this.controller = evt.detail.hand;
+          this.startPos = this.el.object3D.position.clone();
+        });
+        this.el.addEventListener('grab-end', evt => {
+          if (this.isHeld) {
+            this.isHeld = false;
+            // Calcul direction et force
+            let hand = evt.detail.hand;
+            let dir = new THREE.Vector3(0,0,-1);
+            hand.object3D.getWorldDirection(dir);
+            dir.normalize();
+            let force = dir.multiplyScalar(this.data.force);
+            this.el.body.velocity.set(force.x, force.y, force.z);
+          }
+        });
+
+        // Souris (clic)
+        this.el.addEventListener('click', evt => {
+          let cam = document.querySelector('[camera]');
+          if (!cam) return;
+          let dir = new THREE.Vector3(0,0,-1);
+          cam.object3D.getWorldDirection(dir);
+          dir.normalize();
+          let force = dir.multiplyScalar(this.data.force);
+          this.el.body.velocity.set(force.x, force.y+2, force.z);
+        });
+
+        // Reset si tombé trop loin
+        this.el.addEventListener('body-loaded', ()=>{
+          this.el.body.addEventListener('sleep', ()=>{
+            let pos = this.el.object3D.position;
+            if (Math.abs(pos.x) > 25 || pos.y < -2 || Math.abs(pos.z) > 30) {
+              this.el.setAttribute("position","0 1.2 -6");
+              this.el.body.velocity.set(0,0,0);
+              this.el.body.angularVelocity.set(0,0,0);
+            }
+          });
+        });
+      }
+    });
+
+    // UI - Score synchronisé
+    function updateScoreUI() {
+      let sc = parseInt(localStorage.getItem('handball_score')||"0",10);
+      let ui = document.getElementById("score-ui");
+      if (ui) ui.innerHTML = `Score<br><span style="font-size:1.3em;font-weight:bold;">${sc}</span>`;
+    }
     window.addEventListener('DOMContentLoaded', ()=>{
+      // UI infos
       const el = document.createElement('div');
       el.className = "floating-ui";
-      el.innerHTML = "<b>Handball VR 🏐</b><br>Utilise <span style='color:#d32f2f;font-weight:bold'>A</span> pour sauter, <span style='color:#d32f2f;font-weight:bold'>X</span> pour courir.<br>Appuie sur le buzzer <b>MENU</b> pour revenir au menu principal.";
+      el.innerHTML = "<b>Handball VR – Tir au but 🥅🏐</b><br>Attrape le ballon (VR : main/trigger, PC : clic dessus), vise et lance !<br>Un point à chaque but marqué.<br>Utilise <span style='color:#d32f2f;font-weight:bold'>A</span> pour sauter, <span style='color:#d32f2f;font-weight:bold'>X</span> pour courir.<br><b>MENU</b> pour quitter.";
       document.body.appendChild(el);
-      setTimeout(()=>{el.style.display="none"}, 9500);
+      setTimeout(()=>{el.style.display="none"}, 11000);
+
+      // Score UI
+      let scoreDiv = document.createElement('div');
+      scoreDiv.id = "score-ui";
+      scoreDiv.className = "score-ui";
+      document.body.appendChild(scoreDiv);
+      updateScoreUI();
+
+      // Reset score à chaque chargement de page
+      localStorage.setItem('handball_score', "0");
+      updateScoreUI();
     });
+
+    window.addEventListener('storage', updateScoreUI);
   </script>
 </head>
 <body>
-  <a-scene background="color: #d1e8f7" embedded
+  <a-scene 
+    physics="gravity:-8.5;" 
+    background="color: #d1e8f7" 
+    embedded
     cursor="rayOrigin: mouse; fuse: false"
     raycaster="objects: .raycastable"
     loading-screen="enabled:false"
   >
     <a-assets>
-      <!-- Mets ici tes modèles, adapte le chemin si besoin -->
       <a-asset-item id="handball-field" src="model/handball/scene.gltf"></a-asset-item>
       <a-asset-item id="handball-goal" src="model/handball/goal.gltf"></a-asset-item>
       <img id="handball-icon" src="img/handball.png">
+      <audio id="goal-audio" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12e6c7b2bb.mp3"></audio>
     </a-assets>
 
     <!-- Terrain de handball -->
     <a-entity gltf-model="#handball-field" position="0 0 0" scale="20 20 20"></a-entity>
-    <!-- Buts de handball -->
-    <a-entity gltf-model="#handball-goal" position="15 0 0" scale="3 3 3"></a-entity>
-    <a-entity gltf-model="#handball-goal" position="-15 0 0" rotation="0 180 0" scale="3 3 3"></a-entity>
-    
-    <!-- Décor - sol et ambiance -->
+    <!-- Cage de but à l'avant -->
+    <a-entity gltf-model="#handball-goal" position="0 0 12" scale="3.3 3.3 3.3"></a-entity>
+    <!-- Ligne de but invisible pour détecter but (trigger) -->
+    <a-box id="goal-trigger" class="goal"
+      position="0 2.1 11.5"
+      width="2.5" height="2.1" depth="0.3"
+      opacity="0" visible="false"
+      static-body>
+    </a-box>
+    <!-- Cage de but à l'arrière (décor) -->
+    <a-entity gltf-model="#handball-goal" position="0 0 -15" rotation="0 180 0" scale="3.3 3.3 3.3"></a-entity>
+
+    <!-- Décor -->
     <a-circle radius="18" position="0 0.01 0" rotation="-90 0 0" color="#c2dafc" segments="64"></a-circle>
     <a-sky color="#d1e8f7"></a-sky>
     <a-entity light="type: spot; color: #fff; intensity: 0.60; angle:60" position="20 40 20" rotation="-60 45 0"></a-entity>
     <a-entity light="type: spot; color: #fff; intensity: 0.60; angle:60" position="-20 40 20" rotation="-60 -45 0"></a-entity>
-    <a-entity light="type: spot; color: #fff; intensity: 0.52; angle:60" position="20 40 -20" rotation="-60 135 0"></a-entity>
-    <a-entity light="type: spot; color: #fff; intensity: 0.52; angle:60" position="-20 40 -20" rotation="-60 -135 0"></a-entity>
-    <a-entity light="type: ambient; color: #ffffff; intensity: 0.41"></a-entity>
+    <a-entity light="type: ambient; color: #ffffff; intensity: 0.42"></a-entity>
 
-    <!-- RIG central : spawn au centre, mains enfants du rig -->
+    <!-- Ballon de handball (physique, attrapable, jetable) -->
+    <a-entity id="handball"
+      class="raycastable"
+      geometry="primitive: sphere; radius: 0.21"
+      material="color: #ffb300; roughness: 0.36; metalness:0.19; src: #handball-icon"
+      position="0 1.2 -6"
+      dynamic-body="mass: 0.35; linearDamping:0.05; angularDamping:0.13"
+      throwable
+      goal-detect="scoreEl: #score-text"
+      shadow="cast:true"
+    >
+    </a-entity>
+
+    <!-- RIG : joueur + mains -->
     <a-entity id="rig"
       position="0 1.6 0"
       movement-controls="fly: false; speed: 0.6; acceleration: 280"
@@ -216,9 +356,16 @@
       <!-- /bouton buzzer -->
     </a-entity>
 
+    <!-- Score text in VR (optionnel) -->
+    <a-entity id="score-text"
+      position="0 3.5 -4"
+      text="value: Score : 0; color: #1e90ff; width: 4.5; align: center; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+      visible="true"
+      ></a-entity>
+
     <!-- Icône Handball flottant pour l'ambiance -->
     <a-image src="#handball-icon" position="0 6 -7" scale="2.5 2.5 2.5" opacity="0.41"></a-image>
-    <a-entity position="0 6 -7" text="value: Handball; color: #1e90ff; width: 8; align: center"></a-entity>
+    <a-entity position="0 6 -7" text="value: Handball | Tir au but; color: #1e90ff; width: 8; align: center"></a-entity>
   </a-scene>
 </body>
 </html>
