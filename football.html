@@ -13,10 +13,20 @@
   <a-scene background="color: #aaddff" embedded>
     <a-assets>
       <a-asset-item id="football-field" src="model/football/scene.gltf"></a-asset-item>
+      <!-- Ajoute le modèle CR7 statue or ici -->
+      <a-asset-item id="cr7-statue" src="model/cr7/statue-or.glb"></a-asset-item>
     </a-assets>
 
     <!-- Terrain de football, 20x plus grand -->
     <a-entity gltf-model="#football-field" position="0 0 0" scale="20 20 20"></a-entity>
+
+    <!-- Statue en or de CR7 derrière les mains VR -->
+    <a-entity gltf-model="#cr7-statue" 
+              position="0 0 -5" 
+              scale="3 3 3" 
+              rotation="0 180 0"
+              material="color: #FFD700">
+    </a-entity>
 
     <!-- Décor autour du stade -->
     <a-cylinder radius="120" height="30" position="0 15 0" color="#d4af37" side="double" opacity="0.25"></a-cylinder>
