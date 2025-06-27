@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball - CormonVR</title>
+  <title>Handball VR - CormonVR</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
     body {margin:0;}
@@ -11,9 +11,6 @@
       bottom: 24px !important;
       right: 24px !important;
       z-index: 9999 !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-      display: block !important;
     }
     .floating-ui {
       position: absolute;
@@ -60,6 +57,8 @@
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
   <script src="https://unpkg.com/aframe-teleport-controls@^0.4.0/dist/aframe-teleport-controls.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
+  <!-- Grab pour attraper et lancer en VR -->
+  <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
   <script>
     // Buzzer MENU
     AFRAME.registerComponent('buzzer-hover', {
@@ -170,36 +169,23 @@
       }
     });
 
-    // Lancer le ballon au trigger ou clic/tap (VR/PC)
+    // Lancer le ballon en VR (main/trigger) ou clic souris (PC)
     AFRAME.registerComponent('throwable', {
       schema: {
         force: {default: 14}
       },
       init: function () {
-        this.isHeld = false;
-        this.controller = null;
-        this.startPos = null;
-
-        // VR (trigger)
-        this.el.addEventListener('grab-start', evt => {
-          this.isHeld = true;
-          this.controller = evt.detail.hand;
-          this.startPos = this.el.object3D.position.clone();
-        });
         this.el.addEventListener('grab-end', evt => {
-          if (this.isHeld) {
-            this.isHeld = false;
-            // Calcul direction et force
-            let hand = evt.detail.hand;
-            let dir = new THREE.Vector3(0,0,-1);
-            hand.object3D.getWorldDirection(dir);
-            dir.normalize();
-            let force = dir.multiplyScalar(this.data.force);
-            this.el.body.velocity.set(force.x, force.y, force.z);
-          }
+          // VR : on relâche, calcule la direction de la main
+          let hand = evt.detail.hand;
+          let dir = new THREE.Vector3(0,0,-1);
+          hand.object3D.getWorldDirection(dir);
+          dir.normalize();
+          let force = dir.multiplyScalar(this.data.force);
+          this.el.body.velocity.set(force.x, force.y, force.z);
         });
 
-        // Souris (clic)
+        // PC : clic sur le ballon
         this.el.addEventListener('click', evt => {
           let cam = document.querySelector('[camera]');
           if (!cam) return;
@@ -210,7 +196,7 @@
           this.el.body.velocity.set(force.x, force.y+2, force.z);
         });
 
-        // Reset si tombé trop loin
+        // Reset si trop loin
         this.el.addEventListener('body-loaded', ()=>{
           this.el.body.addEventListener('sleep', ()=>{
             let pos = this.el.object3D.position;
@@ -234,7 +220,7 @@
       // UI infos
       const el = document.createElement('div');
       el.className = "floating-ui";
-      el.innerHTML = "<b>Handball VR – Tir au but 🥅🏐</b><br>Attrape le ballon (VR : main/trigger, PC : clic dessus), vise et lance !<br>Un point à chaque but marqué.<br>Utilise <span style='color:#d32f2f;font-weight:bold'>A</span> pour sauter, <span style='color:#d32f2f;font-weight:bold'>X</span> pour courir.<br><b>MENU</b> pour quitter.";
+      el.innerHTML = "<b>Handball VR – Tir au but 🥅🏐</b><br>Attrape le ballon (VR : main/trigger, PC : clic dessus), vise avec la main et lance !<br>Un point à chaque but marqué.<br>Sauter (<b>A</b>), courir (<b>X</b>), MENU pour quitter.";
       document.body.appendChild(el);
       setTimeout(()=>{el.style.display="none"}, 11000);
 
@@ -292,16 +278,16 @@
 
     <!-- Ballon de handball (physique, attrapable, jetable) -->
     <a-entity id="handball"
-      class="raycastable"
+      class="raycastable grabbable"
       geometry="primitive: sphere; radius: 0.21"
       material="color: #ffb300; roughness: 0.36; metalness:0.19; src: #handball-icon"
       position="0 1.2 -6"
       dynamic-body="mass: 0.35; linearDamping:0.05; angularDamping:0.13"
+      super-hands
       throwable
       goal-detect="scoreEl: #score-text"
       shadow="cast:true"
-    >
-    </a-entity>
+    ></a-entity>
 
     <!-- RIG : joueur + mains -->
     <a-entity id="rig"
@@ -314,7 +300,8 @@
       <a-entity id="leftHand"
         hand-controls="hand: left; color: #e5b285"
         shadow="cast: true"
-        raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
+        super-hands="colliderEvent: raycaster-intersection; colliderEventProperty: els"
+        raycaster="objects: .raycastable, .grabbable; showLine: true; lineColor: #228b22"
         line="color: #228b22; opacity: 0.8"
         teleport-controls="hand: left; cameraRig: #rig; teleportOrigin: #camera; button: trigger"
       >
@@ -326,7 +313,8 @@
       <a-entity id="rightHand"
         hand-controls="hand: right; color: #d7a878"
         shadow="cast: true"
-        raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
+        super-hands="colliderEvent: raycaster-intersection; colliderEventProperty: els"
+        raycaster="objects: .raycastable, .grabbable; showLine: true; lineColor: #228b22"
         line="color: #228b22; opacity: 0.8"
         teleport-controls="hand: right; cameraRig: #rig; teleportOrigin: #camera; button: trigger"
       >
@@ -334,7 +322,6 @@
                color="#228b22"
                position="0 0.06 0.035"></a-box>
       </a-entity>
-      
       <!-- BOUTON BUZZER MENU FIXE DEVANT LA CAMERA (HUD) -->
       <a-entity id="retour-menu"
             position="-0.75 0.6 -1.25"
@@ -353,10 +340,9 @@
           rotation="-90 0 0"
         ></a-entity>
       </a-entity>
-      <!-- /bouton buzzer -->
     </a-entity>
 
-    <!-- Score text in VR (optionnel) -->
+    <!-- Score text in VR -->
     <a-entity id="score-text"
       position="0 3.5 -4"
       text="value: Score : 0; color: #1e90ff; width: 4.5; align: center; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"
