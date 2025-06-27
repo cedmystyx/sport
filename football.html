@@ -26,19 +26,18 @@
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
   <script src="https://unpkg.com/aframe-teleport-controls@^0.4.0/dist/aframe-teleport-controls.min.js"></script>
   <script>
-    // Composant pour bouton menu stylé façon chargement.html
-    AFRAME.registerComponent('menu-selectable', {
+    // Composant pour effet buzzer sur le bouton menu
+    AFRAME.registerComponent('buzzer-hover', {
       init: function () {
+        const baseScale = {x: 1, y: 1, z: 1};
+        const hoverScale = {x: 1.25, y: 1.25, z: 1.25};
         this.el.addEventListener('mouseenter', () => {
-          document.querySelectorAll('.menu-button[selected]').forEach(btn => btn.removeAttribute('selected'));
-          this.el.setAttribute('selected', '');
-          this.el.setAttribute('scale', '1.15 1.15 1.15');
-          this.el.setAttribute('material', 'color', '#ffdb6c');
+          this.el.setAttribute('scale', hoverScale);
+          this.el.setAttribute('material', 'color', '#ff4444');
         });
         this.el.addEventListener('mouseleave', () => {
-          this.el.removeAttribute('selected');
-          this.el.setAttribute('scale', '1 1 1');
-          this.el.setAttribute('material', 'color', '#1e90ff');
+          this.el.setAttribute('scale', baseScale);
+          this.el.setAttribute('material', 'color', '#d32f2f');
         });
       }
     });
@@ -59,7 +58,7 @@
         jumpHeight: {default: 8},        // x4
         runSpeed: {default: 1.6},        // x4
         walkSpeed: {default: 0.6},       // x4
-        acceleration: {default: 280}     // x4 (optionnel, dépend du mouvement-controls)
+        acceleration: {default: 280}     // x4
       },
       init: function () {
         this.isRunning = false;
@@ -118,7 +117,6 @@
     <a-assets>
       <a-asset-item id="football-field" src="model/football/scene.gltf"></a-asset-item>
       <a-asset-item id="cr7-statue" src="model/cr7/statue-or.glb"></a-asset-item>
-      <img id="icon_menu" src="./img/icon-menu.png">
     </a-assets>
 
     <!-- Terrain de football -->
@@ -157,15 +155,25 @@
       </a-entity>
     </a-entity>
 
-    <!-- Bouton retour menu façon icône/menu stylé chargement.html -->
+    <!-- Bouton buzzer "Menu" stylé -->
     <a-entity id="retour-menu"
           position="-2.2 2.3 -2"
-          geometry="primitive: circle; radius: 0.22"
-          material="color: #1e90ff; src: #icon_menu; alphaTest: 0.1; transparent: true"
+          geometry="primitive: cylinder; radius: 0.25; height: 0.12"
+          material="color: #d32f2f; metalness: 0.7; roughness: 0.2; opacity: 0.93"
           class="raycastable menu-button"
-          menu-selectable
+          buzzer-hover
           menu-back>
-      <a-image src="#icon_menu" width="0.32" height="0.32" position="0 0 0.01"></a-image>
+      <!-- Effet "lumière" sur le dessus du buzzer -->
+      <a-entity geometry="primitive: circle; radius: 0.23"
+                position="0 0.065 0"
+                material="color: #fff176; opacity:0.75; emissive: #fff176; emissiveIntensity:0.7"></a-entity>
+      <!-- Texte "MENU" sur le bouton -->
+      <a-entity
+        text="value: MENU; align: center; color: #222; width: 1.2; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+        position="0 0.09 0.01"
+        scale="1.1 1.1 1.1"
+        rotation="-90 0 0"
+      ></a-entity>
     </a-entity>
   </a-scene>
 </body>
