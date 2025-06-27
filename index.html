@@ -154,24 +154,12 @@
         <a-box width="0.03" height="0.02" depth="0.02" color="#C0C0C0" position="0.045 -0.02 0"></a-box>
       </a-entity>
 
-      <!-- Statue en or de CR7 derrière le menu -->
-      <a-entity gltf-model="#cr7-statue"
-                position="0 1.5 -6"
-                scale="3 3 3"
-                rotation="0 180 0">
-      </a-entity>
-
-      <!-- Environnement -->
-      <a-entity environment="preset: starry; ground: flat; lighting: none; skyType: gradient; horizonColor: #4d4d4d; skyColor: #acebff"></a-entity>
-      <a-entity light="color: #ffdb6c; type: spot" position="0 6.58 -143.79" rotation="0 180 0"></a-entity>
-        
-      <!-- ASSETS -->
+      <!-- Statue en or de CR7 animée derrière le menu -->
       <a-assets>
+        <a-asset-item id="cr7-statue" src="lobby/scene.gltf"></a-asset-item>
         <video id="CART_SECRET" loop preload src="./resources/videos/cart.mp4"></video>
         <video id="BACKGROUND_VIDEO" loop autoplay preload muted src="./resources/videos/cart.mp4"></video>
         <a-asset-item id="background" src="./resources/objects/fond.obj"></a-asset-item>
-        <!-- Ajout statue CR7 -->
-        <a-asset-item id="cr7-statue" src="lobby/scene.gltf"></a-asset-item>
         <!-- Images sportives, à compléter si besoin -->
         <img id="img_1" src="./img/handball.png"/>
         <img id="img_2" src="./img/basketball.png"/>
@@ -189,6 +177,17 @@
         <a-mixin id="poster" position="0 0 0.005" geometry="primitive: plane; width: 0.7; height: 1.4" material="color: white; shader: flat" />
       </a-assets>
 
+      <a-entity gltf-model="#cr7-statue"
+                animation-mixer
+                position="0 1.5 -6"
+                scale="3 3 3"
+                rotation="0 180 0">
+      </a-entity>
+
+      <!-- Environnement -->
+      <a-entity environment="preset: starry; ground: flat; lighting: none; skyType: gradient; horizonColor: #4d4d4d; skyColor: #acebff"></a-entity>
+      <a-entity light="color: #ffdb6c; type: spot" position="0 6.58 -143.79" rotation="0 180 0"></a-entity>
+        
       <!-- UI principale / Menu sport -->
       <a-entity id="ui" position="0 1.6 -2.5">
         <a-entity id="menu">
