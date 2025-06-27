@@ -2,8 +2,8 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball - Tir au but VR</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Handball - Jeu de tir au but VR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {margin:0;}
     .a-enter-vr-button {
@@ -50,7 +50,7 @@
   <script src="https://unpkg.com/aframe-teleport-controls@^0.4.0/dist/aframe-teleport-controls.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
   <script>
-    // Buzzer effet
+    // Effet bouton menu
     AFRAME.registerComponent('buzzer-hover', {
       init: function () {
         const baseScale = {x: 1, y: 1, z: 1};
@@ -191,7 +191,6 @@
       }
     });
 
-    // UI score
     function updateScoreUI() {
       let sc = parseInt(localStorage.getItem('handball_score')||"0",10);
       let ui = document.getElementById("score-ui");
@@ -229,6 +228,7 @@
     loading-screen="enabled:false"
   >
     <a-assets>
+      <!-- Mets tes modèles dans ces fichiers pour les voir apparaître -->
       <a-asset-item id="handball-field" src="model/handball/scene.gltf"></a-asset-item>
       <a-asset-item id="handball-goal" src="model/handball/goal.gltf"></a-asset-item>
       <audio id="goal-audio" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12e6c7b2bb.mp3"></audio>
