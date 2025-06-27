@@ -1,69 +1,240 @@
+<!-- Cormon VR Experience - Virtual Reality on the Modern Web
+     Copyright (C) 2023-2024  Yanis M., Matthieu Farcot
+     Licensed under AGPL v3.0
+-->
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Football - CormonVR</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <style>
-    body {margin:0;}
-  </style>
-</head>
-<body>
-  <a-scene background="color: #aaddff" embedded>
-    <a-assets>
-      <a-asset-item id="football-field" src="model/football/scene.gltf"></a-asset-item>
-      <a-asset-item id="cr7-statue" src="lobby/scene.gltf"></a-asset-item>
-    </a-assets>
+  <head>
+    <meta charset="UTF-8">
+    <title>CormonVR</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="CormonVR : expérience immersive de découverte des sports au lycée Louis de Cormontaigne, Metz">
+    <link rel="icon" href="favicon.ico">
+    <!-- Modules Requiring -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.3.0/dist/aframe-environment-component.min.js"></script>
+    <!-- Scripts personnalisés -->
+    <script src="./js/main.js" defer></script>
+    <script src="./js/lobby.js" defer></script>
+    <link rel="stylesheet" href="style.css">
+    <!-- Middle Finger Switch Component -->
+    <script>
+    AFRAME.registerComponent('middle-finger-switch', {
+      schema: {
+        hand: {type: 'string', default: 'left'},
+        mesh: {type: 'selector'}
+      },
+      init: function () {
+        var self = this;
+        window.addEventListener('keydown', function (e) {
+          // 'm' pour la main gauche, 'n' pour la droite
+          if ((self.data.hand === 'left' && e.key === 'm') ||
+              (self.data.hand === 'right' && e.key === 'n')) {
+            if (self.data.mesh) {
+              let v = self.data.mesh.getAttribute('visible');
+              self.data.mesh.setAttribute('visible', !v);
+            }
+          }
+        });
+      }
+    });
+    </script>
+    <!-- Script pour interaction menu sport (CORRIGÉ) -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Mapping id -> page cible
+      const redirections = {
+        "1": "handball.html",
+        "2": "basketball.html",
+        "3": "athletisme.html",
+        "4": "pingpong.html",
+        "5": "trampoline.html",
+        "6": "football.html"
+      };
+      document.querySelectorAll('.menu-button').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const id = btn.getAttribute('id');
+          if (redirections[id]) {
+            const scene = document.querySelector('a-scene');
+            // Teste si on est en VR
+            if (scene && scene.renderer && scene.renderer.xr && scene.renderer.xr.isPresenting) {
+              scene.exitVR();
+              setTimeout(function () {
+                window.location.href = redirections[id];
+              }, 500);
+            } else {
+              window.location.href = redirections[id];
+            }
+          }
+        });
+        // Pour effet visuel à la souris/VR
+        btn.addEventListener('mouseenter', function() {
+          btn.setAttribute('scale', '1.3 1.3 1.3');
+        });
+        btn.addEventListener('mouseleave', function() {
+          btn.setAttribute('scale', '1 1 1');
+        });
+      });
+    });
+    </script>
+  </head>
 
-    <!-- Statue en or de CR7 derrière les mains VR -->
-    <a-entity gltf-model="#cr7-statue" 
-              position="0 0 -5"
-              scale="3 3 3"
-              rotation="0 180 0"></a-entity>
+  <body>
+    <div id="loadingScreen">Chargement en cours...</div>
+    <a-scene 
+      cursor="rayOrigin: mouse; fuse: false" 
+      raycaster="objects: .raycastable" 
+      fog="far: 150"
+      loading-screen="enabled:false"
+      embedded
+    >
+      <!-- Effets de particules -->
+      <a-entity position="0 2.25 -15" particle-system="preset: rain"></a-entity>
 
-    <!-- MAIN GAUCHE VR style footballeur -->
-    <a-entity id="leftHand"
-      hand-controls="hand: left; color: #228b22"
-      oculus-touch-controls="hand: left"
-      vive-controls="hand: left"
-      windows-motion-controls="hand: left"
-      daydream-controls="hand: left"
-      gearvr-controls="hand: left"
-      magic-leap-controls="hand: left"
-      valve-index-controls="hand: left"
-      oculus-go-controls="hand: left"
-      shadow="cast: true"
-      raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
-      line="color: #228b22; opacity: 0.8"
-    ></a-entity>
+      <!-- Caméra & UI VR -->
+      <a-entity position="0 1.6 0" camera look-controls="magicWindowTrackingEnabled: true; touchEnabled: true; mouseEnabled: true" renderer="sortObjects: true">
+        <!-- Panneau de notification -->
+        <a-entity spotinfo id="NotifPanel" position="0 0 -1.5" visible="true" geometry="primitive: plane; width: 1.5; height: 1" material="color: #333; shader: flat;" class="raycastable">
+          <a-entity id="Info_Description" position="-0.52 0 0.01" text="shader: msdf; anchor: left; font: https://cdn.aframe.io/examples/ui/Viga-Regular.json; align: center; color: white; value: N/A"></a-entity>
+        </a-entity>
+      </a-entity>
 
-    <!-- MAIN DROITE VR style footballeur -->
-    <a-entity id="rightHand"
-      hand-controls="hand: right; color: #228b22"
-      oculus-touch-controls="hand: right"
-      vive-controls="hand: right"
-      windows-motion-controls="hand: right"
-      daydream-controls="hand: right"
-      gearvr-controls="hand: right"
-      magic-leap-controls="hand: right"
-      valve-index-controls="hand: right"
-      oculus-go-controls="hand: right"
-      shadow="cast: true"
-      raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
-      line="color: #228b22; opacity: 0.8"
-    ></a-entity>
+      <!-- MAIN GAUCHE VR + doigt d'honneur + viseur laser -->
+      <a-entity id="leftHand"
+          hand-controls="hand: left; color: #FFD700"
+          oculus-touch-controls="hand: left"
+          vive-controls="hand: left"
+          windows-motion-controls="hand: left"
+          daydream-controls="hand: left"
+          gearvr-controls="hand: left"
+          magic-leap-controls="hand: left"
+          valve-index-controls="hand: left"
+          oculus-go-controls="hand: left"
+          shadow="cast: true"
+          middle-finger-switch="hand: left; mesh: #leftMiddleFinger"
+          raycaster="objects: .raycastable; showLine: true; lineColor: #FFD700"
+          line="color: #FFD700; opacity: 0.8"
+          >
+      </a-entity>
+      <!-- Mesh doigt d'honneur gauche -->
+      <a-entity id="leftMiddleFinger" visible="false" position="0 0 0">
+        <a-box width="0.08" height="0.07" depth="0.06" color="#FFD700" position="0 0 0"></a-box>
+        <a-box width="0.02" height="0.14" depth="0.02" color="#FFD700" position="0 0.09 0"></a-box>
+        <a-box width="0.02" height="0.04" depth="0.02" color="#FFD700" position="-0.03 0.01 0"></a-box>
+        <a-box width="0.02" height="0.04" depth="0.02" color="#FFD700" position="0.03 0.01 0"></a-box>
+        <a-box width="0.02" height="0.04" depth="0.02" color="#FFD700" position="0 0.01 0.03"></a-box>
+        <a-box width="0.03" height="0.02" depth="0.02" color="#FFD700" position="-0.045 -0.02 0"></a-box>
+      </a-entity>
 
-    <!-- Bouton retour menu -->
-    <a-entity geometry="primitive: plane; width: 0.7; height: 0.25"
-              material="color: #333"
-              position="0 2 -2"
-              text="value: Retour au menu; align: center; color: #fff"
-              class="raycastable"
-              onclick="window.location.href='index.html'"></a-entity>
-    
-    <!-- Caméra placée au centre du stade, hauteur réaliste -->
-    <a-entity camera look-controls wasd-controls position="0 1.6 0"></a-entity>
-  </a-scene>
-</body>
+      <!-- MAIN DROITE VR + doigt d'honneur + viseur laser -->
+      <a-entity id="rightHand"
+          hand-controls="hand: right; color: #C0C0C0"
+          oculus-touch-controls="hand: right"
+          vive-controls="hand: right"
+          windows-motion-controls="hand: right"
+          daydream-controls="hand: right"
+          gearvr-controls="hand: right"
+          magic-leap-controls="hand: right"
+          valve-index-controls="hand: right"
+          oculus-go-controls="hand: right"
+          shadow="cast: true"
+          middle-finger-switch="hand: right; mesh: #rightMiddleFinger"
+          raycaster="objects: .raycastable; showLine: true; lineColor: #C0C0C0"
+          line="color: #C0C0C0; opacity: 0.8"
+          >
+      </a-entity>
+      <!-- Mesh doigt d'honneur droite -->
+      <a-entity id="rightMiddleFinger" visible="false" position="0 0 0">
+        <a-box width="0.08" height="0.07" depth="0.06" color="#C0C0C0" position="0 0 0"></a-box>
+        <a-box width="0.02" height="0.14" depth="0.02" color="#C0C0C0" position="0 0.09 0"></a-box>
+        <a-box width="0.02" height="0.04" depth="0.02" color="#C0C0C0" position="-0.03 0.01 0"></a-box>
+        <a-box width="0.02" height="0.04" depth="0.02" color="#C0C0C0" position="0.03 0.01 0"></a-box>
+        <a-box width="0.02" height="0.04" depth="0.02" color="#C0C0C0" position="0 0.01 0.03"></a-box>
+        <a-box width="0.03" height="0.02" depth="0.02" color="#C0C0C0" position="0.045 -0.02 0"></a-box>
+      </a-entity>
+
+      <!-- Environnement -->
+      <a-entity environment="preset: starry; ground: flat; lighting: none; skyType: gradient; horizonColor: #4d4d4d; skyColor: #acebff"></a-entity>
+      <a-entity light="color: #ffdb6c; type: spot" position="0 6.58 -143.79" rotation="0 180 0"></a-entity>
+        
+      <!-- ASSETS -->
+      <a-assets>
+        <video id="CART_SECRET" loop preload src="./resources/videos/cart.mp4"></video>
+        <video id="BACKGROUND_VIDEO" loop autoplay preload muted src="./resources/videos/cart.mp4"></video>
+        <a-asset-item id="background" src="./resources/objects/fond.obj"></a-asset-item>
+        <!-- Images sportives, à compléter si besoin -->
+        <img id="img_1" src="./img/handball.png"/>
+        <img id="img_2" src="./img/basketball.png"/>
+        <img id="img_3" src="./img/athletisme.png"/>
+        <img id="img_4" src="./img/ping-pong.png"/>
+        <img id="img_5" src="./img/trampoline.png"/>
+        <img id="img_6" src="./img/football.png"/>
+        <!-- Ajoute les autres images manquantes ici -->
+        <a-mixin id="main" geometry="primitive: plane; width: 0.58; height: 0.82" material="color: white; shader: shadow"
+          animation__scale="property: scale; to: 1.3 1.3 1.3; dur: 200; startEvents: mouseenter"
+          animation__scale_reverse="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"
+          animation__position="property: rotation; to: 10 0 0; dur: 200; startEvents: mouseenter"
+          animation__position__reverse="property: rotation; to: 0 0 0; dur: 10; startEvents: mouseleave"
+        />
+        <a-mixin id="poster" position="0 0 0.005" geometry="primitive: plane; width: 0.7; height: 1.4" material="color: white; shader: flat" />
+      </a-assets>
+
+      <!-- UI principale / Menu sport -->
+      <a-entity id="ui" position="0 1.6 -2.5">
+        <a-entity id="menu">
+          <a-entity id="1" position="-2.0 1.1 0" mixin="main" class="raycastable menu-button">
+            <a-entity material="src: #img_1; alphaTest: 1" mixin="poster"></a-entity>
+          </a-entity>
+          <a-entity id="2" position="-1.2 1.1 0" mixin="main" class="raycastable menu-button">
+            <a-entity material="src: #img_2; alphaTest: 1" mixin="poster"></a-entity>
+          </a-entity>
+          <a-entity id="3" position="-0.4 1.1 0" mixin="main" class="raycastable menu-button">
+            <a-entity material="src: #img_3; alphaTest: 1" mixin="poster"></a-entity>
+          </a-entity>
+          <a-entity id="4" position="0.4 1.1 0" mixin="main" class="raycastable menu-button">
+            <a-entity material="src: #img_4; alphaTest: 1" mixin="poster"></a-entity>
+          </a-entity>
+          <a-entity id="5" position="1.2 1.1 0" mixin="main" class="raycastable menu-button">
+            <a-entity material="src: #img_5; alphaTest: 1" mixin="poster"></a-entity>
+          </a-entity>
+          <a-entity id="6" position="2.0 1.1 0" mixin="main" class="raycastable menu-button">
+            <a-entity material="src: #img_6; alphaTest: 1" mixin="poster"></a-entity>
+          </a-entity>
+          <!-- Ajoute les autres boutons si tu ajoutes des images -->
+          <a-video src="#CART_SECRET" toggleclick position="4.4 0 -.5" visible="false" class="raycastable"></a-video>
+        </a-entity>
+        <!-- Bouton info (redirige) -->
+        <a-entity redirect="info.html" geometry="primitive: plane; width: 0.5; height: 0.5" position="-2.4 0 0" material="alphaTest: 1; src: ./resources/images/info.png" mixin="poster" class="raycastable"></a-entity>
+        <!-- Panneau d'informations interactif -->
+        <!-- ... (conserve le panneau d'info avancé si tu l'utilises dans tes scripts) -->
+      </a-entity>
+
+      <!-- Grand écran vidéo -->
+      <a-video id="4K1080P" src="#BACKGROUND_VIDEO" position="2.5 86.03 -73.4" class="raycastable" material="alphaTest: 1; fog: false; blending: additive" scale="489 200 1" visible="false" volume="1"></a-video>
+
+      <!-- Titres -->
+      <a-entity scale=".5 .5 .01" position="0 3.7 -2.05" rotation="0 0 0" geometry="primitive: plane; width: 4.5; height: .5" material="color: #333; shader: shadow;">
+        <a-text value="LYCEE LOUIS DE CORMONTAIGNE" width="7" height="1" align="center" font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"></a-text>
+      </a-entity>
+      <a-entity scale=".5 .5 .01" position="0 3.5 -2.05" rotation="0 0 0" geometry="primitive: plane; width: 4.5; height: .5" material="color: #333; shader: shadow;" class="raycastable">
+        <a-text value="METZ" width="6" height="1" align="center"></a-text>
+      </a-entity>
+      <!-- ... (autres éléments 3D, moai, etc.) -->
+
+      <!-- Fond 3D OBJ -->
+      <a-entity position="-3 14 -53" rotation="90 0 0" scale="100 20 100">
+        <a-entity id="panorama" obj-model="obj: ./resources/objects/fond.obj" modify-materials position="-0.06 -0.18 -0.40" scale="0.05 0.05 0.05"></a-entity>
+      </a-entity>
+      <!-- Son d'ambiance -->
+      <a-entity sound="src: url(./resources/sounds/do.mp3); autoplay: true; loop: true; volume: .1" position=".03 2.8 -2.2"></a-entity>
+    </a-scene>
+
+    <!-- Ecran d'aide utilisateur -->
+    <div id="helpBox">
+      <b>Commandes :</b> Utilisez la souris ou le doigt pour regarder autour de vous. Cliquez sur un sport pour voir plus d'infos.<br>
+      Appuyez sur <b>m</b> (main gauche) ou <b>n</b> (main droite) pour le doigt d'honneur !<br>
+      <b>Visez</b> avec vos mains pour sélectionner les icônes de sport à distance.
+    </div>
+  </body>
 </html>
