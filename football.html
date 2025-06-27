@@ -5,15 +5,36 @@
   <title>Football - CormonVR</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <!-- Téléportation A-Frame -->
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+  <script src="https://unpkg.com/aframe-teleport-controls@^0.4.0/dist/aframe-teleport-controls.min.js"></script>
   <style>
     body {margin:0;}
+    .a-enter-vr-button {
+      position: fixed !important;
+      bottom: 24px !important;
+      right: 24px !important;
+      z-index: 9999 !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      display: block !important;
+    }
   </style>
+  <script>
+  // Retour au menu avec bouton B du contrôleur VR
+  AFRAME.registerComponent('vr-b-menu', {
+    init: function () {
+      this.el.addEventListener('bbuttondown', function () {
+        window.location.href = "chargement.html";
+      });
+    }
+  });
+  </script>
 </head>
 <body>
   <a-scene background="color: #aaddff" embedded>
     <a-assets>
       <a-asset-item id="football-field" src="model/football/scene.gltf"></a-asset-item>
-      <!-- Ajoute le modèle CR7 statue or ici -->
       <a-asset-item id="cr7-statue" src="model/cr7/statue-or.glb"></a-asset-item>
     </a-assets>
 
@@ -21,9 +42,9 @@
     <a-entity gltf-model="#football-field" position="0 0 0" scale="20 20 20"></a-entity>
 
     <!-- Statue en or de CR7 derrière les mains VR -->
-    <a-entity gltf-model="#cr7-statue" 
-              position="0 0 -5" 
-              scale="3 3 3" 
+    <a-entity gltf-model="#cr7-statue"
+              position="0 0 -5"
+              scale="3 3 3"
               rotation="0 180 0"
               material="color: #FFD700">
     </a-entity>
@@ -38,9 +59,9 @@
     <a-entity light="type: spot; color: #fff; intensity: 0.6; angle:60" position="-60 40 -60" rotation="-60 -135 0"></a-entity>
     <a-entity light="type: ambient; color: #ffffff; intensity: 0.35"></a-entity>
 
-    <!-- MAIN GAUCHE VR style footballeur -->
+    <!-- MAIN GAUCHE VR (style footballeur comme chargement.html) -->
     <a-entity id="leftHand"
-      hand-controls="hand: left; color: #228b22"
+      hand-controls="hand: left; color: #e5b285"
       oculus-touch-controls="hand: left"
       vive-controls="hand: left"
       windows-motion-controls="hand: left"
@@ -52,11 +73,18 @@
       shadow="cast: true"
       raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
       line="color: #228b22; opacity: 0.8"
-    ></a-entity>
+      vr-b-menu
+      teleport-controls="hand: left; cameraRig: #rig; teleportOrigin: #camera; button: trigger"
+    >
+      <!-- Patch vert sur le dos de la main -->
+      <a-box width="0.045" height="0.045" depth="0.009"
+             color="#228b22"
+             position="0 0.06 0.035"></a-box>
+    </a-entity>
 
-    <!-- MAIN DROITE VR style footballeur -->
+    <!-- MAIN DROITE VR (style footballeur comme chargement.html) -->
     <a-entity id="rightHand"
-      hand-controls="hand: right; color: #228b22"
+      hand-controls="hand: right; color: #d7a878"
       oculus-touch-controls="hand: right"
       vive-controls="hand: right"
       windows-motion-controls="hand: right"
@@ -68,18 +96,27 @@
       shadow="cast: true"
       raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
       line="color: #228b22; opacity: 0.8"
-    ></a-entity>
+      vr-b-menu
+      teleport-controls="hand: right; cameraRig: #rig; teleportOrigin: #camera; button: trigger"
+    >
+      <a-box width="0.045" height="0.045" depth="0.009"
+             color="#228b22"
+             position="0 0.06 0.035"></a-box>
+    </a-entity>
 
-    <!-- Bouton retour menu -->
+    <!-- Rig pour la caméra et le déplacement -->
+    <a-entity id="rig" movement-controls="fly: false; speed: 0.15">
+      <!-- Caméra placée au centre du stade, hauteur réaliste -->
+      <a-entity id="camera" camera wasd-controls position="0 1.6 0" look-controls="reverseMouseDrag: true"></a-entity>
+    </a-entity>
+
+    <!-- Bouton retour menu (clic souris) -->
     <a-entity geometry="primitive: plane; width: 0.7; height: 0.25"
               material="color: #333"
               position="0 2 -2"
               text="value: Retour au menu; align: center; color: #fff"
               class="raycastable"
-              onclick="window.location.href='index.html'"></a-entity>
-    
-    <!-- Caméra placée au centre du stade, hauteur réaliste -->
-    <a-entity camera look-controls wasd-controls position="0 1.6 0"></a-entity>
+              onclick="window.location.href='chargement.html'"></a-entity>
   </a-scene>
 </body>
 </html>
