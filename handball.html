@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball - Jeu de tir au but VR</title>
+  <title>Handball - Tir au but VR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {margin:0;}
@@ -39,7 +39,7 @@
       box-shadow: 0 2px 12px #0002;
       padding: 1em 2em;
       color: #184e77;
-      font-size: 1.1em;
+      font-size: 1.08em;
       pointer-events: none;
       user-select: none;
     }
@@ -157,7 +157,7 @@
       }
     });
 
-    // Lancer ballon
+    // Ballon attrapable/lancable
     AFRAME.registerComponent('throwable', {
       schema: { force: {default: 14} },
       init: function () {
@@ -200,11 +200,10 @@
       // UI aide
       const el = document.createElement('div');
       el.className = "floating-ui";
-      el.innerHTML = "<b>Handball VR – Tir au but</b><br>Attrape le ballon (main/trigger VR ou clic), vise et lance !<br>Un point à chaque but marqué.<br><b>A</b> : sauter, <b>X</b> : courir, <b>MENU</b> : retour.";
+      el.innerHTML = "<b>Handball VR – Tir au but</b><br>Attrape le ballon (main/trigger VR ou clic), vise et lance&nbsp;!<br>Un point à chaque but marqué.<br><b>A</b> : sauter, <b>X</b> : courir, <b>MENU</b> : retour.";
       document.body.appendChild(el);
-      setTimeout(()=>{el.style.display="none"}, 11000);
+      setTimeout(()=>{el.style.display="none"}, 10500);
 
-      // Score UI
       let scoreDiv = document.createElement('div');
       scoreDiv.id = "score-ui";
       scoreDiv.className = "score-ui";
@@ -220,15 +219,14 @@
 </head>
 <body>
   <a-scene 
-    physics="gravity:-8.5;" 
-    background="color: #d1e8f7" 
+    physics="gravity:-8.5;"
+    background="color: #d1e8f7"
     embedded
     cursor="rayOrigin: mouse; fuse: false"
     raycaster="objects: .raycastable"
     loading-screen="enabled:false"
   >
     <a-assets>
-      <!-- Mets tes modèles dans ces fichiers pour les voir apparaître -->
       <a-asset-item id="handball-field" src="model/handball/scene.gltf"></a-asset-item>
       <a-asset-item id="handball-goal" src="model/handball/goal.gltf"></a-asset-item>
       <audio id="goal-audio" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12e6c7b2bb.mp3"></audio>
@@ -238,16 +236,14 @@
     <a-entity gltf-model="#handball-field" position="0 0 0" scale="20 20 20"></a-entity>
     <!-- But avant -->
     <a-entity gltf-model="#handball-goal" position="0 0 12" scale="3.3 3.3 3.3"></a-entity>
-    <!-- Ligne de but invisible pour détection -->
+    <!-- Ligne de but invisible -->
     <a-box id="goal-trigger" class="goal"
       position="0 2.1 11.5"
       width="2.5" height="2.1" depth="0.3"
       opacity="0" visible="false"
-      static-body>
-    </a-box>
-    <!-- But arrière (décor) -->
+      static-body></a-box>
+    <!-- But arrière -->
     <a-entity gltf-model="#handball-goal" position="0 0 -15" rotation="0 180 0" scale="3.3 3.3 3.3"></a-entity>
-
     <!-- Sol & ambiance -->
     <a-circle radius="18" position="0 0.01 0" rotation="-90 0 0" color="#c2dafc" segments="64"></a-circle>
     <a-sky color="#d1e8f7"></a-sky>
