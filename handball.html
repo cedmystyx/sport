@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball VR - Jeu Complet</title>
+  <title>Handball VR - Gymnase Stylé</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -77,86 +77,49 @@
     }
     // --- Contrôles universels VR + PC (stick+clavier), style foot
     AFRAME.registerComponent('foot-move', {
-      schema: {
-        speed: {default: 0.11},
-        sprint: {default: 0.19},
-        jump: {default: 0.32}
-      },
+      schema: {speed:{default:0.11}, sprint:{default:0.19}, jump:{default:0.32}},
       init: function () {
-        this.direction = new THREE.Vector3();
         this.velocity = new THREE.Vector3();
-        this.grounded = true;
-        this.jumpCooldown = 0;
-        this.rotY = 0;
+        this.grounded = true; this.jumpCooldown = 0; this.rotY = 0;
       },
       tick: function () {
         if(!playing) return;
-        let rig = this.el;
+        let rig = this.el, moveX=0, moveY=0;
         let leftHand = document.getElementById("leftHand");
         let rightHand = document.getElementById("rightHand");
         let gamepadL = leftHand && leftHand.components["hand-controls"] ? leftHand.components["hand-controls"].controller : null;
         let gamepadR = rightHand && rightHand.components["hand-controls"] ? rightHand.components["hand-controls"].controller : null;
-        // Déplacement VR
-        let moveX=0,moveY=0;
+        // VR
         if (gamepadL && gamepadL.axes && gamepadL.axes.length>=2) {
           moveX = gamepadL.axes[2] || gamepadL.axes[0] || 0;
           moveY = -gamepadL.axes[3] || -gamepadL.axes[1] || 0;
         }
-        // PC clavier
-        if (!AFRAME.utils.device.checkHeadsetConnected()) {
-          if (window.keyState) {
-            moveX = (window.keyState["KeyD"]||window.keyState["ArrowRight"]?1:0)-(window.keyState["KeyQ"]||window.keyState["KeyA"]||window.keyState["ArrowLeft"]?1:0);
-            moveY = (window.keyState["KeyZ"]||window.keyState["ArrowUp"]?1:0)-(window.keyState["KeyS"]||window.keyState["ArrowDown"]?1:0);
-          }
+        // PC
+        if (!AFRAME.utils.device.checkHeadsetConnected() && window.keyState) {
+          moveX = (window.keyState["KeyD"]||window.keyState["ArrowRight"]?1:0)-(window.keyState["KeyQ"]||window.keyState["KeyA"]||window.keyState["ArrowLeft"]?1:0);
+          moveY = (window.keyState["KeyZ"]||window.keyState["ArrowUp"]?1:0)-(window.keyState["KeyS"]||window.keyState["ArrowDown"]?1:0);
         }
         let dir = new THREE.Vector3(moveX,0,moveY);
         if (dir.length()>1) dir.normalize();
-        // Rotation snap (stick droit horizontal ou clavier E/R)
-        if (gamepadR && gamepadR.axes && Math.abs(gamepadR.axes[2])>0.5) {
-          this.rotY += Math.sign(gamepadR.axes[2])*2.5;
-        }
+        if (gamepadR && gamepadR.axes && Math.abs(gamepadR.axes[2])>0.5) this.rotY += Math.sign(gamepadR.axes[2])*2.5;
         if (!AFRAME.utils.device.checkHeadsetConnected() && window.keyState) {
           if(window.keyState["KeyE"]) this.rotY += 2;
           if(window.keyState["KeyR"]) this.rotY -= 2;
         }
-        let sprint = false;
-        if (gamepadL && gamepadL.buttons && gamepadL.buttons[3] && gamepadL.buttons[3].pressed) sprint = true;
-        if (!AFRAME.utils.device.checkHeadsetConnected() && window.keyState && window.keyState["ShiftLeft"]) sprint = true;
-        let jump = false;
-        if ((gamepadL && gamepadL.buttons && gamepadL.buttons[4] && gamepadL.buttons[4].pressed) || (gamepadL && gamepadL.buttons && gamepadL.buttons[0] && gamepadL.buttons[0].pressed)) jump = true;
-        if (!AFRAME.utils.device.checkHeadsetConnected() && window.keyState && window.keyState["Space"]) jump = true;
+        let sprint = (gamepadL && gamepadL.buttons && gamepadL.buttons[3] && gamepadL.buttons[3].pressed) || (!AFRAME.utils.device.checkHeadsetConnected() && window.keyState && window.keyState["ShiftLeft"]);
+        let jump = ((gamepadL && gamepadL.buttons && gamepadL.buttons[4] && gamepadL.buttons[4].pressed) || (gamepadL && gamepadL.buttons && gamepadL.buttons[0] && gamepadL.buttons[0].pressed)) || (!AFRAME.utils.device.checkHeadsetConnected() && window.keyState && window.keyState["Space"]);
         let speed = sprint ? this.data.sprint : this.data.speed;
-        let pos = rig.object3D.position;
-        // Appliquer la rotation
-        let theta = this.rotY*Math.PI/180;
-        let moveDir = new THREE.Vector3(
-          Math.cos(theta)*dir.x - Math.sin(theta)*dir.z,
-          0,
-          Math.sin(theta)*dir.x + Math.cos(theta)*dir.z
-        );
-        pos.x += moveDir.x * speed;
-        pos.z += moveDir.z * speed;
-        // Saut
+        let pos = rig.object3D.position, theta = this.rotY*Math.PI/180;
+        let moveDir = new THREE.Vector3(Math.cos(theta)*dir.x - Math.sin(theta)*dir.z, 0, Math.sin(theta)*dir.x + Math.cos(theta)*dir.z);
+        pos.x += moveDir.x * speed; pos.z += moveDir.z * speed;
         if (pos.y<=1.6) { this.grounded=true; pos.y=1.6; }
-        if (jump && this.grounded && this.jumpCooldown<=0) {
-          this.velocity.y = this.data.jump;
-          this.grounded = false;
-          this.jumpCooldown = 20;
-        }
-        if (!this.grounded) {
-          this.velocity.y -= 0.016;
-          pos.y += this.velocity.y;
-          if (pos.y<=1.6) { pos.y=1.6; this.velocity.y=0; this.grounded=true; }
-        }
+        if (jump && this.grounded && this.jumpCooldown<=0) { this.velocity.y = this.data.jump; this.grounded = false; this.jumpCooldown = 20; }
+        if (!this.grounded) { this.velocity.y -= 0.016; pos.y += this.velocity.y; if (pos.y<=1.6) { pos.y=1.6; this.velocity.y=0; this.grounded=true; } }
         if (this.jumpCooldown>0) this.jumpCooldown--;
-        rig.setAttribute('position',pos);
-        rig.setAttribute('rotation',{x:0,y:this.rotY,z:0});
+        rig.setAttribute('position',pos); rig.setAttribute('rotation',{x:0,y:this.rotY,z:0});
       }
     });
-    // Gestion clavier desktop
-    window.keyState = {};
-    document.addEventListener('keydown',e=>window.keyState[e.code]=true);
-    document.addEventListener('keyup',e=>window.keyState[e.code]=false);
+    window.keyState = {}; document.addEventListener('keydown',e=>window.keyState[e.code]=true); document.addEventListener('keyup',e=>window.keyState[e.code]=false);
 
     // --- Ballon tir & possession
     AFRAME.registerComponent('throwable', {
@@ -167,30 +130,18 @@
           ballInHand = false;
           let hand = evt.detail.hand;
           let dir = new THREE.Vector3(0,0,-1);
-          hand.object3D.getWorldDirection(dir);
-          dir.normalize();
+          hand.object3D.getWorldDirection(dir); dir.normalize();
           let force = dir.multiplyScalar(this.data.force);
           this.el.body.velocity.set(force.x, force.y, force.z);
-          this.el.body.angularVelocity.set(
-            Math.random()*14-7,
-            Math.random()*5-2,
-            Math.random()*12-6
-          );
+          this.el.body.angularVelocity.set(Math.random()*14-7, Math.random()*5-2, Math.random()*12-6);
         });
         this.el.addEventListener('click', evt => {
           ballInHand = false;
-          let cam = document.querySelector('[camera]');
-          if (!cam) return;
-          let dir = new THREE.Vector3(0,0,-1);
-          cam.object3D.getWorldDirection(dir);
-          dir.normalize();
+          let cam = document.querySelector('[camera]'); if (!cam) return;
+          let dir = new THREE.Vector3(0,0,-1); cam.object3D.getWorldDirection(dir); dir.normalize();
           let force = dir.multiplyScalar(this.data.force);
           this.el.body.velocity.set(force.x, force.y+2, force.z);
-          this.el.body.angularVelocity.set(
-            Math.random()*13-6,
-            Math.random()*6-3,
-            Math.random()*13-6
-          );
+          this.el.body.angularVelocity.set(Math.random()*13-6, Math.random()*6-3, Math.random()*13-6);
         });
         this.el.addEventListener('body-loaded', ()=>{
           this.el.body.addEventListener('sleep', ()=>{
@@ -212,12 +163,10 @@
       const ball = document.getElementById('handball');
       let botPos = bot.object3D.position;
       let ballPos = ball.object3D.position;
-      // Si le joueur a la balle, bot défend
       if(ballInHand && !botHasBall) {
         let player = document.getElementById('rig').object3D.position;
         let t = {x: player.x*0.56, y:1, z: (player.z+10.5)*0.5};
         moveBotToward(bot, t, 0.13);
-        // Interception
         if(dist(botPos, ballPos)<1.1 && Math.abs(botPos.y-ballPos.y)<1.2) {
           botHasBall=true; ballInHand=false; lastHolder='bot';
           ball.setAttribute('position',`${botPos.x} ${botPos.y+0.82} ${botPos.z+0.43}`);
@@ -227,7 +176,6 @@
         }
         return setTimeout(botThink, 40);
       }
-      // Si le bot a la balle, attaque
       if(botHasBall) {
         if(botCooldown<=0) {
           let target = {x:0.1+1*(Math.random()-0.5), y:1.13+Math.random()*0.2, z:11.5+Math.random()*0.19};
@@ -238,21 +186,15 @@
           let dir = new THREE.Vector3(target.x-botPos.x, target.y-(botPos.y+0.82), target.z-botPos.z).normalize();
           let power = 18 + Math.random()*2.5;
           ballBody.velocity.set(dir.x*power, dir.y*10+Math.random()*2.2, dir.z*power);
-          ballBody.angularVelocity.set(
-            Math.random()*16-8,
-            Math.random()*5-2.5,
-            Math.random()*14-7
-          );
+          ballBody.angularVelocity.set(Math.random()*16-8, Math.random()*5-2.5, Math.random()*14-7);
           botHasBall = false; lastHolder='bot';
           showMessage("Le bot tire !");
         } else botCooldown--;
         return setTimeout(botThink, 40);
       }
-      // Si balle libre, le bot fonce
       if(!botHasBall && !ballInHand) {
         let t = {x: ballPos.x, y:1, z: ballPos.z-0.6};
         moveBotToward(bot, t, 0.15);
-        // Attrape la balle
         if(dist(botPos, ballPos)<1.1 && Math.abs(botPos.y-ballPos.y)<1.2) {
           botHasBall=true; ballInHand=false; lastHolder='bot';
           ball.setAttribute('position',`${botPos.x} ${botPos.y+0.82} ${botPos.z+0.43}`);
@@ -290,7 +232,6 @@
       init: function () {
         this.goal = false;
         this.el.addEventListener('collide', (e) => {
-          // Si collision avec le gardien, arrêt !
           if (e.detail.body.el && e.detail.body.el.id==="gardien") {
             showMessage("Arrêt du gardien !",1300);
             this.el.body.velocity.set(0,0,0);
@@ -298,15 +239,14 @@
             setTimeout(()=>{resetBall();},900);
             return;
           }
-          // Si collision but
           if (e.detail.body.el && e.detail.body.el.id==="goal-trigger") {
             if (!this.goal && playing) {
               this.goal = true;
               if(lastHolder==='player') {
-                scoreJ++; showMessage("BUT !!!",1400);
+                scoreJ++; showMessage("BUT !!!",1400); document.getElementById("applaud").play();
               }
               if(lastHolder==='bot') {
-                scoreBot++; showMessage("BUT du bot !",1400);
+                scoreBot++; showMessage("BUT du bot !",1400); document.getElementById("applaud").play();
               }
               updateScoreUI();
               setTimeout(()=>{
@@ -320,7 +260,6 @@
         });
       }
     });
-    // --- Démarrage & Restart
     window.addEventListener('DOMContentLoaded', ()=>{
       let scoreDiv = document.createElement('div');
       scoreDiv.id = "score-ui"; scoreDiv.className = "score-ui";
@@ -330,7 +269,7 @@
       document.body.appendChild(timerDiv);
       let helpDiv = document.createElement('div');
       helpDiv.className = "help-ui";
-      helpDiv.innerHTML = "<b>Handball VR</b><br>Stick gauche/ZQSD : Déplacement<br>Appui stick/Shift : Sprint<br>Stick droit/E/R : Rotation<br>Bouton A/X/Espace : Saut<br>Attrape/lance le ballon : main/trigger/clic<br>Marque plus que le bot !<br><i>Restart = touche R</i>";
+      helpDiv.innerHTML = "<b>Handball VR</b><br>Stick gauche/ZQSD : Déplacement<br>Appui stick/Shift : Sprint<br>Stick droit/E/R : Rotation<br>Bouton A/X/Espace : Saut<br>Attrape/lance le ballon : main/trigger/clic<br>Marque plus que le bot !<br><i>Restart = R</i>";
       document.body.appendChild(helpDiv);
       setTimeout(()=>{helpDiv.style.display="none"}, 14000);
       restartGame(); updateScoreUI(); updateTimerUI();
@@ -342,39 +281,63 @@
 <body>
   <a-scene physics="gravity:-9.8; restitution:0.81; friction:0.32;" background="color: #e5f6ff" loading-screen="enabled:false">
     <a-assets>
+      <!-- Textures Gymnase -->
+      <img id="parquet" src="https://cdn.aframe.io/a-painter/images/floor.jpg">
+      <img id="tribune" src="https://cdn.pixabay.com/photo/2016/11/29/04/17/audience-1866738_1280.jpg">
+      <img id="filet" src="https://cdn.pixabay.com/photo/2017/09/06/19/54/net-2726429_1280.png">
+      <img id="sky" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg">
+      <img id="balltex" src="https://cdn.pixabay.com/photo/2017/01/30/22/50/handball-2023531_1280.jpg">
       <audio id="goal-audio" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12e6c7b2bb.mp3"></audio>
       <audio id="ambiance" src="https://cdn.pixabay.com/audio/2022/11/16/audio_12e9c1f3c3.mp3" preload="auto"></audio>
+      <audio id="applaud" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b0e6db1.mp3" preload="auto"></audio>
     </a-assets>
-    <!-- Terrain handball officiel -->
-    <a-box position="0 0 0" width="14" height="0.12" depth="28" color="#d3f1ff" static-body></a-box>
+    <!-- Sol parquet -->
+    <a-box position="0 0 0" width="14" height="0.12" depth="28" src="#parquet" repeat="7 14" static-body></a-box>
+    <!-- Tribunes -->
+    <a-plane position="0 2.7 15.4" width="14" height="5" src="#tribune" rotation="0 0 0"></a-plane>
+    <a-plane position="0 2.7 -15.4" width="14" height="5" src="#tribune" rotation="0 180 0"></a-plane>
+    <a-plane position="7.3 2.7 0" width="5" height="5" src="#tribune" rotation="0 -90 0"></a-plane>
+    <a-plane position="-7.3 2.7 0" width="5" height="5" src="#tribune" rotation="0 90 0"></a-plane>
+    <!-- Skybox gymnase -->
+    <a-sky src="#sky" rotation="0 -80 0"></a-sky>
+    <!-- But avant stylé -->
+    <a-box position="0 1 10.8" width="3" height="2" depth="0.2" color="#1e90ff" static-body></a-box>
+    <a-box position="-1.45 1 10.8" width="0.09" height="2" depth="0.22" color="#1e90ff" static-body></a-box>
+    <a-box position="1.45 1 10.8" width="0.09" height="2" depth="0.22" color="#1e90ff" static-body></a-box>
+    <a-box position="0 2 10.8" width="3" height="0.08" depth="0.22" color="#1e90ff" static-body></a-box>
+    <a-plane position="0 1.02 10.89" width="2.7" height="1.82" src="#filet" rotation="0 0 0" opacity="0.6"></a-plane>
+    <!-- Zone but, lignes stylées -->
     <a-ring position="0 0.07 10.8" rotation="-90 0 0" radius-inner="2.1" radius-outer="2.13" color="#fff" segments-theta="64"></a-ring>
-    <a-ring position="0 0.07 -10.8" rotation="-90 0 0" radius-inner="2.1" radius-outer="2.13" color="#fff" segments-theta="64"></a-ring>
     <a-ring position="0 0.07 0" rotation="-90 0 0" radius-inner="5.8" radius-outer="5.85" color="#fff" segments-theta="64"></a-ring>
-    <!-- But avant -->
-    <a-box position="0 1 10.8" width="3" height="2" depth="0.25" color="#1e90ff" static-body></a-box>
-    <a-box position="-1.45 1 10.8" width="0.1" height="2" depth="0.27" color="#1e90ff" static-body></a-box>
-    <a-box position="1.45 1 10.8" width="0.1" height="2" depth="0.27" color="#1e90ff" static-body></a-box>
-    <a-box position="0 2 10.8" width="3" height="0.09" depth="0.27" color="#1e90ff" static-body></a-box>
-    <a-plane position="0 1.01 11" width="2.8" height="1.95" rotation="0 0 0" color="#fff" opacity="0.13"></a-plane>
-    <a-box id="goal-trigger" position="0 1 10.6" width="2.6" height="1.75" depth="0.1" opacity="0" visible="false" static-body></a-box>
-    <!-- Gardien IA -->
+    <a-ring position="0 0.07 -10.8" rotation="-90 0 0" radius-inner="2.1" radius-outer="2.13" color="#fff" segments-theta="64"></a-ring>
+    <!-- But arrière -->
+    <a-box position="0 1 -10.8" width="3" height="2" depth="0.18" color="#1e90ff" opacity="0.35" static-body></a-box>
+    <!-- Filet arrière décor -->
+    <a-plane position="0 1.02 -10.89" width="2.7" height="1.82" src="#filet" rotation="0 180 0" opacity="0.16"></a-plane>
+    <!-- Scoreboard stylé -->
+    <a-box position="0 3.11 8.2" width="2.8" height="0.7" depth="0.15" color="#fff8" roughness="0.4" metalness="0.7"></a-box>
+    <a-entity id="scoreboard" position="0 3.18 8.2" text="value: 0 - 0; color: #1e90ff; width: 4.5; align: center; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"></a-entity>
+    <!-- Gardien IA look cartoon -->
     <a-cylinder id="gardien" position="0 1 10.3" radius="0.32" height="1.8" color="#eaf05a" segments-radial="6"></a-cylinder>
     <a-sphere position="0 1.82 10.3" radius="0.19" color="#bab600"></a-sphere>
-    <!-- Scoreboard géant -->
-    <a-entity id="scoreboard" position="0 2.9 8.2" text="value: 0 - 0; color: #1e90ff; width: 4.5; align: center; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"></a-entity>
-    <!-- Bot adverse -->
+    <!-- Bot adverse look cartoon -->
     <a-cylinder id="bot" position="0 1 6" radius="0.37" height="2" color="#aad4f7" segments-radial="6"></a-cylinder>
     <a-sphere position="0 2.24 6.47" radius="0.27" color="#0a3a74"></a-sphere>
-    <!-- Ballon handball physique -->
-    <a-sphere id="handball" class="raycastable grabbable" position="0 1.2 0" radius="0.23" color="#ffb300" dynamic-body="mass: 0.36; linearDamping:0.07; angularDamping:0.13; restitution:0.81; friction:0.33" super-hands throwable goal-detect="scoreEl: #score-text" shadow="cast:true"></a-sphere>
-    <!-- Rig joueur + mains VR directionnelles -->
+    <!-- Ballon main texture -->
+    <a-sphere id="handball" class="raycastable grabbable" position="0 1.2 0" radius="0.23" src="#balltex" roughness="0.34" metalness="0.12" dynamic-body="mass: 0.36; linearDamping:0.07; angularDamping:0.13; restitution:0.81; friction:0.33" super-hands throwable goal-detect="scoreEl: #score-text" shadow="cast:true"></a-sphere>
+    <!-- Détection but -->
+    <a-box id="goal-trigger" position="0 1 10.6" width="2.6" height="1.75" depth="0.1" opacity="0" visible="false" static-body></a-box>
+    <!-- Rig joueur + mains VR -->
     <a-entity id="rig" position="0 1.6 -7" foot-move>
       <a-entity id="camera" camera wasd-controls look-controls position="0 0 0"></a-entity>
       <a-entity id="leftHand" hand-controls="hand: left; handModelStyle: highPoly; color: #e5b285" shadow="cast: true" super-hands raycaster="objects: .raycastable, .grabbable; showLine: true; lineColor: #228b22" line="color: #228b22; opacity: 0.8"></a-entity>
       <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: highPoly; color: #d7a878" shadow="cast: true" super-hands raycaster="objects: .raycastable, .grabbable; showLine: true; lineColor: #228b22" line="color: #228b22; opacity: 0.8"></a-entity>
     </a-entity>
     <a-entity id="score-text" position="0 3.5 3" text="value: 0; color: #1e90ff; width: 4.5; align: center; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt" visible="true"></a-entity>
-    <a-sky color="#e5f6ff"></a-sky>
+    <!-- Lumières dynamiques -->
+    <a-light type="ambient" color="#fff" intensity="0.59"></a-light>
+    <a-light type="directional" color="#fffbe8" intensity="0.41" position="0 8 9" target="#bot"></a-light>
+    <a-light type="spot" color="#fff4d1" intensity="0.27" position="0 7 0"></a-light>
   </a-scene>
   <audio id="ambiance-audio" src="https://cdn.pixabay.com/audio/2022/11/16/audio_12e9c1f3c3.mp3" autoplay loop></audio>
 </body>
