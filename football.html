@@ -101,24 +101,7 @@
     </a-assets>
 
     <!-- Terrain de football -->
-    <a-entity gltf-model="#football-field" position="0 0 0" scale="20 20 20"></a-entity>
-    <!-- Statue CR7 -->
-    <a-entity gltf-model="#cr7-statue"
-              position="0 0 -5"
-              scale="3 3 3"
-              rotation="0 180 0"
-              material="color: #FFD700">
-    </a-entity>
-
-    <!-- Décor -->
-    <a-cylinder radius="120" height="30" position="0 15 0" color="#d4af37" side="double" opacity="0.25"></a-cylinder>
-    <a-circle radius="110" position="0 0.01 0" rotation="-90 0 0" color="#4caf50" segments="64"></a-circle>
-    <a-sky color="#b3e0ff"></a-sky>
-    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="60 40 60" rotation="-60 45 0"></a-entity>
-    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="-60 40 60" rotation="-60 -45 0"></a-entity>
-    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="60 40 -60" rotation="-60 135 0"></a-entity>
-    <a-entity light="type: spot; color: #fff; intensity: 0.5; angle:60" position="-60 40 -60" rotation="-60 -135 0"></a-entity>
-    <a-entity light="type: ambient; color: #ffffff; intensity: 0.3"></a-entity>
+    <a-entity gltf-model="model/football/scene.gltf" position="-41.99565 0 716.71286" scale="20 20 20"></a-entity>
 
     <!-- RIG central : spawn au centre, mains enfants du rig -->
     <a-entity id="rig"
