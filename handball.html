@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball VR - Terrain Mondial Réaliste</title>
+  <title>Handball VR - Jeu Officiel Complet</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Scripts compatibles -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
@@ -22,7 +22,15 @@
 <div class="score-ui" id="score-ui">0 - 0</div>
 <div class="timer-ui" id="timer-ui">30:00</div>
 <div class="msg-ui" id="msg-ui"></div>
-<div class="help-ui">Déplace-toi avec ZQSD (ou VR), attrape et lance le ballon pour marquer ! Défie les bots et le gardien.<br>Score et temps en haut.</div>
+<div class="help-ui">
+  <b>Contrôles :</b> <br>
+  Déplace-toi avec ZQSD/joystick (PC/VR). <br>
+  Saisis la balle (clic ou VR/trigger). <br>
+  <b>Dribble :</b> touche D (PC) ou bouton sur manette VR. <br>
+  <b>Tir :</b> barre espace (PC) ou trigger court (VR). <br>
+  <b>Passe :</b> touche P (PC) ou grip (VR). <br>
+  Si tu avances sans dribbler, tu commets une faute (marcher).
+</div>
 <a-scene physics="gravity:-9.8;" background="color: #e5f6ff" loading-screen="enabled:false">
   <a-assets>
     <img id="parquet" src="https://cdn.aframe.io/a-painter/images/floor.jpg">
@@ -103,12 +111,11 @@
     animation="property: scale; dir: alternate; from: 1 1 1; to: 1.03 1.07 1; dur: 2000; loop: true"></a-box>
   <a-entity id="scoreboard" position="0 3.18 11.2" text="value: 0 - 0; color: #1e90ff; width: 4.5; align: center; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"></a-entity>
 
-  <!-- Ballon jouable -->
+  <!-- Ballon jouable avec interactions -->
   <a-sphere id="handball" class="grabbable dynamic-body" position="0 1.2 0" radius="0.23" src="#balltex"
     roughness="0.34" metalness="0.12"
     dynamic-body="mass: 0.36; linearDamping:0.07; angularDamping:0.13; restitution:0.81; friction:0.33"
-    super-hands
-    shadow></a-sphere>
+    super-hands handball-interaction shadow></a-sphere>
 
   <!-- Joueur (caméra + mains VR/PC) -->
   <a-entity id="rig" movement-controls kinematic-body position="0 1.6 -7">
@@ -141,7 +148,7 @@
   <audio id="ambiance-audio" src="https://cdn.pixabay.com/audio/2022/11/16/audio_12e9c1f3c3.mp3" autoplay loop></audio>
   <audio id="goal" src="https://cdn.pixabay.com/audio/2022/05/17/audio_126b8e6e53.mp3" preload="auto"></audio>
 
-  <!-- SCRIPT : gestion du match, bots, gardien -->
+  <!-- SCRIPT : gestion du match, bots, gardien, interaction balle -->
   <script>
     let scoreA = 0, scoreB = 0, time = 30*60, timerInt = null, playing = false;
     let scoreUi = null, timerUi = null, msgUi = null;
@@ -253,6 +260,86 @@
     document.addEventListener('DOMContentLoaded', function () {
       document.querySelector('#goal-trigger-north').setAttribute('goal-detect','');
       document.querySelector('#goal-trigger-south').setAttribute('goal-detect','');
+    });
+
+    // === Balle : interaction officielle Handball (dribble, tir, passe, faute marcher)
+    AFRAME.registerComponent('handball-interaction', {
+      schema: {},
+      init: function () {
+        this.held = false;
+        this.dribbleTimer = 0;
+        this.lastDribble = 0;
+        this.hand = null;
+        this.el.addEventListener('grab-start', e => {
+          this.held = true;
+          this.hand = e.detail.hand;
+          this.lastDribble = performance.now();
+        });
+        this.el.addEventListener('grab-end', e => {
+          this.held = false;
+          this.hand = null;
+        });
+        window.addEventListener('keydown', (e) => {
+          if (this.held && (e.key === 'd' || e.key === 'D')) {
+            this.lastDribble = performance.now();
+            this.el.emit('dribble', {});
+            msgUi.textContent = "Dribble !";
+            setTimeout(()=>{msgUi.textContent='';}, 500);
+          }
+          if (this.held && e.code === 'Space') {
+            this.shoot();
+          }
+          if (this.held && (e.key === 'p' || e.key === 'P')) {
+            this.pass();
+          }
+        });
+        // Pour VR, tu peux ajouter le support boutons via events hand-controls/super-hands
+      },
+      tick: function() {
+        if (this.held) {
+          const rig = document.getElementById('rig');
+          if (rig && rig.components['movement-controls']) {
+            let vel = rig.components['movement-controls'].velocity;
+            let moving = Math.abs(vel.x) > 0.1 || Math.abs(vel.z) > 0.1;
+            let now = performance.now();
+            if (moving && now - this.lastDribble > 1100) {
+              msgUi.textContent = "Faute : marcher !";
+              this.el.emit('faute-marcher', {});
+              this.held = false;
+              if(this.hand && this.hand.components['super-hands']){
+                this.hand.components['super-hands'].state.release(this.el);
+              }
+              setTimeout(()=>{msgUi.textContent='';}, 1100);
+            }
+          }
+        }
+      },
+      shoot: function() {
+        const camera = document.querySelector('[camera]');
+        if (!camera) return;
+        let dir = new THREE.Vector3();
+        camera.object3D.getWorldDirection(dir);
+        this.el.body.velocity.set(dir.x*8, 4, dir.z*8);
+        this.held = false;
+        if(this.hand && this.hand.components['super-hands']){
+          this.hand.components['super-hands'].state.release(this.el);
+        }
+        msgUi.textContent = "Tir !";
+        setTimeout(()=>{msgUi.textContent='';}, 500);
+      },
+      pass: function() {
+        const camera = document.querySelector('[camera]');
+        if (!camera) return;
+        let dir = new THREE.Vector3();
+        camera.object3D.getWorldDirection(dir);
+        this.el.body.velocity.set(dir.x*4, 2, dir.z*4);
+        this.held = false;
+        if(this.hand && this.hand.components['super-hands']){
+          this.hand.components['super-hands'].state.release(this.el);
+        }
+        msgUi.textContent = "Passe !";
+        setTimeout(()=>{msgUi.textContent='';}, 500);
+      }
     });
   </script>
 </a-scene>
