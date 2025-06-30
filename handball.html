@@ -46,8 +46,11 @@
 <a-scene physics="gravity:-9.8;" background="color: #e5f6ff" loading-screen="enabled:false">
   <a-assets>
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
-    <!-- Ajoute ici d'autres assets si besoin -->
+    <a-asset-item id="gymnasium" src="handball/scene.gltf"></a-asset-item>
   </a-assets>
+
+  <!-- Terrain (gymnase/handball) : tu peux remplacer par un <a-plane> si tu veux juste un sol coloré -->
+  <a-entity gltf-model="#gymnasium" position="0 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
 
   <!-- Ballon handball, comme demandé -->
   <a-entity id="handball"
