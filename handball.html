@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball - Tir au But Ultra Réaliste</title>
+  <title>Handball Ultra - Modèles Personnalisés</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- A-Frame et modules -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
@@ -10,7 +10,6 @@
   <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-animation-component@6.0.0/dist/aframe-animation-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.controls.min.js"></script>
-  <!-- Postprocessing (bloom, dof) -->
   <script src="https://cdn.jsdelivr.net/npm/aframe-post-processing-component@2.0.3/dist/aframe-post-processing-component.min.js"></script>
   <style>
     body {margin:0;}
@@ -26,26 +25,23 @@
   <b>Tir au but Handball Ultra :</b><br>
   En VR : vise avec ta main, appuie et relâche le trigger pour tirer.<br>
   Sur PC : clique ou barre espace pour tirer.<br>
-  <b>Niveau max d’immersion web !</b>
+  <b>Niveau max d’immersion web !<br>
+  Modèles 3D personnalisés utilisés (main, ballon, gymnase).</b>
 </div>
 <a-scene
   physics="gravity:-9.8;"
   post-processing="bloom: true; bloomStrength: 0.25; bloomThreshold: 0.8; bloomRadius: 0.5; ssao: true; ssaoRadius: 18; ssaoIntensity: 0.08"
   background="color: #e5f6ff"
-  loading-screen="enabled:false">
+  loading-screen="enabled:false"
+  shadow="type: pcfsoft">
 
   <a-assets>
-    <!-- HDRI gymnase 360°, à remplacer par la tienne pour + réaliste -->
-    <img id="sky" src="https://cdn.jsdelivr.net/gh/cedmystyx/assets/hdri-gymnasium.jpg">
-    <!-- Parquet PBR + normalMap -->
-    <img id="parquet" src="https://cdn.aframe.io/a-painter/images/floor.jpg">
-    <img id="parquet-norm" src="https://cdn.jsdelivr.net/gh/cedmystyx/assets/parquet-normal.jpg">
-    <!-- Filet -->
-    <img id="filet" src="https://cdn.pixabay.com/photo/2017/09/06/19/54/net-2726429_1280.png">
-    <!-- Public sprite (image découpée) -->
-    <img id="crowd-sprite" src="https://cdn.jsdelivr.net/gh/cedmystyx/assets/crowd-sprite.png">
-    <!-- Ballon -->
-    <img id="balltex" src="https://cdn.pixabay.com/photo/2017/01/30/22/50/handball-2023531_1280.jpg">
+    <!-- Main 3D pour VR -->
+    <a-asset-item id="main-3d-hand" src="hand/scene.gltf"></a-asset-item>
+    <!-- Ballon de handball -->
+    <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
+    <!-- Gymnase complet -->
+    <a-asset-item id="gymnasium" src="handball/scene.gltf"></a-asset-item>
     <!-- Sons immersifs -->
     <audio id="goal-sound" src="https://cdn.pixabay.com/audio/2022/05/17/audio_126b8e6e53.mp3" preload="auto"></audio>
     <audio id="save-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b0e6db1.mp3" preload="auto"></audio>
@@ -53,72 +49,45 @@
     <audio id="confetti" src="https://cdn.pixabay.com/audio/2022/07/26/audio_1232a6e304.mp3"></audio>
   </a-assets>
 
-  <!-- Skybox HDRI gymnase -->
-  <a-sky src="#sky"></a-sky>
+  <!-- Gymnase 3D complet -->
+  <a-entity gltf-model="#gymnasium" position="0 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
 
   <!-- Ambiance sonore spatiale -->
-  <a-sound src="#public" position="0 2 16" spatial="true" loop="true" volume="0.6" autoplay="true"></a-sound>
-
-  <!-- Sol avec normal map et PBR -->
-  <a-box position="0 0 0"
-         width="14" height="0.12" depth="28"
-         src="#parquet"
-         normal-map="src: #parquet-norm"
-         metalness="0.25" roughness="0.19" repeat="4 8"
-         static-body></a-box>
-
-  <!-- Barrières plexi avec reflets et pubs -->
-  <a-box position="0 0.55 13.7" width="14.8" height="1.1" depth="0.12"
-         color="#c9e4ff" opacity="0.81" metalness="0.38" roughness="0.24" static-body></a-box>
-  <a-box position="0 0.55 -13.7" width="14.8" height="1.1" depth="0.12"
-         color="#c9e4ff" opacity="0.81" metalness="0.38" roughness="0.24" static-body></a-box>
-  <a-box position="7.1 0.55 0" width="0.12" height="1.1" depth="27.4"
-         color="#c9e4ff" opacity="0.81" metalness="0.38" roughness="0.24" static-body></a-box>
-  <a-box position="-7.1 0.55 0" width="0.12" height="1.1" depth="27.4"
-         color="#c9e4ff" opacity="0.81" metalness="0.38" roughness="0.24" static-body></a-box>
-
-  <!-- Filet dynamique (animé au but) -->
-  <a-plane id="filet" position="0 1.01 13.8" width="2.7" height="1.82" src="#filet"
-    animation__hit="property: rotation.z; dir: alternate; from: 0; to: 3; dur: 600; easing: easeInOutQuad; startEvents: filet-hit"></a-plane>
-
-  <!-- Public 3D (sprites découpés animés) -->
-  <a-entity id="public-group">
-    <a-image src="#crowd-sprite" position="-4.5 2.6 14.7" width="2.2" height="2.5" animation="property: position.y; dir: alternate; from:2.6; to:2.7; dur:2200; loop:true;"></a-image>
-    <a-image src="#crowd-sprite" position="0 2.7 14.6" width="3.5" height="3" animation="property: position.y; dir: alternate; from:2.7; to:2.63; dur:1800; loop:true; delay:400;"></a-image>
-    <a-image src="#crowd-sprite" position="4.5 2.6 14.7" width="2.2" height="2.5" animation="property: position.y; dir: alternate; from:2.6; to:2.7; dur:2100; loop:true;"></a-image>
-  </a-entity>
-
-  <!-- But -->
-  <a-box position="0 1 13.7" width="3" height="2" depth="0.18" color="#f44336" static-body></a-box>
-  <a-box position="-1.5 1 13.7" width="0.13" height="2" depth="0.22" color="#f44336" static-body></a-box>
-  <a-box position="1.5 1 13.7" width="0.13" height="2" depth="0.22" color="#f44336" static-body></a-box>
-  <a-box position="0 2 13.7" width="3" height="0.09" depth="0.22" color="#f44336" static-body></a-box>
-  <a-box id="goal-trigger" position="0 1 13.81" width="2.6" height="1.75" depth="0.1" opacity="0" visible="false" static-body></a-box>
-
-  <!-- Gardien IA animé -->
-  <a-box id="gardien" position="0 1 13.2" width="0.9" height="1.8" depth="0.35" color="#eaf05a" shadow></a-box>
-  <a-box id="gardien-bras-g" position="-0.6 1.25 13.2" width="0.4" height="0.36" depth="0.18" color="#eaf05a" shadow></a-box>
-  <a-box id="gardien-bras-d" position="0.6 1.25 13.2" width="0.4" height="0.36" depth="0.18" color="#eaf05a" shadow></a-box>
-
-  <!-- Joueur (caméra fixe, capsule collider) -->
-  <a-entity id="rig"
-    position="0 1.6 6.6"
-    dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
-    <a-entity id="camera" camera look-controls position="0 0 0"></a-entity>
-    <a-entity id="rightHand"
-      hand-controls="hand: right; handModelStyle: highPoly"
-      super-hands></a-entity>
-  </a-entity>
-
-  <!-- Ballon, attaché à la main, lancer VR/PC -->
-  <a-sphere id="handball" class="dynamic-body" position="0.35 1.1 6.7" radius="0.23"
-    src="#balltex"
-    dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
-    real-throw penalty-ball
-    shadow></a-sphere>
+  <a-sound src="#public" position="0 2 8" spatial="true" loop="true" volume="0.6" autoplay="true"></a-sound>
 
   <!-- Scoreboard 3D, feedback -->
-  <a-entity id="scoreboard" position="0 3.5 10.7" text="value: TIRS : 0 | BUTS : 0; color: #1e90ff; width: 5; align: center; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"></a-entity>
+  <a-entity id="scoreboard" position="0 3.5 3.7" text="value: TIRS : 0 | BUTS : 0; color: #1e90ff; width: 5; align: center; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"></a-entity>
+
+  <!-- Gardien cubique simple pour feedback (remplaçable par modèle 3D aussi) -->
+  <a-box id="gardien" position="0 1 6.4" width="0.9" height="1.8" depth="0.35" color="#eaf05a" shadow></a-box>
+  <a-box id="gardien-bras-g" position="-0.6 1.25 6.4" width="0.4" height="0.36" depth="0.18" color="#eaf05a" shadow></a-box>
+  <a-box id="gardien-bras-d" position="0.6 1.25 6.4" width="0.4" height="0.36" depth="0.18" color="#eaf05a" shadow></a-box>
+
+  <!-- Capsule collider joueur (caméra) -->
+  <a-entity id="rig"
+    position="0 1.6 0.7"
+    dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
+    <a-entity id="camera" camera look-controls position="0 0 0"></a-entity>
+    <!-- Main droite VR, modèle custom -->
+    <a-entity id="rightHand"
+      gltf-model="#main-3d-hand"
+      scale="1 1 1"
+      position="0.3 -0.2 0.5"
+      rotation="0 0 0"
+      tracked-controls="hand: right"
+      super-hands
+      shadow="cast: true">
+    </a-entity>
+  </a-entity>
+
+  <!-- Ballon handball, modèle custom -->
+  <a-entity id="handball"
+    gltf-model="#handball-ball"
+    position="0.45 1.1 1.3"
+    scale="0.9 0.9 0.9"
+    dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
+    real-throw penalty-ball
+    shadow="cast: true"></a-entity>
 
   <!-- Confettis -->
   <a-entity id="confetti-group" visible="false"></a-entity>
@@ -141,9 +110,9 @@
     function animateGardien(dir) {
       // dir: -1 gauche, 0 centre, 1 droite
       let pos = [0, 0.7, -0.7][dir+1];
-      document.getElementById('gardien').setAttribute('position', {x:pos, y:1, z:13.2});
-      document.getElementById('gardien-bras-g').setAttribute('position', {x:pos-0.6, y:1.25, z:13.2});
-      document.getElementById('gardien-bras-d').setAttribute('position', {x:pos+0.6, y:1.25, z:13.2});
+      document.getElementById('gardien').setAttribute('position', {x:pos, y:1, z:6.4});
+      document.getElementById('gardien-bras-g').setAttribute('position', {x:pos-0.6, y:1.25, z:6.4});
+      document.getElementById('gardien-bras-d').setAttribute('position', {x:pos+0.6, y:1.25, z:6.4});
       // Animation bras pour effet plongeon
       document.getElementById('gardien-bras-g').setAttribute('rotation', {x:0, y:0, z: dir==-1? -55 : -10});
       document.getElementById('gardien-bras-d').setAttribute('rotation', {x:0, y:0, z: dir==1? 55 : 10});
@@ -158,7 +127,7 @@
     AFRAME.registerComponent('penalty-ball', {
       init: function () {
         this.held = true;
-        this.targetPos = {x:0.35,y:1.1,z:6.7};
+        this.targetPos = {x:0.45,y:1.1,z:1.3};
         this.canShoot = true;
         this.shootStart = null;
         this.el.body.type = 1;
@@ -204,8 +173,8 @@
         this.el.body.type = 2;
         this.el.body.velocity.set(dir.x*10*force, 3*force, dir.z*13*force);
         msgUi.textContent = "Tir !";
-        // Filet dynamique au but
-        setTimeout(()=>{document.getElementById('filet').emit('filet-hit');}, 650);
+        // Effet feedback
+        setTimeout(()=>{document.getElementById('gardien').emit('filet-hit');}, 650);
         // Gardien
         let gardienDir = Math.floor(Math.random()*3)-1;
         animateGardien(gardienDir);
@@ -269,8 +238,8 @@
         let particle = document.createElement('a-sphere');
         particle.setAttribute('radius', 0.07+Math.random()*0.06);
         particle.setAttribute('color', ['#ffec40', '#e63946','#00bfff','#7cffc8','#fff'][Math.floor(Math.random()*5)]);
-        particle.setAttribute('position', {x:-0.7+1.4*Math.random(), y:3.5+Math.random(), z:10.6+Math.random()*2});
-        particle.setAttribute('animation__fall', `property: position; to: ${-0.7+1.4*Math.random()} 0.2 ${10.6+Math.random()*2}; dur:1200; easing:easeIn;`);
+        particle.setAttribute('position', {x:-0.7+1.4*Math.random(), y:3.5+Math.random(), z:2.6+Math.random()*2});
+        particle.setAttribute('animation__fall', `property: position; to: ${-0.7+1.4*Math.random()} 0.2 ${2.6+Math.random()*2}; dur:1200; easing:easeIn;`);
         confetti.appendChild(particle);
       }
     }
@@ -279,20 +248,6 @@
       confetti.setAttribute('visible', false);
       confetti.innerHTML = '';
     }
-
-    // But (optionnel pour filet-hit plus précis)
-    AFRAME.registerComponent('goal-trigger', {
-      init: function () {
-        this.el.addEventListener('collide', (e) => {
-          document.getElementById('filet').emit('filet-hit');
-          document.getElementById('goal-sound').play();
-        });
-      }
-    });
-    document.addEventListener('DOMContentLoaded', function () {
-      document.getElementById('goal-trigger').setAttribute('goal-trigger','');
-    });
-
   </script>
 </a-scene>
 </body>
