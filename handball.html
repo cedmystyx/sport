@@ -4,29 +4,7 @@
   <meta charset="utf-8">
   <title>Handball Ultra VR</title>
   <meta name="description" content="Handball VR immersif. Attrape le ballon, marque des buts, bats tes records. Expérience optimisée VR.">
-
-  <!-- Facebook Meta Tags -->
-  <meta property="og:url" content="https://cedmystyx.github.io/sport/handball.html">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Handball Ultra VR">
-  <meta property="og:description" content="Handball VR immersif. Attrape le ballon, marque des buts, bats tes records. Expérience optimisée VR.">
-  <!-- Pour éviter l'erreur 404, remplace ce fichier par un logo existant ou retire la ligne si tu n'en as pas -->
-  <!-- <meta property="og:image" content="handball_logo_og.png"> -->
-
-  <!-- Twitter Meta Tags -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta property="twitter:domain" content="cedmystyx.github.io">
-  <meta property="twitter:url" content="https://cedmystyx.github.io/sport/handball.html">
-  <meta name="twitter:title" content="Handball Ultra VR">
-  <meta name="twitter:description" content="Handball VR immersif. Attrape le ballon, marque des buts, bats tes records. Expérience optimisée VR.">
-  <!-- <meta name="twitter:image" content="handball_logo_og.png"> -->
-
-  <!-- Pour éviter 404, retire ou remplace si tu n'as pas ces fichiers -->
-  <!-- <link rel="icon" type="image/png" href="favicon.png"> -->
-  <!-- <link rel="manifest" href="manifest.webmanifest" /> -->
   <link href="https://fonts.googleapis.com/css?family=Kameron" rel="stylesheet">
-
-  <!-- A-Frame et modules -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
@@ -62,43 +40,41 @@
 <div class="score-ui" id="score-ui">Ballons : <span id="shots">0</span> | Buts : <span id="goals">0</span></div>
 <div class="msg-ui" id="msg-ui"></div>
 <div id="handballOverlay" class="handball-overlay">
-  <!-- <img src="handball_logo_og.png" alt="Handball Ultra VR" style="width:120px;margin-bottom:2rem;border-radius:50%;"> -->
   <button class="handball-btn" id="startBtn">Jouer en VR ou PC</button>
   <div style="color:#fff;margin-top:1.5rem;font-size:1.2em;">Attrape le ballon, vise, tire et marque !</div>
 </div>
 <a-scene physics="gravity:-9.8;" background="color: #e5f6ff" loading-screen="enabled:false" shadow="type: pcfsoft">
   <a-assets>
-    <!-- Utilise ces assets UNIQUEMENT si tu as les fichiers correspondants dans /sport/ -->
-    <a-asset-item id="main-3d-hand" src="hand/scene.gltf"></a-asset-item>
+    <!-- Mets bien ces fichiers dans /sport/ ! -->
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
     <a-asset-item id="gymnasium" src="handball/scene.gltf"></a-asset-item>
   </a-assets>
 
   <!-- Terrain handball -->
-  <a-entity gltf-model="#gymnasium" position="41.9425 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
+  <a-entity gltf-model="#gymnasium" position="0 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
 
-  <!-- Ballon devant le joueur (corrigé pour utiliser l'ID d'asset) -->
+  <!-- Ballon devant le joueur (bien visible, pas dans le sol) -->
   <a-entity id="handball"
     gltf-model="#handball-ball"
-    position="41.9425 1 0.8"
+    position="-0.22558 1 0.8"
     scale="0.009 0.009 0.009"
     dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
     grabbable
     shadow
     obb-collider="centerModel: true"></a-entity>
 
-  <!-- Capsule joueur sur le terrain -->
+  <!-- Capsule joueur sur le terrain, caméra tournée vers le ballon -->
   <a-entity id="rig"
-    position="41.9425 1.7 0"
+    position="0.60286 1.7 0"
     dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
-    <a-entity id="camera" camera look-controls wasd-controls position="0 0 0"></a-entity>
-    <!-- MAIN GAUCHE animée, taille contrôleur -->
+    <a-entity id="camera" camera look-controls wasd-controls rotation="-30 0 0"></a-entity>
+    <!-- MAIN GAUCHE animée, taille contrôleur (natif) -->
     <a-entity id="leftHand"
       hand-controls="hand: left"
       shadow="cast: true"
       super-hands>
     </a-entity>
-    <!-- MAIN DROITE animée, taille contrôleur -->
+    <!-- MAIN DROITE animée, taille contrôleur (natif) -->
     <a-entity id="rightHand"
       hand-controls="hand: right"
       shadow="cast: true"
@@ -116,15 +92,12 @@
   let shots = 0, goals = 0;
   const shotsUi = document.getElementById('shots');
   const goalsUi = document.getElementById('goals');
-  const msgUi = document.getElementById('msg-ui');
   function updateScore(goal) {
     shots++;
     if(goal) goals++;
     shotsUi.textContent = shots;
     goalsUi.textContent = goals;
-    // msgUi.textContent = goal ? "But !" : "";
   }
 </script>
-<!-- Cloudflare beacon supprimé pour éviter POST 405 -->
 </body>
 </html>
