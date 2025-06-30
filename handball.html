@@ -47,17 +47,22 @@
   <a-assets>
     <a-asset-item id="terrain" src="handball/scene.gltf"></a-asset-item>
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
-    <!-- Skydome image asset (mets le bon chemin si besoin) -->
+    <!-- Skydome image asset -->
     <img id="gym-sky" src="stock-photo-minsk-belarus-july-panorama-in-interior-modern-gymnasium-basketball-court-full-by-744512341.jpg" crossorigin="anonymous">
   </a-assets>
 
-  <!-- Skydome décor gymnase -->
-  <a-sky src="#gym-sky" rotation="0 -90 0"></a-sky>
+  <!-- Skydome synchronisé avec le joueur -->
+  <a-entity id="skydome"
+    geometry="primitive: sphere; radius: 5000"
+    material="shader: flat; src: #gym-sky; side: back"
+    scale="-1 1 1"
+    position="0 0 0"
+    follow-player></a-entity>
 
-  <!-- Terrain (exactement comme demandé) -->
+  <!-- Terrain handball -->
   <a-entity gltf-model="handball/scene.gltf" position="41.74188 0 0" scale="" shadow=""></a-entity>
 
-  <!-- Ballon handball, comme demandé -->
+  <!-- Ballon handball -->
   <a-entity id="handball"
     gltf-model="handball_1964/scene.gltf"
     position="-0.22558 1 0.8"
@@ -67,10 +72,10 @@
     shadow
     obb-collider="centerModel: true"></a-entity>
 
-  <!-- Rig du joueur, comme demandé -->
+  <!-- Rig du joueur -->
   <a-entity id="rig" position="0.60286 1.7 0" dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
     <a-entity id="camera" camera look-controls wasd-controls rotation="-30.02298846485515 -183.23190288283757 0"></a-entity>
-    <!-- MAIN GAUCHE animée, taille contrôleur -->
+    <!-- MAIN GAUCHE -->
     <a-entity id="leftHand"
       hand-controls
       shadow
@@ -82,7 +87,7 @@
       windows-motion-controls="hand: left; model: false"
       hp-mixed-reality-controls="hand: left; model: false">
     </a-entity>
-    <!-- MAIN DROITE animée, taille contrôleur -->
+    <!-- MAIN DROITE -->
     <a-entity id="rightHand"
       hand-controls="hand: right"
       shadow
@@ -112,6 +117,17 @@
     shotsUi.textContent = shots;
     goalsUi.textContent = goals;
   }
+
+  // Composant pour synchroniser le skydome avec le joueur
+  AFRAME.registerComponent('follow-player', {
+    tick: function () {
+      var rig = document.querySelector('#rig') || document.querySelector('[camera]');
+      if (rig) {
+        var pos = rig.object3D.position;
+        this.el.object3D.position.set(pos.x, pos.y, pos.z);
+      }
+    }
+  });
 </script>
 </body>
 </html>
