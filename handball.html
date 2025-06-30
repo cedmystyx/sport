@@ -2,9 +2,8 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball Ultra VR - Terrain décalé, Ballon très petit, Mains Custom</title>
+  <title>Handball Ultra VR - Mains Custom Animées, Ballon Très Petit</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- A-Frame et modules -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
@@ -23,9 +22,9 @@
 <div class="msg-ui" id="msg-ui"></div>
 <div class="help-ui">
   <b>Handball Ultra VR</b><br>
-  Terrain décalé à <b>41.9425 0 0</b>.<br>
-  Ballon très petit (<code>scale="0.009 0.009 0.009"</code>).<br>
-  Mains VR avec modèle custom, ray, ligne et téléportation.<br>
+  Terrain à <b>41.9425 0 0</b>.<br>
+  Ballon très petit <code>scale="0.009 0.009 0.009"</code>.<br>
+  Mains VR = ton modèle animé, taille contrôleur et animations natives WebXR (poignet, doigts, index...).<br>
 </div>
 <a-scene
   physics="gravity:-9.8;"
@@ -35,25 +34,22 @@
   shadow="type: pcfsoft">
 
   <a-assets>
-    <!-- Main 3D pour VR (ton modèle, orienté Z avant) -->
+    <!-- Main 3D pour VR (orientée Z+ avant, échelle contrôleur, ANIMÉE) -->
     <a-asset-item id="main-3d-hand" src="hand/scene.gltf"></a-asset-item>
-    <!-- Ballon de handball, taille très petite -->
+    <!-- Ballon de handball très petit -->
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
     <!-- Gymnase complet (terrain), positionné à 41.9425 0 0 -->
     <a-asset-item id="gymnasium" src="handball/scene.gltf"></a-asset-item>
     <!-- Sons immersifs -->
-    <audio id="goal-sound" src="https://cdn.pixabay.com/audio/2022/05/17/audio_126b8e6e53.mp3" preload="auto"></audio>
-    <audio id="save-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b0e6db1.mp3" preload="auto"></audio>
     <audio id="public" src="https://cdn.pixabay.com/audio/2022/11/16/audio_12e9c1f3c3.mp3"></audio>
-    <audio id="confetti" src="https://cdn.pixabay.com/audio/2022/07/26/audio_1232a6e304.mp3"></audio>
   </a-assets>
 
-  <!-- Gymnase (terrain) positionné à 41.9425 0 0 -->
-  <a-entity gltf-model="#gymnasium" position="41.9425 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
+  <!-- Gymnase (terrain) à la position demandée -->
+  <a-entity gltf-model="handball/scene.gltf" position="41.9425 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
 
-  <!-- Ballon très petit, à portée du joueur -->
+  <!-- Ballon très petit, pris en main possible -->
   <a-entity id="handball"
-    gltf-model="#handball-ball"
+    gltf-model="handball_1964/scene.gltf"
     position="0 1 0.6"
     scale="0.009 0.009 0.009"
     dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
@@ -64,79 +60,31 @@
   <!-- Sons d'ambiance -->
   <a-sound src="#public" position="0 2 8" spatial="true" loop="true" volume="0.6" autoplay="true"></a-sound>
 
-  <!-- Scoreboard 3D, feedback -->
-  <a-entity id="scoreboard" position="0 3.5 3.7" text="value: TIRS : 0 | BUTS : 0; color: #1e90ff; width: 5; align: center; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"></a-entity>
-
   <!-- Capsule collider joueur (caméra) -->
   <a-entity id="rig"
     position="0 1.7 0"
     dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
     <a-entity id="camera" camera look-controls wasd-controls position="0 0 0"></a-entity>
-    <!-- MAIN GAUCHE VR avec modèle et contrôles inspirés football.html -->
+    <!-- MAIN GAUCHE VR animée avec modèle custom à la taille des contrôleurs -->
     <a-entity id="leftHand"
-      hand-controls="hand: left; color: #e5b285"
+      hand-controls="hand: left; handModelStyle: custom; modelUrl: url(hand/scene.gltf)"
       shadow="cast: true"
       raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
       line="color: #228b22; opacity: 0.8"
       teleport-controls="hand: left; cameraRig: #rig; teleportOrigin: #camera; button: trigger"
-      super-hands
-    >
-      <a-entity gltf-model="#main-3d-hand" scale="1 1 1"></a-entity>
+      super-hands>
     </a-entity>
-    <!-- MAIN DROITE VR avec modèle et contrôles inspirés football.html -->
+    <!-- MAIN DROITE VR animée avec modèle custom à la taille des contrôleurs -->
     <a-entity id="rightHand"
-      hand-controls="hand: right; color: #d7a878"
+      hand-controls="hand: right; handModelStyle: custom; modelUrl: url(hand/scene.gltf)"
       shadow="cast: true"
       raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
       line="color: #228b22; opacity: 0.8"
       teleport-controls="hand: right; cameraRig: #rig; teleportOrigin: #camera; button: trigger"
-      super-hands
-    >
-      <a-entity gltf-model="#main-3d-hand" scale="1 1 1"></a-entity>
+      super-hands>
     </a-entity>
   </a-entity>
 
-  <!-- Confettis -->
-  <a-entity id="confetti-group" visible="false"></a-entity>
-
-  <!-- Gardien cube simple pour repère (optionnel) -->
-  <a-box id="gardien" position="0 1 7" width="0.9" height="1.8" depth="0.35" color="#eaf05a" shadow></a-box>
-
-  <script>
-    // Score & feedback UI (inchangé)
-    let shots = 0, goals = 0;
-    const shotsUi = document.getElementById('shots');
-    const goalsUi = document.getElementById('goals');
-    const msgUi = document.getElementById('msg-ui');
-    function updateScore(goal) {
-      shots++;
-      if(goal) goals++;
-      shotsUi.textContent = shots;
-      goalsUi.textContent = goals;
-      document.getElementById('scoreboard').setAttribute('text', 'value', `TIRS : ${shots} | BUTS : ${goals}`);
-    }
-
-    // Confettis effet (inchangé)
-    function showConfetti() {
-      let confetti = document.getElementById('confetti-group');
-      confetti.innerHTML = '';
-      confetti.setAttribute('visible', true);
-      document.getElementById('confetti').play();
-      for(let i=0;i<26;i++){
-        let particle = document.createElement('a-sphere');
-        particle.setAttribute('radius', 0.07+Math.random()*0.06);
-        particle.setAttribute('color', ['#ffec40', '#e63946','#00bfff','#7cffc8','#fff'][Math.floor(Math.random()*5)]);
-        particle.setAttribute('position', {x:-0.7+1.4*Math.random(), y:3.5+Math.random(), z:2.6+Math.random()*2});
-        particle.setAttribute('animation__fall', `property: position; to: ${-0.7+1.4*Math.random()} 0.2 ${2.6+Math.random()*2}; dur:1200; easing:easeIn;`);
-        confetti.appendChild(particle);
-      }
-    }
-    function hideConfetti() {
-      let confetti = document.getElementById('confetti-group');
-      confetti.setAttribute('visible', false);
-      confetti.innerHTML = '';
-    }
-  </script>
 </a-scene>
 </body>
 </html>
