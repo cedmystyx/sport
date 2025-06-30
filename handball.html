@@ -70,24 +70,23 @@
     <a-asset-item id="main-3d-hand" src="hand/scene.gltf"></a-asset-item>
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
     <a-asset-item id="gymnasium" src="handball/scene.gltf"></a-asset-item>
+    <!-- Son d'ambiance désactivé car 403/404 sur pixabay, mieux vaut le retirer ou héberger sur ton dépôt
     <audio id="public" src="https://cdn.pixabay.com/audio/2022/11/16/audio_12e9c1f3c3.mp3"></audio>
+    -->
   </a-assets>
 
-  <!-- Terrain main handball -->
+  <!-- Terrain handball -->
   <a-entity gltf-model="handball/scene.gltf" position="41.9425 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
 
-  <!-- Ballon devant le joueur -->
+  <!-- Ballon devant le joueur (corrigé pour utiliser l'ID d'asset) -->
   <a-entity id="handball"
-    gltf-model="handball_1964/scene.gltf"
+    gltf-model="#handball-ball"
     position="41.9425 1 0.8"
     scale="0.009 0.009 0.009"
     dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
     grabbable
     shadow
     obb-collider="centerModel: true"></a-entity>
-
-  <!-- Ambiance sonore -->
-  <a-sound src="#public" position="41.9425 2 8" spatial="true" loop="true" volume="0.6" autoplay="true"></a-sound>
 
   <!-- Capsule joueur sur le terrain -->
   <a-entity id="rig"
@@ -96,20 +95,20 @@
     <a-entity id="camera" camera look-controls wasd-controls position="0 0 0"></a-entity>
     <!-- MAIN GAUCHE animée, taille contrôleur -->
     <a-entity id="leftHand"
-      hand-controls="hand: left; handModelStyle: custom; modelUrl: url(hand/scene.gltf)"
+      hand-controls="hand: left"
       shadow="cast: true"
       super-hands>
     </a-entity>
     <!-- MAIN DROITE animée, taille contrôleur -->
     <a-entity id="rightHand"
-      hand-controls="hand: right; handModelStyle: custom; modelUrl: url(hand/scene.gltf)"
+      hand-controls="hand: right"
       shadow="cast: true"
       super-hands>
     </a-entity>
   </a-entity>
 </a-scene>
 <script>
-  // Overlay façon XRBoxer (disparaît au clic)
+  // Overlay (disparaît au clic)
   document.getElementById('startBtn').onclick = function() {
     document.getElementById('handballOverlay').style.display = 'none';
   };
@@ -127,7 +126,10 @@
     // msgUi.textContent = goal ? "But !" : "";
   }
 </script>
+<!-- main.js supprimé car 404 (à remettre si tu en as besoin et le fichier existe) -->
+<!--
 <script src="main.js"></script>
+-->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"957c61c1ef88790c","version":"2025.6.2","r":1,"token":"2586e840c78446318f3189d53813868b","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}}}' crossorigin="anonymous"></script>
 </body>
 </html>
