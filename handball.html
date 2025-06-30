@@ -43,19 +43,15 @@
   <button class="handball-btn" id="startBtn">Jouer en VR ou PC</button>
   <div style="color:#fff;margin-top:1.5rem;font-size:1.2em;">Attrape le ballon, vise, tire et marque !</div>
 </div>
-<a-scene physics="gravity:-9.8;" background="color: #e5f6ff" loading-screen="enabled:false" shadow="type: pcfsoft">
+<a-scene physics="gravity:-9.8;" background="color: #e5f6ff" loading-screen="enabled:false">
   <a-assets>
-    <!-- Mets bien ces fichiers dans /sport/ ! -->
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
-    <a-asset-item id="gymnasium" src="handball/scene.gltf"></a-asset-item>
+    <!-- Ajoute ici d'autres assets si besoin -->
   </a-assets>
 
-  <!-- Terrain handball -->
-  <a-entity gltf-model="#gymnasium" position="0 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
-
-  <!-- Ballon devant le joueur (bien visible, pas dans le sol) -->
+  <!-- Ballon handball, comme demandé -->
   <a-entity id="handball"
-    gltf-model="#handball-ball"
+    gltf-model="handball_1964/scene.gltf"
     position="-0.22558 1 0.8"
     scale="0.009 0.009 0.009"
     dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
@@ -63,22 +59,32 @@
     shadow
     obb-collider="centerModel: true"></a-entity>
 
-  <!-- Capsule joueur sur le terrain, caméra tournée vers le ballon -->
-  <a-entity id="rig"
-    position="0.60286 1.7 0"
-    dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
-    <a-entity id="camera" camera look-controls wasd-controls rotation="-30 0 0"></a-entity>
-    <!-- MAIN GAUCHE animée, taille contrôleur (natif) -->
+  <!-- Rig du joueur, comme demandé -->
+  <a-entity id="rig" position="0.60286 1.7 0" dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
+    <a-entity id="camera" camera look-controls wasd-controls rotation="-30.02298846485515 -183.23190288283757 0"></a-entity>
+    <!-- MAIN GAUCHE animée, taille contrôleur -->
     <a-entity id="leftHand"
-      hand-controls="hand: left"
-      shadow="cast: true"
-      super-hands>
+      hand-controls
+      shadow
+      super-hands
+      magicleap-controls="hand: left; model: false"
+      vive-controls="model: false"
+      oculus-touch-controls="model: false"
+      pico-controls="hand: left; model: false"
+      windows-motion-controls="hand: left; model: false"
+      hp-mixed-reality-controls="hand: left; model: false">
     </a-entity>
-    <!-- MAIN DROITE animée, taille contrôleur (natif) -->
+    <!-- MAIN DROITE animée, taille contrôleur -->
     <a-entity id="rightHand"
       hand-controls="hand: right"
-      shadow="cast: true"
-      super-hands>
+      shadow
+      super-hands
+      magicleap-controls="hand: right; model: false"
+      vive-controls="hand: right; model: false"
+      oculus-touch-controls="hand: right; model: false"
+      pico-controls="hand: right; model: false"
+      windows-motion-controls="model: false"
+      hp-mixed-reality-controls="hand: right; model: false">
     </a-entity>
   </a-entity>
 </a-scene>
