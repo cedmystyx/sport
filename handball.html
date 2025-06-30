@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball Ultra VR - Modèles Custom</title>
+  <title>Handball Ultra VR - Ballon x10 plus petit, Mains Foot</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- A-Frame et modules -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
@@ -22,9 +22,11 @@
 <div class="score-ui" id="score-ui">Tirs : <span id="shots">0</span> | Buts : <span id="goals">0</span></div>
 <div class="msg-ui" id="msg-ui"></div>
 <div class="help-ui">
-  <b>Handball Ultra VR - Modèles personnalisés</b><br>
-  En VR : utilise tes contrôleurs pour viser, tirer, interagir.<br>
-  Le ballon est à l'échelle réelle, tu es sur le terrain (<b>0 0 0</b>).
+  <b>Handball Ultra VR</b><br>
+  Le ballon est 10x plus petit.<br>
+  Les mains sont inspirées du modèle utilisé dans <code>football.html</code> :<br>
+  elles suivent exactement les contrôleurs VR, sont à l’échelle des contrôleurs et bien orientées.<br>
+  Tu es placé sur le terrain (<b>0 0 0</b>).
 </div>
 <a-scene
   physics="gravity:-9.8;"
@@ -34,9 +36,9 @@
   shadow="type: pcfsoft">
 
   <a-assets>
-    <!-- Main 3D pour VR (doit être orientée Z vers l'avant dans Blender) -->
+    <!-- Main 3D pour VR, inspirée du modèle football.html (main réaliste, échelle 1, orientation Z avant) -->
     <a-asset-item id="main-3d-hand" src="hand/scene.gltf"></a-asset-item>
-    <!-- Ballon de handball, échelle réelle (~0.095m rayon ≈ 0.19m diamètre) -->
+    <!-- Ballon de handball, taille divisée par 10 -->
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
     <!-- Gymnase complet, positionné à 0 0 0 -->
     <a-asset-item id="gymnasium" src="handball/scene.gltf"></a-asset-item>
@@ -60,28 +62,32 @@
   <a-entity id="rig"
     position="0 1.7 0"
     dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
-    <a-entity id="camera" camera look-controls position="0 0 0"></a-entity>
-    <!-- Main droite VR -->
-    <a-entity id="rightHand"
+    <a-entity id="camera" camera look-controls wasd-controls position="0 0 0"></a-entity>
+    <!-- Main droite VR, inspirée football.html -->
+    <a-entity
+      id="rightHand"
       gltf-model="#main-3d-hand"
       scale="1 1 1"
-      tracked-controls="hand: right"
+      tracked-controls="hand: right; model: false"
       super-hands
-      shadow="cast: true"></a-entity>
-    <!-- Main gauche VR -->
-    <a-entity id="leftHand"
+      shadow="cast: true">
+    </a-entity>
+    <!-- Main gauche VR, inspirée football.html -->
+    <a-entity
+      id="leftHand"
       gltf-model="#main-3d-hand"
       scale="1 1 1"
-      tracked-controls="hand: left"
+      tracked-controls="hand: left; model: false"
       super-hands
-      shadow="cast: true"></a-entity>
+      shadow="cast: true">
+    </a-entity>
   </a-entity>
 
-  <!-- Ballon handball à l'échelle, posé devant toi (prise en main possible via super-hands) -->
+  <!-- Ballon handball 10x plus petit, posé devant toi (prise en main possible via super-hands) -->
   <a-entity id="handball"
     gltf-model="#handball-ball"
     position="0 1 0.6"
-    scale="0.19 0.19 0.19"
+    scale="0.019 0.019 0.019"
     dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
     grabbable
     shadow="cast: true"></a-entity>
@@ -93,7 +99,7 @@
   <a-box id="gardien" position="0 1 7" width="0.9" height="1.8" depth="0.35" color="#eaf05a" shadow></a-box>
 
   <script>
-    // Score & feedback UI
+    // Score & feedback UI (inchangé)
     let shots = 0, goals = 0;
     const shotsUi = document.getElementById('shots');
     const goalsUi = document.getElementById('goals');
@@ -106,7 +112,7 @@
       document.getElementById('scoreboard').setAttribute('text', 'value', `TIRS : ${shots} | BUTS : ${goals}`);
     }
 
-    // Confettis effet (facultatif)
+    // Confettis effet (inchangé)
     function showConfetti() {
       let confetti = document.getElementById('confetti-group');
       confetti.innerHTML = '';
