@@ -2,7 +2,6 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <!-- HTML Meta Tags -->
   <title>Handball Ultra VR</title>
   <meta name="description" content="Handball VR immersif. Attrape le ballon, marque des buts, bats tes records. Expérience optimisée VR.">
 
@@ -11,7 +10,8 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Handball Ultra VR">
   <meta property="og:description" content="Handball VR immersif. Attrape le ballon, marque des buts, bats tes records. Expérience optimisée VR.">
-  <meta property="og:image" content="./handball_logo_og.png">
+  <!-- Pour éviter l'erreur 404, remplace ce fichier par un logo existant ou retire la ligne si tu n'en as pas -->
+  <!-- <meta property="og:image" content="handball_logo_og.png"> -->
 
   <!-- Twitter Meta Tags -->
   <meta name="twitter:card" content="summary_large_image">
@@ -19,10 +19,11 @@
   <meta property="twitter:url" content="https://cedmystyx.github.io/sport/handball.html">
   <meta name="twitter:title" content="Handball Ultra VR">
   <meta name="twitter:description" content="Handball VR immersif. Attrape le ballon, marque des buts, bats tes records. Expérience optimisée VR.">
-  <meta name="twitter:image" content="./handball_logo_og.png">
+  <!-- <meta name="twitter:image" content="handball_logo_og.png"> -->
 
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="manifest" href="manifest.webmanifest" />
+  <!-- Pour éviter 404, retire ou remplace si tu n'as pas ces fichiers -->
+  <!-- <link rel="icon" type="image/png" href="favicon.png"> -->
+  <!-- <link rel="manifest" href="manifest.webmanifest" /> -->
   <link href="https://fonts.googleapis.com/css?family=Kameron" rel="stylesheet">
 
   <!-- A-Frame et modules -->
@@ -61,22 +62,20 @@
 <div class="score-ui" id="score-ui">Ballons : <span id="shots">0</span> | Buts : <span id="goals">0</span></div>
 <div class="msg-ui" id="msg-ui"></div>
 <div id="handballOverlay" class="handball-overlay">
-  <img src="./handball_logo_og.png" alt="Handball Ultra VR" style="width:120px;margin-bottom:2rem;border-radius:50%;">
+  <!-- <img src="handball_logo_og.png" alt="Handball Ultra VR" style="width:120px;margin-bottom:2rem;border-radius:50%;"> -->
   <button class="handball-btn" id="startBtn">Jouer en VR ou PC</button>
   <div style="color:#fff;margin-top:1.5rem;font-size:1.2em;">Attrape le ballon, vise, tire et marque !</div>
 </div>
 <a-scene physics="gravity:-9.8;" background="color: #e5f6ff" loading-screen="enabled:false" shadow="type: pcfsoft">
   <a-assets>
+    <!-- Utilise ces assets UNIQUEMENT si tu as les fichiers correspondants dans /sport/ -->
     <a-asset-item id="main-3d-hand" src="hand/scene.gltf"></a-asset-item>
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
     <a-asset-item id="gymnasium" src="handball/scene.gltf"></a-asset-item>
-    <!-- Son d'ambiance désactivé car 403/404 sur pixabay, mieux vaut le retirer ou héberger sur ton dépôt
-    <audio id="public" src="https://cdn.pixabay.com/audio/2022/11/16/audio_12e9c1f3c3.mp3"></audio>
-    -->
   </a-assets>
 
   <!-- Terrain handball -->
-  <a-entity gltf-model="handball/scene.gltf" position="41.9425 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
+  <a-entity gltf-model="#gymnasium" position="41.9425 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
 
   <!-- Ballon devant le joueur (corrigé pour utiliser l'ID d'asset) -->
   <a-entity id="handball"
@@ -126,10 +125,6 @@
     // msgUi.textContent = goal ? "But !" : "";
   }
 </script>
-<!-- main.js supprimé car 404 (à remettre si tu en as besoin et le fichier existe) -->
-<!--
-<script src="main.js"></script>
--->
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"957c61c1ef88790c","version":"2025.6.2","r":1,"token":"2586e840c78446318f3189d53813868b","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}}}' crossorigin="anonymous"></script>
+<!-- Cloudflare beacon supprimé pour éviter POST 405 -->
 </body>
 </html>
