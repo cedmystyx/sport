@@ -1,38 +1,71 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Handball Ultra VR - Correction Position et Mains</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <!-- HTML Meta Tags -->
+  <title>Handball Ultra VR</title>
+  <meta name="description" content="Handball VR immersif. Attrape le ballon, marque des buts, bats tes records. Expérience optimisée VR.">
+
+  <!-- Facebook Meta Tags -->
+  <meta property="og:url" content="https://cedmystyx.github.io/sport/handball.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Handball Ultra VR">
+  <meta property="og:description" content="Handball VR immersif. Attrape le ballon, marque des buts, bats tes records. Expérience optimisée VR.">
+  <meta property="og:image" content="./handball_logo_og.png">
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:domain" content="cedmystyx.github.io">
+  <meta property="twitter:url" content="https://cedmystyx.github.io/sport/handball.html">
+  <meta name="twitter:title" content="Handball Ultra VR">
+  <meta name="twitter:description" content="Handball VR immersif. Attrape le ballon, marque des buts, bats tes records. Expérience optimisée VR.">
+  <meta name="twitter:image" content="./handball_logo_og.png">
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link href="https://fonts.googleapis.com/css?family=Kameron" rel="stylesheet">
+
+  <!-- A-Frame et modules -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-animation-component@6.0.0/dist/aframe-animation-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.controls.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-post-processing-component@2.0.3/dist/aframe-post-processing-component.min.js"></script>
   <style>
-    body {margin:0;}
-    .score-ui {position: absolute; top:24px; right:24px; background:#fff9; color:#0a3a74; font-family:'Segoe UI',Arial,sans-serif; font-size:1.2em; border-radius:10px; box-shadow:0 2px 10px #0002; padding:0.7em 1.6em; z-index:10002; pointer-events:none; user-select:none; text-align:right;}
-    .msg-ui {position:absolute;left:0;right:0;top:80px;text-align:center;z-index:10010;font-family:Impact,Arial,sans-serif;font-size:2em;letter-spacing:0.05em;color:#e63946;text-shadow:0 2px 20px #fff,0 0 30px #e63946aa;}
-    .help-ui {position:absolute;left:24px;bottom:24px;z-index:10001;font-family:'Segoe UI',Arial,sans-serif;background:#fff8;border-radius:13px;box-shadow:0 2px 16px #00335511;padding:1em 2em;color:#184e77;font-size:1.09em;pointer-events:none;user-select:none;line-height:1.42em;}
+    body {margin:0;background:#e5f6ff;}
+    .handball-overlay {
+      position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:10000;
+      display:flex;align-items:center;justify-content:center;
+      background:rgba(0,23,50,0.7);
+      flex-direction:column;
+    }
+    .handball-btn {
+      font-family:'Kameron',Arial,sans-serif;font-size:2rem;padding:1em 2em;
+      border-radius:1em;background:#1e90ff;color:white;border:none;
+      box-shadow:0 2px 12px #0005;cursor:pointer;transition:background 0.2s;
+    }
+    .handball-btn:hover {background:#155fa0;}
+    .score-ui {
+      position: absolute; top:32px; right:32px; background:#fff9; color:#0a3a74;
+      font-family:'Kameron',Arial,sans-serif; font-size:1.4em; border-radius:12px;
+      box-shadow:0 2px 10px #0002; padding:0.8em 1.8em; z-index:1002; pointer-events:none; user-select:none;
+    }
+    .msg-ui {
+      position:absolute;left:0;right:0;top:90px;text-align:center;z-index:1010;
+      font-family:Impact,Arial,sans-serif;font-size:2em;letter-spacing:0.05em;
+      color:#e63946;text-shadow:0 2px 20px #fff,0 0 30px #e63946aa;
+    }
   </style>
 </head>
 <body>
-<div class="score-ui" id="score-ui">Tirs : <span id="shots">0</span> | Buts : <span id="goals">0</span></div>
+<div class="score-ui" id="score-ui">Ballons : <span id="shots">0</span> | Buts : <span id="goals">0</span></div>
 <div class="msg-ui" id="msg-ui"></div>
-<div class="help-ui">
-  <b>Handball Ultra VR</b><br>
-  Terrain à <b>41.9425 0 0</b>.<br>
-  Ballon très petit <code>scale="0.009 0.009 0.009"</code>.<br>
-  Mains VR = ton modèle animé, taille contrôleur et animations natives WebXR (poignet, doigts, index...).<br>
+<div id="handballOverlay" class="handball-overlay">
+  <img src="./handball_logo_og.png" alt="Handball Ultra VR" style="width:120px;margin-bottom:2rem;border-radius:50%;">
+  <button class="handball-btn" id="startBtn">Jouer en VR ou PC</button>
+  <div style="color:#fff;margin-top:1.5rem;font-size:1.2em;">Attrape le ballon, vise, tire et marque !</div>
 </div>
-<a-scene
-  physics="gravity:-9.8;"
-  post-processing="bloom: true; bloomStrength: 0.25; bloomThreshold: 0.8; bloomRadius: 0.5; ssao: true; ssaoRadius: 18; ssaoIntensity: 0.08"
-  background="color: #e5f6ff"
-  loading-screen="enabled:false"
-  shadow="type: pcfsoft">
-
+<a-scene physics="gravity:-9.8;" background="color: #e5f6ff" loading-screen="enabled:false" shadow="type: pcfsoft">
   <a-assets>
     <a-asset-item id="main-3d-hand" src="hand/scene.gltf"></a-asset-item>
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
@@ -40,34 +73,34 @@
     <audio id="public" src="https://cdn.pixabay.com/audio/2022/11/16/audio_12e9c1f3c3.mp3"></audio>
   </a-assets>
 
-  <!-- Terrain à la bonne position -->
+  <!-- Terrain main handball -->
   <a-entity gltf-model="handball/scene.gltf" position="41.9425 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
 
-  <!-- Ballon très petit, bien placé devant le joueur -->
+  <!-- Ballon devant le joueur -->
   <a-entity id="handball"
     gltf-model="handball_1964/scene.gltf"
-    position="41.9425 1 0.6"
+    position="41.9425 1 0.8"
     scale="0.009 0.009 0.009"
     dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
     grabbable
     shadow
     obb-collider="centerModel: true"></a-entity>
 
-  <!-- Sons d'ambiance -->
+  <!-- Ambiance sonore -->
   <a-sound src="#public" position="41.9425 2 8" spatial="true" loop="true" volume="0.6" autoplay="true"></a-sound>
 
-  <!-- Capsule collider joueur (caméra) POSITIONNÉ SUR LE TERRAIN -->
+  <!-- Capsule joueur sur le terrain -->
   <a-entity id="rig"
     position="41.9425 1.7 0"
     dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
     <a-entity id="camera" camera look-controls wasd-controls position="0 0 0"></a-entity>
-    <!-- MAIN GAUCHE VR animée, taille contrôleur -->
+    <!-- MAIN GAUCHE animée, taille contrôleur -->
     <a-entity id="leftHand"
       hand-controls="hand: left; handModelStyle: custom; modelUrl: url(hand/scene.gltf)"
       shadow="cast: true"
       super-hands>
     </a-entity>
-    <!-- MAIN DROITE VR animée, taille contrôleur -->
+    <!-- MAIN DROITE animée, taille contrôleur -->
     <a-entity id="rightHand"
       hand-controls="hand: right; handModelStyle: custom; modelUrl: url(hand/scene.gltf)"
       shadow="cast: true"
@@ -75,5 +108,26 @@
     </a-entity>
   </a-entity>
 </a-scene>
+<script>
+  // Overlay façon XRBoxer (disparaît au clic)
+  document.getElementById('startBtn').onclick = function() {
+    document.getElementById('handballOverlay').style.display = 'none';
+  };
+
+  // Score UI simple (exemple)
+  let shots = 0, goals = 0;
+  const shotsUi = document.getElementById('shots');
+  const goalsUi = document.getElementById('goals');
+  const msgUi = document.getElementById('msg-ui');
+  function updateScore(goal) {
+    shots++;
+    if(goal) goals++;
+    shotsUi.textContent = shots;
+    goalsUi.textContent = goals;
+    // msgUi.textContent = goal ? "But !" : "";
+  }
+</script>
+<script src="main.js"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"957c61c1ef88790c","version":"2025.6.2","r":1,"token":"2586e840c78446318f3189d53813868b","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}}}' crossorigin="anonymous"></script>
 </body>
 </html>
