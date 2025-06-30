@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball Ultra VR - Ballon x3 plus petit, Mains Custom Style Foot</title>
+  <title>Handball Ultra VR - Terrain décalé, Ballon très petit, Mains Custom</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- A-Frame et modules -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
@@ -23,9 +23,9 @@
 <div class="msg-ui" id="msg-ui"></div>
 <div class="help-ui">
   <b>Handball Ultra VR</b><br>
-  Le ballon est 3x plus petit.<br>
-  Les mains utilisent le modèle 3D custom mais gardent la structure des contrôles et composants de <code>football.html</code>, avec ray, ligne et téléportation.<br>
-  Tu es placé sur le terrain (<b>0 0 0</b>).
+  Terrain décalé à <b>41.9425 0 0</b>.<br>
+  Ballon très petit (<code>scale="0.009 0.009 0.009"</code>).<br>
+  Mains VR avec modèle custom, ray, ligne et téléportation.<br>
 </div>
 <a-scene
   physics="gravity:-9.8;"
@@ -37,9 +37,9 @@
   <a-assets>
     <!-- Main 3D pour VR (ton modèle, orienté Z avant) -->
     <a-asset-item id="main-3d-hand" src="hand/scene.gltf"></a-asset-item>
-    <!-- Ballon de handball, taille divisée par 3 -->
+    <!-- Ballon de handball, taille très petite -->
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
-    <!-- Gymnase complet, positionné à 0 0 0 -->
+    <!-- Gymnase complet (terrain), positionné à 41.9425 0 0 -->
     <a-asset-item id="gymnasium" src="handball/scene.gltf"></a-asset-item>
     <!-- Sons immersifs -->
     <audio id="goal-sound" src="https://cdn.pixabay.com/audio/2022/05/17/audio_126b8e6e53.mp3" preload="auto"></audio>
@@ -48,8 +48,18 @@
     <audio id="confetti" src="https://cdn.pixabay.com/audio/2022/07/26/audio_1232a6e304.mp3"></audio>
   </a-assets>
 
-  <!-- Gymnase 3D positionné à 0 0 0 -->
-  <a-entity gltf-model="#gymnasium" position="0 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
+  <!-- Gymnase (terrain) positionné à 41.9425 0 0 -->
+  <a-entity gltf-model="#gymnasium" position="41.9425 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
+
+  <!-- Ballon très petit, à portée du joueur -->
+  <a-entity id="handball"
+    gltf-model="#handball-ball"
+    position="0 1 0.6"
+    scale="0.009 0.009 0.009"
+    dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
+    grabbable
+    shadow
+    obb-collider="centerModel: true"></a-entity>
 
   <!-- Sons d'ambiance -->
   <a-sound src="#public" position="0 2 8" spatial="true" loop="true" volume="0.6" autoplay="true"></a-sound>
@@ -72,8 +82,6 @@
       super-hands
     >
       <a-entity gltf-model="#main-3d-hand" scale="1 1 1"></a-entity>
-      <!-- Cube repère style foot si tu veux, sinon retire cette ligne -->
-      <!-- <a-box width="0.045" height="0.045" depth="0.009" color="#228b22" position="0 0.06 0.035"></a-box> -->
     </a-entity>
     <!-- MAIN DROITE VR avec modèle et contrôles inspirés football.html -->
     <a-entity id="rightHand"
@@ -85,18 +93,8 @@
       super-hands
     >
       <a-entity gltf-model="#main-3d-hand" scale="1 1 1"></a-entity>
-      <!-- <a-box width="0.045" height="0.045" depth="0.009" color="#228b22" position="0 0.06 0.035"></a-box> -->
     </a-entity>
   </a-entity>
-
-  <!-- Ballon handball 3x plus petit, posé devant toi (prise en main possible via super-hands) -->
-  <a-entity id="handball"
-    gltf-model="#handball-ball"
-    position="0 1 0.6"
-    scale="0.063 0.063 0.063"
-    dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
-    grabbable
-    shadow="cast: true"></a-entity>
 
   <!-- Confettis -->
   <a-entity id="confetti-group" visible="false"></a-entity>
