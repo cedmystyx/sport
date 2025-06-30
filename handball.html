@@ -2,9 +2,8 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball VR - Jeu Officiel Immersif</title>
+  <title>Handball VR - Salle Immersive</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Scripts compatibles -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
@@ -36,46 +35,53 @@
     <img id="parquet" src="https://cdn.aframe.io/a-painter/images/floor.jpg">
     <img id="filet" src="https://cdn.pixabay.com/photo/2017/09/06/19/54/net-2726429_1280.png">
     <img id="tribune" src="https://cdn.pixabay.com/photo/2016/11/29/04/17/audience-1866738_1280.jpg">
-    <img id="sky" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg">
+    <img id="sky" src="https://cdn.pixabay.com/photo/2018/10/30/21/25/sports-3788986_1280.jpg">
     <img id="balltex" src="https://cdn.pixabay.com/photo/2017/01/30/22/50/handball-2023531_1280.jpg">
     <audio id="applaud" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b0e6db1.mp3" preload="auto"></audio>
     <audio id="goal" src="https://cdn.pixabay.com/audio/2022/05/17/audio_126b8e6e53.mp3" preload="auto"></audio>
-    <a-asset-item id="fond-obj" src="resources/objects/fond.obj"></a-asset-item>
   </a-assets>
 
-  <!-- OBJ décor -->
-  <a-entity obj-model="obj: resources/objects/fond.obj"
-            position="-34.47695 113.66056 449.313"
-            scale="10 10 10"
-            material="color: #3d3d3d"
-            shadow=""
-            rotation="90 0 0">
-  </a-entity>
+  <!-- Ambiance gymnase immersive -->
+  <a-sky src="#sky"></a-sky>
+  <a-light type="ambient" color="#fff" intensity="1.1"></a-light>
+  <a-light type="spot" color="#fffde2" intensity="0.6" position="0 7 0"
+    angle="25" penumbra="0.7" target="#handball"
+    animation="property: angle; dir: alternate; from: 23; to: 27; dur: 2100; loop: true"></a-light>
+  <a-light type="directional" color="#e6eafc" intensity="0.32" position="0 14 6" target="0 0 0"></a-light>
 
-  <!-- Bande de profondeur et sol autour du terrain -->
-  <a-box position="0 0.06 0" width="20" height="0.03" depth="34" color="#B0BEC5" opacity="0.16"></a-box>
-  <a-ring position="0 0.07 0" rotation="-90 0 0" radius-inner="7.2" radius-outer="9.7" color="#90caf9" opacity="0.15"></a-ring>
-  <a-ring position="0 0.07 0" rotation="-90 0 0" radius-inner="9.8" radius-outer="10.4" color="#fff" opacity="0.09"></a-ring>
-  <a-plane position="0 0.058 0" rotation="-90 0 0" width="20" height="34" src="#parquet" repeat="4 8" opacity="0.22"></a-plane>
+  <!-- Prolongation du sol, bande de sécurité, profondeur -->
+  <a-box position="0 0.06 0" width="20" height="0.03" depth="34" color="#a6b2bb" opacity="0.17"></a-box>
+  <a-ring position="0 0.07 0" rotation="-90 0 0" radius-inner="7.2" radius-outer="9.7" color="#90caf9" opacity="0.11"></a-ring>
+  <a-ring position="0 0.07 0" rotation="-90 0 0" radius-inner="9.8" radius-outer="10.4" color="#fff" opacity="0.07"></a-ring>
+  <a-plane position="0 0.058 0" rotation="-90 0 0" width="20" height="34" src="#parquet" repeat="4 8" opacity="0.15"></a-plane>
 
-  <!-- Barrières physiques transparentes et modernes autour du terrain -->
-  <a-box position="0 0.55 15.8" width="14.8" height="1.1" depth="0.12" color="#e0e0e0" opacity="0.7" static-body></a-box>
-  <a-box position="0 0.55 -15.8" width="14.8" height="1.1" depth="0.12" color="#e0e0e0" opacity="0.7" static-body></a-box>
-  <a-box position="7.6 0.55 0" width="0.12" height="1.1" depth="30.8" color="#e0e0e0" opacity="0.7" static-body></a-box>
-  <a-box position="-7.6 0.55 0" width="0.12" height="1.1" depth="30.8" color="#e0e0e0" opacity="0.7" static-body></a-box>
-  <!-- Coins arrondis pour esthétique gymnase -->
-  <a-cylinder position="7.6 0.55 15.8" radius="0.12" height="1.1" color="#e0e0e0" opacity="0.7" segments-radial="12" static-body></a-cylinder>
-  <a-cylinder position="-7.6 0.55 15.8" radius="0.12" height="1.1" color="#e0e0e0" opacity="0.7" segments-radial="12" static-body></a-cylinder>
-  <a-cylinder position="7.6 0.55 -15.8" radius="0.12" height="1.1" color="#e0e0e0" opacity="0.7" segments-radial="12" static-body></a-cylinder>
-  <a-cylinder position="-7.6 0.55 -15.8" radius="0.12" height="1.1" color="#e0e0e0" opacity="0.7" segments-radial="12" static-body></a-cylinder>
-  <!-- Poteaux de sécurité (option, immersion gymnase) -->
+  <!-- Barrières physiques plexi avec reflets -->
+  <a-box position="0 0.55 15.8" width="14.8" height="1.1" depth="0.12"
+         color="#c9e4ff" opacity="0.81" metalness="0.38" roughness="0.24" static-body></a-box>
+  <a-box position="0 0.55 -15.8" width="14.8" height="1.1" depth="0.12"
+         color="#c9e4ff" opacity="0.81" metalness="0.38" roughness="0.24" static-body></a-box>
+  <a-box position="7.6 0.55 0" width="0.12" height="1.1" depth="30.8"
+         color="#c9e4ff" opacity="0.81" metalness="0.38" roughness="0.24" static-body></a-box>
+  <a-box position="-7.6 0.55 0" width="0.12" height="1.1" depth="30.8"
+         color="#c9e4ff" opacity="0.81" metalness="0.38" roughness="0.24" static-body></a-box>
+  <!-- Coins arrondis (visuel et physique) -->
+  <a-cylinder position="7.6 0.55 15.8" radius="0.12" height="1.1" color="#c9e4ff" opacity="0.81" segments-radial="12" metalness="0.38" roughness="0.24" static-body></a-cylinder>
+  <a-cylinder position="-7.6 0.55 15.8" radius="0.12" height="1.1" color="#c9e4ff" opacity="0.81" segments-radial="12" metalness="0.38" roughness="0.24" static-body></a-cylinder>
+  <a-cylinder position="7.6 0.55 -15.8" radius="0.12" height="1.1" color="#c9e4ff" opacity="0.81" segments-radial="12" metalness="0.38" roughness="0.24" static-body></a-cylinder>
+  <a-cylinder position="-7.6 0.55 -15.8" radius="0.12" height="1.1" color="#c9e4ff" opacity="0.81" segments-radial="12" metalness="0.38" roughness="0.24" static-body></a-cylinder>
+  <!-- Poteaux de sécurité (pour immersion gymnase) -->
   <a-cylinder position="6.5 1.2 15.8" radius="0.05" height="2.2" color="#607d8b" opacity="0.7" static-body></a-cylinder>
   <a-cylinder position="-6.5 1.2 15.8" radius="0.05" height="2.2" color="#607d8b" opacity="0.7" static-body></a-cylinder>
   <a-cylinder position="6.5 1.2 -15.8" radius="0.05" height="2.2" color="#607d8b" opacity="0.7" static-body></a-cylinder>
   <a-cylinder position="-6.5 1.2 -15.8" radius="0.05" height="2.2" color="#607d8b" opacity="0.7" static-body></a-cylinder>
 
-  <!-- Terrain, lignes fixes, zones (identique à avant) -->
-  <a-box position="0 0 0" width="14" height="0.12" depth="28" src="#parquet" color="#efd6a2" static-body></a-box>
+  <!-- Sol parquet HD (avec éventuellement normalMap si tu en as une) -->
+  <a-box position="0 0 0" width="14" height="0.12" depth="28" src="#parquet" color="#efd6a2"
+         repeat="2 4"
+         metalness="0.15" roughness="0.24"
+         static-body></a-box>
+
+  <!-- Lignes, zones et marquages -->
   <a-box position="0 0.071 0" width="14" height="0.018" depth="0.18" color="#fff"></a-box>
   <a-box position="0 0.071 14" width="14" height="0.02" depth="0.18" color="#fff"></a-box>
   <a-box position="0 0.071 -14" width="14" height="0.02" depth="0.18" color="#fff"></a-box>
@@ -115,7 +121,7 @@
     animation="property: rotation.z; dir: alternate; from: 0; to: -2; dur: 1100; loop: true; easing: easeInOutSine"></a-plane>
   <a-box id="goal-trigger-south" position="0 1 -13.81" width="2.6" height="1.75" depth="0.1" opacity="0" visible="false" static-body></a-box>
 
-  <!-- Tribunes animées (identique à avant) -->
+  <!-- Tribunes animées -->
   <a-plane position="0 2.7 15.4" width="14" height="5" src="#tribune"
     animation="property: position.x; dir: alternate; from: -0.1; to: 0.1; loop: true; dur: 3000"></a-plane>
   <a-plane position="0 2.7 -15.4" width="14" height="5" src="#tribune"
@@ -124,9 +130,6 @@
     animation="property: position.z; dir: alternate; from: 0.05; to: -0.05; loop: true; dur: 2700"></a-plane>
   <a-plane position="-7.3 2.7 0" width="5" height="5" src="#tribune"
     animation="property: position.z; dir: alternate; from: -0.05; to: 0.05; loop: true; dur: 2750"></a-plane>
-
-  <!-- Skybox -->
-  <a-sky src="#sky"></a-sky>
 
   <!-- Scoreboard -->
   <a-box position="0 3.11 11.2" width="2.8" height="0.7" depth="0.15" color="#fff8"
@@ -139,8 +142,11 @@
     dynamic-body="mass: 0.36; linearDamping:0.07; angularDamping:0.13; restitution:0.81; friction:0.33"
     super-hands handball-interaction shadow></a-sphere>
 
-  <!-- Joueur (caméra + mains VR/PC) -->
-  <a-entity id="rig" movement-controls kinematic-body position="0 1.6 -7">
+  <!-- Joueur (caméra + mains VR/PC) avec capsule collider pour collisions réelles -->
+  <a-entity id="rig"
+    movement-controls
+    dynamic-body="mass: 1; shape: capsule; height: 1.6; radius: 0.3;"
+    position="0 1.6 -7">
     <a-entity id="camera" camera look-controls wasd-controls="acceleration:20" position="0 0 0"></a-entity>
     <a-entity id="leftHand"
               hand-controls="hand: left; handModelStyle: highPoly; color: #e5b285"
@@ -158,13 +164,6 @@
   <a-cylinder id="gardien" position="0 1 13.3" radius="0.32" height="1.8" color="#eaf05a" segments-radial="6"></a-cylinder>
   <!-- Bots adverses -->
   <a-entity id="bots"></a-entity>
-
-  <!-- Lumières dynamiques -->
-  <a-light type="ambient" color="#fff" intensity="1.0"></a-light>
-  <a-light type="directional" color="#fffbe8" intensity="0.7" position="0 8 9"
-    animation="property: position.x; from: -2; to: 2; dir: alternate; dur: 3500; loop: true"></a-light>
-  <a-light type="spot" color="#fff4d1" intensity="0.6" position="0 7 0"
-    animation="property: angle; dir: alternate; from: 18; to: 22; dur: 2100; loop: true"></a-light>
 
   <!-- Ambiance sonore -->
   <audio id="ambiance-audio" src="https://cdn.pixabay.com/audio/2022/11/16/audio_12e9c1f3c3.mp3" autoplay loop></audio>
@@ -315,7 +314,6 @@
             this.pass();
           }
         });
-        // Pour VR, tu peux ajouter le support boutons via events hand-controls/super-hands
       },
       tick: function() {
         if (this.held) {
