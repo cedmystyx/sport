@@ -111,26 +111,92 @@
   <div class="handball-title">Handball Ultra VR</div>
   <button class="handball-btn" id="startBtn">Jouer en VR ou PC</button>
   <div class="handball-desc">Attrape le ballon avec tes mains, vise, tire et marque !<br>
-    <span style="font-size:.9em;opacity:0.7;">Compatible VR et PC &mdash; Jouabilité immersive &mdash; Terrain réaliste</span>
+    <span style="font-size:.9em;opacity:0.7;">Compatible VR et PC &mdash; Jouabilité immersive &mdash; Terrain généré en 3D</span>
   </div>
 </div>
 <a-scene physics="gravity:-9.8;" loading-screen="enabled:false">
   <a-assets>
-    <a-asset-item id="terrain" src="handball/scene.gltf"></a-asset-item>
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
-    <img id="gym-sky" src="stock-photo-minsk-belarus-july-panorama-in-interior-modern-gymnasium-basketball-court-full-by-744512341.jpg" crossorigin="anonymous">
   </a-assets>
 
-  <!-- Skydome synchronisé avec le joueur -->
-  <a-entity id="skydome"
-    geometry="primitive: sphere; radius: 5000"
-    material="shader: flat; src: #gym-sky; side: back"
-    scale="-1 1 1"
-    position="0 0 0"
-    follow-player></a-entity>
-
-  <!-- Terrain handball -->
-  <a-entity gltf-model="handball/scene.gltf" position="41.74188 0 0" shadow="receive: true"></a-entity>
+  <!-- Terrain de handball généré en 3D -->
+  <!-- Sol -->
+  <a-plane width="20" height="40" color="#eab676" position="41.74188 0 0" rotation="-90 0 0" shadow="receive:true"></a-plane>
+  <!-- Lignes principales terrain -->
+  <!-- Ligne centrale -->
+  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05"
+            material="color: #fff"
+            position="41.74188 0.026 0"></a-entity>
+  <!-- Lignes de but (avant/arrière) -->
+  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05"
+            material="color: #fff"
+            position="41.74188 0.026 -19.95"></a-entity>
+  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05"
+            material="color: #fff"
+            position="41.74188 0.026 19.95"></a-entity>
+  <!-- Lignes de touche latérales gauche/droite -->
+  <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40"
+            material="color: #fff"
+            position="37.74188 0.026 0"></a-entity>
+  <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40"
+            material="color: #fff"
+            position="45.74188 0.026 0"></a-entity>
+  <!-- 9m arcs (surface de but) -->
+  <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32"
+           position="41.74188 0.031 -10.95" rotation="-90 0 0"
+           material="color: #fff;"></a-torus>
+  <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32"
+           position="41.74188 0.031 10.95" rotation="-90 180 0"
+           material="color: #fff;"></a-torus>
+  <!-- 6m arcs (petite surface) -->
+  <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32"
+           position="41.74188 0.031 -13.95" rotation="-90 0 0"
+           material="color: #fff;"></a-torus>
+  <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32"
+           position="41.74188 0.031 13.95" rotation="-90 180 0"
+           material="color: #fff;"></a-torus>
+  <!-- points de penalty -->
+  <a-cylinder radius="0.15" height="0.05" color="#fff" position="41.74188 0.031 -16.45"></a-cylinder>
+  <a-cylinder radius="0.15" height="0.05" color="#fff" position="41.74188 0.031 16.45"></a-cylinder>
+  <!-- Buts -->
+  <!-- But avant -->
+  <a-box width="3" height="2" depth="0.12" color="#e63c3c" position="41.74188 1 -20.06" material="metalness:0.7; roughness:0.18;" shadow="cast:true"></a-box>
+  <!-- Barres latérales but avant -->
+  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="40.24188 1 -20.06" shadow></a-box>
+  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="43.24188 1 -20.06" shadow></a-box>
+  <!-- Transversale but avant -->
+  <a-box width="3" height="0.12" depth="0.12" color="#e63c3c" position="41.74188 2 -20.06" shadow></a-box>
+  <!-- Filet du but avant -->
+  <a-entity geometry="primitive: box; width: 3; height: 2; depth: 0.18"
+            material="color: #fff; opacity: 0.39; side: double"
+            position="41.74188 1 -20.15" ></a-entity>
+  <!-- But arrière -->
+  <a-box width="3" height="2" depth="0.12" color="#0f82ff" position="41.74188 1 20.06" material="metalness:0.7; roughness:0.18;" shadow="cast:true"></a-box>
+  <!-- Barres latérales but arrière -->
+  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="40.24188 1 20.06" shadow></a-box>
+  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="43.24188 1 20.06" shadow></a-box>
+  <!-- Transversale but arrière -->
+  <a-box width="3" height="0.12" depth="0.12" color="#0f82ff" position="41.74188 2 20.06" shadow></a-box>
+  <!-- Filet du but arrière -->
+  <a-entity geometry="primitive: box; width: 3; height: 2; depth: 0.18"
+            material="color: #fff; opacity: 0.39; side: double"
+            position="41.74188 1 20.15" ></a-entity>
+  <!-- Tribunes (simples, suggestion visuelle) -->
+  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="41.74188 1.4 -22.7" material="opacity:0.8;"></a-box>
+  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="41.74188 1.4 22.7" material="opacity:0.8;"></a-box>
+  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="35.74188 1.4 0" material="opacity:0.8;"></a-box>
+  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="47.74188 1.4 0" material="opacity:0.8;"></a-box>
+  <!-- Gradins colorés -->
+  <a-box width="10" height="0.5" depth="1" color="#d0a547" position="41.74188 0.25 -23.4"></a-box>
+  <a-box width="10" height="0.5" depth="1" color="#d0a547" position="41.74188 0.25 23.4"></a-box>
+  <a-box width="1" height="0.5" depth="45" color="#d0a547" position="34.99188 0.25 0"></a-box>
+  <a-box width="1" height="0.5" depth="45" color="#d0a547" position="48.49188 0.25 0"></a-box>
+  <!-- Lumières réalistes -->
+  <a-entity light="type: ambient; intensity: 0.38; color: #dbeafe"></a-entity>
+  <a-entity light="type: directional; intensity: 0.99; castShadow: true; shadowMapHeight:2048; shadowMapWidth:2048; color:#fff"
+    position="41.7 17 17"></a-entity>
+  <a-entity light="type: spot; intensity: 0.12; color: #ffe066; angle:30; penumbra:0.2; distance:50"
+    position="41.7 12 0"></a-entity>
 
   <!-- Ballon handball -->
   <a-entity id="handball"
@@ -178,13 +244,6 @@
       material="color:#ffc107;metalness:0.4;roughness:0.3;"
       ></a-entity>
   </a-entity>
-
-  <!-- Quelques effets de lumière pour plus de réalisme -->
-  <a-entity light="type: ambient; intensity: 0.45; color: #dbeafe"></a-entity>
-  <a-entity light="type: directional; intensity: 0.90; castShadow: true; shadowMapHeight:2048; shadowMapWidth:2048; color:#fff"
-    position="40 25 15"
-    target="#terrain"></a-entity>
-  <a-entity light="type: point; intensity: 0.18; distance: 120; color: #1e90ff" position="41.5 5 3"></a-entity>
 </a-scene>
 <script>
   // Overlay (disparaît au clic)
@@ -204,17 +263,6 @@
     document.getElementById('msg-ui').textContent = goal ? "But ! 🥅🏐" : "";
     setTimeout(()=>{document.getElementById('msg-ui').textContent = "";}, 1800);
   }
-
-  // Composant pour synchroniser le skydome avec le joueur
-  AFRAME.registerComponent('follow-player', {
-    tick: function () {
-      var rig = document.querySelector('#rig') || document.querySelector('[camera]');
-      if (rig) {
-        var pos = rig.object3D.position;
-        this.el.object3D.position.set(pos.x, pos.y, pos.z);
-      }
-    }
-  });
 </script>
 </body>
 </html>
