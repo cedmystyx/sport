@@ -4,50 +4,120 @@
   <meta charset="utf-8">
   <title>Handball Ultra VR</title>
   <meta name="description" content="Handball VR immersif. Attrape le ballon, marque des buts, bats tes records. Expérience optimisée VR.">
-  <link href="https://fonts.googleapis.com/css?family=Kameron" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Kameron:700|Orbitron:900|Montserrat:400,700&display=swap" rel="stylesheet">
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-animation-component@6.0.0/dist/aframe-animation-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.controls.min.js"></script>
   <style>
-    body {margin:0;background:#e5f6ff;}
+    body {
+      margin:0;
+      background:radial-gradient(ellipse at 50% 30%, #e5f6ff 40%, #b3d0ee 100%);
+      font-family:'Montserrat',Arial,sans-serif;
+    }
     .handball-overlay {
       position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:10000;
       display:flex;align-items:center;justify-content:center;
-      background:rgba(0,23,50,0.7);
+      background:rgba(0,23,50,0.88);
       flex-direction:column;
+      animation:fadeIn 1.4s;
+    }
+    @keyframes fadeIn {
+      from {opacity:0;}
+      to {opacity:1;}
     }
     .handball-btn {
-      font-family:'Kameron',Arial,sans-serif;font-size:2rem;padding:1em 2em;
-      border-radius:1em;background:#1e90ff;color:white;border:none;
-      box-shadow:0 2px 12px #0005;cursor:pointer;transition:background 0.2s;
+      font-family:'Orbitron',Arial,sans-serif;
+      font-size:2.1rem;
+      text-transform:uppercase;
+      letter-spacing:0.07em;
+      padding:1.1em 2.6em;
+      border-radius:1.4em;
+      background:linear-gradient(90deg, #1e90ff 0%, #30c6fb 100%);
+      color:#fff;
+      border:none;
+      box-shadow:0 4px 32px #1497ff55, 0 1px 0 #063a5b;
+      cursor:pointer;
+      transition:background 0.22s,transform 0.18s, box-shadow 0.22s;
+      outline:none;
     }
-    .handball-btn:hover {background:#155fa0;}
+    .handball-btn:hover {
+      background:linear-gradient(90deg, #155fa0 0%, #1497ff 100%);
+      transform:scale(1.06);
+      box-shadow:0 8px 38px #30c6fb44, 0 0px 0 #063a5b;
+    }
+    .handball-title {
+      font-family:'Orbitron',Arial,sans-serif;
+      font-size:3.3rem;
+      color:#fff;
+      text-shadow:0 6px 32px #1497ff55, 0 2px 12px #063a5b;
+      letter-spacing:0.09em;
+      margin-bottom:1.6rem;
+      margin-top:-2rem;
+      text-align:center;
+      background: linear-gradient(90deg,#1e90ff,#30c6fb 65%,#fff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .handball-desc {
+      color:#e5f6ff;
+      font-size:1.25em;
+      margin-top:1.3rem;
+      margin-bottom:0.7rem;
+      text-align:center;
+      text-shadow:0 2px 10px #0009;
+      letter-spacing:0.04em;
+      max-width:700px;
+    }
     .score-ui {
-      position: absolute; top:32px; right:32px; background:#fff9; color:#0a3a74;
-      font-family:'Kameron',Arial,sans-serif; font-size:1.4em; border-radius:12px;
-      box-shadow:0 2px 10px #0002; padding:0.8em 1.8em; z-index:1002; pointer-events:none; user-select:none;
+      position: absolute; top:28px; right:34px; background:rgba(30,144,255,0.86);
+      color:#fff; font-family:'Orbitron',Arial,sans-serif;
+      font-size:1.32em; border-radius:17px 0 15px 0;
+      box-shadow:0 4px 18px #1497ff44;
+      padding:1em 2.2em; z-index:1002; pointer-events:none; user-select:none;
+      border:2px solid #fff7;
+      letter-spacing:0.03em;
+      min-width:180px;
+      text-shadow:0 2px 8px #0a3a7499, 0 1px #fff5;
+      transition:background 0.2s;
+      text-align:right;
     }
     .msg-ui {
-      position:absolute;left:0;right:0;top:90px;text-align:center;z-index:1010;
-      font-family:Impact,Arial,sans-serif;font-size:2em;letter-spacing:0.05em;
-      color:#e63946;text-shadow:0 2px 20px #fff,0 0 30px #e63946aa;
+      position:absolute;left:0;right:0;top:92px;text-align:center;z-index:1010;
+      font-family:'Orbitron',Impact,Arial,sans-serif;
+      font-size:2.2em;letter-spacing:0.07em;
+      color:#1e90ff;text-shadow:0 4px 38px #fff,0 0 30px #30c6fb99, 0 2px 0 #063a5b;
+      filter:drop-shadow(0 0 8px #fff3);
+      pointer-events:none;
+    }
+    @media (max-width:700px) {
+      .handball-title {font-size:2.1rem;}
+      .handball-desc {font-size:1em;}
+      .score-ui {font-size:1em; padding:0.7em 1.2em;}
     }
   </style>
 </head>
 <body>
-<div class="score-ui" id="score-ui">Ballons : <span id="shots">0</span> | Buts : <span id="goals">0</span></div>
+<div class="score-ui" id="score-ui">
+  <span style="font-size:1.15em;">🏐</span>
+  Ballons :<span id="shots" style="margin:0 0.5em 0 0.2em;font-weight:bold;">0</span>
+  <span style="font-size:1.15em;">🥅</span>
+  Buts :<span id="goals" style="margin:0 0.3em 0 0.2em;font-weight:bold;">0</span>
+</div>
 <div class="msg-ui" id="msg-ui"></div>
 <div id="handballOverlay" class="handball-overlay">
+  <div class="handball-title">Handball Ultra VR</div>
   <button class="handball-btn" id="startBtn">Jouer en VR ou PC</button>
-  <div style="color:#fff;margin-top:1.5rem;font-size:1.2em;">Attrape le ballon, vise, tire et marque !</div>
+  <div class="handball-desc">Attrape le ballon avec tes mains, vise, tire et marque !<br>
+    <span style="font-size:.9em;opacity:0.7;">Compatible VR et PC &mdash; Jouabilité immersive &mdash; Terrain réaliste</span>
+  </div>
 </div>
 <a-scene physics="gravity:-9.8;" loading-screen="enabled:false">
   <a-assets>
     <a-asset-item id="terrain" src="handball/scene.gltf"></a-asset-item>
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
-    <!-- Skydome image asset -->
     <img id="gym-sky" src="stock-photo-minsk-belarus-july-panorama-in-interior-modern-gymnasium-basketball-court-full-by-744512341.jpg" crossorigin="anonymous">
   </a-assets>
 
@@ -60,7 +130,7 @@
     follow-player></a-entity>
 
   <!-- Terrain handball -->
-  <a-entity gltf-model="handball/scene.gltf" position="41.74188 0 0" scale="" shadow=""></a-entity>
+  <a-entity gltf-model="handball/scene.gltf" position="41.74188 0 0" shadow="receive: true"></a-entity>
 
   <!-- Ballon handball -->
   <a-entity id="handball"
@@ -70,11 +140,17 @@
     dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
     grabbable
     shadow
-    obb-collider="centerModel: true"></a-entity>
+    obb-collider="centerModel: true"
+    animation__hover="property: scale; startEvents: mouseenter; to: 0.012 0.012 0.012; dur: 200; easing: easeOutQuad"
+    animation__leave="property: scale; startEvents: mouseleave; to: 0.009 0.009 0.009; dur: 250; easing: easeInQuad"
+    ></a-entity>
 
   <!-- Rig du joueur -->
   <a-entity id="rig" position="0.60286 1.7 0" dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
-    <a-entity id="camera" camera look-controls wasd-controls rotation="-30.02298846485515 -183.23190288283757 0"></a-entity>
+    <a-entity id="camera" camera look-controls wasd-controls rotation="-30.02298846485515 -183.23190288283757 0"
+      wasd-controls="acceleration:60;fly:false;"
+      animation__start="property: components.material.material.color; from: #fff; to: #1497ff; dur:500; startEvents:mouseenter;"
+      ></a-entity>
     <!-- MAIN GAUCHE -->
     <a-entity id="leftHand"
       hand-controls
@@ -85,8 +161,9 @@
       oculus-touch-controls="model: false"
       pico-controls="hand: left; model: false"
       windows-motion-controls="hand: left; model: false"
-      hp-mixed-reality-controls="hand: left; model: false">
-    </a-entity>
+      hp-mixed-reality-controls="hand: left; model: false"
+      material="color:#1e90ff;metalness:0.4;roughness:0.3;"
+      ></a-entity>
     <!-- MAIN DROITE -->
     <a-entity id="rightHand"
       hand-controls="hand: right"
@@ -97,9 +174,17 @@
       oculus-touch-controls="hand: right; model: false"
       pico-controls="hand: right; model: false"
       windows-motion-controls="model: false"
-      hp-mixed-reality-controls="hand: right; model: false">
-    </a-entity>
+      hp-mixed-reality-controls="hand: right; model: false"
+      material="color:#ffc107;metalness:0.4;roughness:0.3;"
+      ></a-entity>
   </a-entity>
+
+  <!-- Quelques effets de lumière pour plus de réalisme -->
+  <a-entity light="type: ambient; intensity: 0.45; color: #dbeafe"></a-entity>
+  <a-entity light="type: directional; intensity: 0.90; castShadow: true; shadowMapHeight:2048; shadowMapWidth:2048; color:#fff"
+    position="40 25 15"
+    target="#terrain"></a-entity>
+  <a-entity light="type: point; intensity: 0.18; distance: 120; color: #1e90ff" position="41.5 5 3"></a-entity>
 </a-scene>
 <script>
   // Overlay (disparaît au clic)
@@ -116,6 +201,8 @@
     if(goal) goals++;
     shotsUi.textContent = shots;
     goalsUi.textContent = goals;
+    document.getElementById('msg-ui').textContent = goal ? "But ! 🥅🏐" : "";
+    setTimeout(()=>{document.getElementById('msg-ui').textContent = "";}, 1800);
   }
 
   // Composant pour synchroniser le skydome avec le joueur
