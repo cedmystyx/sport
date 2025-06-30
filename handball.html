@@ -2,33 +2,27 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball VR - Salle Immersive</title>
+  <title>Handball - Tir au But Réaliste</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.controls.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-animation-component@6.0.0/dist/aframe-animation-component.min.js"></script>
   <style>
     body {margin:0;}
     .score-ui {position: absolute; top:24px; right:24px; background:#fff9; color:#0a3a74; font-family:'Segoe UI',Arial,sans-serif; font-size:1.2em; border-radius:10px; box-shadow:0 2px 10px #0002; padding:0.7em 1.6em; z-index:10002; pointer-events:none; user-select:none; text-align:right;}
-    .timer-ui {position:absolute;top:24px;left:24px;z-index:10001;font-family:'Segoe UI',Arial,sans-serif;background:#fff8;border-radius:13px;box-shadow:0 2px 16px #00335511;padding:.6em 1.6em;color:#184e77;font-size:1.3em;pointer-events:none;user-select:none;}
-    .msg-ui {position:absolute;left:0;right:0;top:85px;text-align:center;z-index:10010;font-family:Impact,Arial,sans-serif;font-size:2em;letter-spacing:0.05em;color:#e63946;text-shadow:0 2px 20px #fff,0 0 30px #e63946aa;}
+    .msg-ui {position:absolute;left:0;right:0;top:80px;text-align:center;z-index:10010;font-family:Impact,Arial,sans-serif;font-size:2em;letter-spacing:0.05em;color:#e63946;text-shadow:0 2px 20px #fff,0 0 30px #e63946aa;}
     .help-ui {position:absolute;left:24px;bottom:24px;z-index:10001;font-family:'Segoe UI',Arial,sans-serif;background:#fff8;border-radius:13px;box-shadow:0 2px 16px #00335511;padding:1em 2em;color:#184e77;font-size:1.09em;pointer-events:none;user-select:none;line-height:1.42em;}
   </style>
 </head>
 <body>
-<div class="score-ui" id="score-ui">0 - 0</div>
-<div class="timer-ui" id="timer-ui">30:00</div>
+<div class="score-ui" id="score-ui">Tirs : <span id="shots">0</span> | Buts : <span id="goals">0</span></div>
 <div class="msg-ui" id="msg-ui"></div>
 <div class="help-ui">
-  <b>Contrôles :</b> <br>
-  Déplace-toi avec ZQSD/joystick (PC/VR). <br>
-  Saisis la balle (clic ou VR/trigger). <br>
-  <b>Dribble :</b> touche D (PC) ou bouton sur manette VR. <br>
-  <b>Tir :</b> barre espace (PC) ou trigger court (VR). <br>
-  <b>Passe :</b> touche P (PC) ou grip (VR). <br>
-  Si tu avances sans dribbler, tu commets une faute (marcher).
+  <b>Tir au but Handball :</b><br>
+  En VR : vise avec ta main, appuie et relâche le trigger pour tirer.<br>
+  Sur PC : clique ou barre espace pour tirer.<br>
+  Marque le plus de buts possible&nbsp;!
 </div>
 <a-scene physics="gravity:-9.8;" background="color: #e5f6ff" loading-screen="enabled:false">
   <a-assets>
@@ -37,122 +31,46 @@
     <img id="tribune" src="https://cdn.pixabay.com/photo/2016/11/29/04/17/audience-1866738_1280.jpg">
     <img id="sky" src="https://cdn.pixabay.com/photo/2018/10/30/21/25/sports-3788986_1280.jpg">
     <img id="balltex" src="https://cdn.pixabay.com/photo/2017/01/30/22/50/handball-2023531_1280.jpg">
-    <audio id="applaud" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b0e6db1.mp3" preload="auto"></audio>
-    <audio id="goal" src="https://cdn.pixabay.com/audio/2022/05/17/audio_126b8e6e53.mp3" preload="auto"></audio>
+    <audio id="goal-sound" src="https://cdn.pixabay.com/audio/2022/05/17/audio_126b8e6e53.mp3" preload="auto"></audio>
+    <audio id="miss-sound" src="https://cdn.pixabay.com/audio/2022/10/16/audio_124bfe3c1b.mp3" preload="auto"></audio>
+    <audio id="save-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b0e6db1.mp3" preload="auto"></audio>
   </a-assets>
 
-  <!-- Ambiance gymnase immersive -->
+  <!-- Skybox & ambiance -->
   <a-sky src="#sky"></a-sky>
   <a-light type="ambient" color="#fff" intensity="1.1"></a-light>
-  <a-light type="spot" color="#fffde2" intensity="0.6" position="0 7 0"
-    angle="25" penumbra="0.7" target="#handball"
-    animation="property: angle; dir: alternate; from: 23; to: 27; dur: 2100; loop: true"></a-light>
-  <a-light type="directional" color="#e6eafc" intensity="0.32" position="0 14 6" target="0 0 0"></a-light>
+  <a-light type="spot" color="#fffde2" intensity="0.5" position="0 8 5"
+    angle="25" penumbra="0.7" target="#handball"></a-light>
 
-  <!-- Prolongation du sol, bande de sécurité, profondeur -->
-  <a-box position="0 0.06 0" width="20" height="0.03" depth="34" color="#a6b2bb" opacity="0.17"></a-box>
-  <a-ring position="0 0.07 0" rotation="-90 0 0" radius-inner="7.2" radius-outer="9.7" color="#90caf9" opacity="0.11"></a-ring>
-  <a-ring position="0 0.07 0" rotation="-90 0 0" radius-inner="9.8" radius-outer="10.4" color="#fff" opacity="0.07"></a-ring>
+  <!-- Sol et profondeur -->
+  <a-box position="0 0 0" width="14" height="0.12" depth="28" src="#parquet" color="#efd6a2" metalness="0.15" roughness="0.24" static-body></a-box>
+  <a-box position="0 0.06 0" width="20" height="0.03" depth="34" color="#a6b2bb" opacity="0.18"></a-box>
   <a-plane position="0 0.058 0" rotation="-90 0 0" width="20" height="34" src="#parquet" repeat="4 8" opacity="0.15"></a-plane>
-
-  <!-- Barrières physiques plexi avec reflets -->
-  <a-box position="0 0.55 15.8" width="14.8" height="1.1" depth="0.12"
-         color="#c9e4ff" opacity="0.81" metalness="0.38" roughness="0.24" static-body></a-box>
-  <a-box position="0 0.55 -15.8" width="14.8" height="1.1" depth="0.12"
-         color="#c9e4ff" opacity="0.81" metalness="0.38" roughness="0.24" static-body></a-box>
-  <a-box position="7.6 0.55 0" width="0.12" height="1.1" depth="30.8"
-         color="#c9e4ff" opacity="0.81" metalness="0.38" roughness="0.24" static-body></a-box>
-  <a-box position="-7.6 0.55 0" width="0.12" height="1.1" depth="30.8"
-         color="#c9e4ff" opacity="0.81" metalness="0.38" roughness="0.24" static-body></a-box>
-  <!-- Coins arrondis (visuel et physique) -->
-  <a-cylinder position="7.6 0.55 15.8" radius="0.12" height="1.1" color="#c9e4ff" opacity="0.81" segments-radial="12" metalness="0.38" roughness="0.24" static-body></a-cylinder>
-  <a-cylinder position="-7.6 0.55 15.8" radius="0.12" height="1.1" color="#c9e4ff" opacity="0.81" segments-radial="12" metalness="0.38" roughness="0.24" static-body></a-cylinder>
-  <a-cylinder position="7.6 0.55 -15.8" radius="0.12" height="1.1" color="#c9e4ff" opacity="0.81" segments-radial="12" metalness="0.38" roughness="0.24" static-body></a-cylinder>
-  <a-cylinder position="-7.6 0.55 -15.8" radius="0.12" height="1.1" color="#c9e4ff" opacity="0.81" segments-radial="12" metalness="0.38" roughness="0.24" static-body></a-cylinder>
-  <!-- Poteaux de sécurité (pour immersion gymnase) -->
-  <a-cylinder position="6.5 1.2 15.8" radius="0.05" height="2.2" color="#607d8b" opacity="0.7" static-body></a-cylinder>
-  <a-cylinder position="-6.5 1.2 15.8" radius="0.05" height="2.2" color="#607d8b" opacity="0.7" static-body></a-cylinder>
-  <a-cylinder position="6.5 1.2 -15.8" radius="0.05" height="2.2" color="#607d8b" opacity="0.7" static-body></a-cylinder>
-  <a-cylinder position="-6.5 1.2 -15.8" radius="0.05" height="2.2" color="#607d8b" opacity="0.7" static-body></a-cylinder>
-
-  <!-- Sol parquet HD (avec éventuellement normalMap si tu en as une) -->
-  <a-box position="0 0 0" width="14" height="0.12" depth="28" src="#parquet" color="#efd6a2"
-         repeat="2 4"
-         metalness="0.15" roughness="0.24"
-         static-body></a-box>
-
-  <!-- Lignes, zones et marquages -->
-  <a-box position="0 0.071 0" width="14" height="0.018" depth="0.18" color="#fff"></a-box>
-  <a-box position="0 0.071 14" width="14" height="0.02" depth="0.18" color="#fff"></a-box>
-  <a-box position="0 0.071 -14" width="14" height="0.02" depth="0.18" color="#fff"></a-box>
-  <a-box position="7 0.071 0" width="0.18" height="0.018" depth="28" color="#fff"></a-box>
-  <a-box position="-7 0.071 0" width="0.18" height="0.018" depth="28" color="#fff"></a-box>
-  <a-box position="0 0.072 0" width="14" height="0.018" depth="0.12" color="#fff"></a-box>
-  <a-circle position="0 0.073 0" rotation="-90 0 0" radius="0.18" color="#1976d2"></a-circle>
-  <a-ring position="0 0.079 11.2" rotation="-90 0 0" radius-inner="2.09" radius-outer="2.16" theta-start="270" theta-length="180" color="#fae600"></a-ring>
-  <a-box position="2.09 0.079 12.25" width="0.13" height="0.012" depth="2.1" color="#fae600"></a-box>
-  <a-box position="-2.09 0.079 12.25" width="0.13" height="0.012" depth="2.1" color="#fae600"></a-box>
-  <a-box position="0 0.079 13.3" width="4.18" height="0.012" depth="0.13" color="#fae600"></a-box>
-  <a-ring position="0 0.079 -11.2" rotation="-90 0 0" radius-inner="2.09" radius-outer="2.16" theta-start="90" theta-length="180" color="#fae600"></a-ring>
-  <a-box position="2.09 0.079 -12.25" width="0.13" height="0.012" depth="2.1" color="#fae600"></a-box>
-  <a-box position="-2.09 0.079 -12.25" width="0.13" height="0.012" depth="2.1" color="#fae600"></a-box>
-  <a-box position="0 0.079 -13.3" width="4.18" height="0.012" depth="0.13" color="#fae600"></a-box>
-  <a-box position="0 0.081 9.2" width="1.2" height="0.013" depth="0.09" color="#c0392b"></a-box>
-  <a-box position="0 0.081 -9.2" width="1.2" height="0.013" depth="0.09" color="#c0392b"></a-box>
-  <a-circle position="0 0.083 8.95" rotation="-90 0 0" radius="0.08" color="#c0392b"></a-circle>
-  <a-circle position="0 0.083 -8.95" rotation="-90 0 0" radius="0.08" color="#c0392b"></a-circle>
-  <a-ring position="0 0.081 11.2" rotation="-90 0 0" radius-inner="3.0" radius-outer="3.07" color="#ff9800" theta-length="180" theta-start="270" segments-theta="36"></a-ring>
-  <a-ring position="0 0.081 -11.2" rotation="-90 0 0" radius-inner="3.0" radius-outer="3.07" color="#ff9800" theta-length="180" theta-start="90" segments-theta="36"></a-ring>
-  <a-box position="0 0.062 13.5" width="3" height="0.01" depth="0.7" color="#d2e6fa" opacity="0.45"></a-box>
-  <a-box position="0 0.062 -13.5" width="3" height="0.01" depth="0.7" color="#d2e6fa" opacity="0.45"></a-box>
-  <a-box position="5.6 0.062 0" width="2.8" height="0.01" depth="6.6" color="#e1e2e2" opacity="0.27"></a-box>
-  <a-box position="-5.6 0.062 0" width="2.8" height="0.01" depth="6.6" color="#e1e2e2" opacity="0.27"></a-box>
-
-  <!-- Buts + filets animés et triggers -->
+  
+  <!-- Barrières physiques -->
+  <a-box position="0 0.55 13.7" width="14.8" height="1.1" depth="0.12" color="#c9e4ff" opacity="0.8" metalness="0.4" static-body></a-box>
+  <a-box position="0 0.55 -13.7" width="14.8" height="1.1" depth="0.12" color="#c9e4ff" opacity="0.8" metalness="0.4" static-body></a-box>
+  <a-box position="7.1 0.55 0" width="0.12" height="1.1" depth="27.4" color="#c9e4ff" opacity="0.8" metalness="0.4" static-body></a-box>
+  <a-box position="-7.1 0.55 0" width="0.12" height="1.1" depth="27.4" color="#c9e4ff" opacity="0.8" metalness="0.4" static-body></a-box>
+  
+  <!-- But, filet, zone -->
   <a-box position="0 1 13.7" width="3" height="2" depth="0.18" color="#f44336" static-body></a-box>
   <a-box position="-1.5 1 13.7" width="0.13" height="2" depth="0.22" color="#f44336" static-body></a-box>
   <a-box position="1.5 1 13.7" width="0.13" height="2" depth="0.22" color="#f44336" static-body></a-box>
   <a-box position="0 2 13.7" width="3" height="0.09" depth="0.22" color="#f44336" static-body></a-box>
   <a-plane position="0 1.01 13.8" width="2.7" height="1.82" src="#filet"
     animation="property: rotation.z; dir: alternate; from: 0; to: 2; dur: 1100; loop: true; easing: easeInOutSine"></a-plane>
-  <a-box id="goal-trigger-north" position="0 1 13.81" width="2.6" height="1.75" depth="0.1" opacity="0" visible="false" static-body></a-box>
-  <a-box position="0 1 -13.7" width="3" height="2" depth="0.18" color="#f44336" opacity="0.25" static-body></a-box>
-  <a-plane position="0 1.01 -13.8" width="2.7" height="1.82" src="#filet"
-    animation="property: rotation.z; dir: alternate; from: 0; to: -2; dur: 1100; loop: true; easing: easeInOutSine"></a-plane>
-  <a-box id="goal-trigger-south" position="0 1 -13.81" width="2.6" height="1.75" depth="0.1" opacity="0" visible="false" static-body></a-box>
+  <a-box id="goal-trigger" position="0 1 13.81" width="2.6" height="1.75" depth="0.1" opacity="0" visible="false" static-body></a-box>
+  
+  <!-- Gardien IA -->
+  <a-box id="gardien" position="0 1 13.2" width="0.9" height="1.8" depth="0.35" color="#eaf05a" shadow></a-box>
+  <a-box id="gardien-bras-g" position="-0.6 1.25 13.2" width="0.4" height="0.36" depth="0.18" color="#eaf05a" shadow></a-box>
+  <a-box id="gardien-bras-d" position="0.6 1.25 13.2" width="0.4" height="0.36" depth="0.18" color="#eaf05a" shadow></a-box>
 
-  <!-- Tribunes animées -->
-  <a-plane position="0 2.7 15.4" width="14" height="5" src="#tribune"
-    animation="property: position.x; dir: alternate; from: -0.1; to: 0.1; loop: true; dur: 3000"></a-plane>
-  <a-plane position="0 2.7 -15.4" width="14" height="5" src="#tribune"
-    animation="property: position.x; dir: alternate; from: 0.1; to: -0.1; loop: true; dur: 3100"></a-plane>
-  <a-plane position="7.3 2.7 0" width="5" height="5" src="#tribune"
-    animation="property: position.z; dir: alternate; from: 0.05; to: -0.05; loop: true; dur: 2700"></a-plane>
-  <a-plane position="-7.3 2.7 0" width="5" height="5" src="#tribune"
-    animation="property: position.z; dir: alternate; from: -0.05; to: 0.05; loop: true; dur: 2750"></a-plane>
-
-  <!-- Scoreboard -->
-  <a-box position="0 3.11 11.2" width="2.8" height="0.7" depth="0.15" color="#fff8"
-    animation="property: scale; dir: alternate; from: 1 1 1; to: 1.03 1.07 1; dur: 2000; loop: true"></a-box>
-  <a-entity id="scoreboard" position="0 3.18 11.2" text="value: 0 - 0; color: #1e90ff; width: 4.5; align: center; font: https://cdn.aframe.io/fonts/Exo2Bold.fnt"></a-entity>
-
-  <!-- Ballon jouable avec interactions -->
-  <a-sphere id="handball" class="grabbable dynamic-body" position="0 1.2 0" radius="0.23" src="#balltex"
-    roughness="0.34" metalness="0.12"
-    dynamic-body="mass: 0.36; linearDamping:0.07; angularDamping:0.13; restitution:0.81; friction:0.33"
-    super-hands handball-interaction shadow></a-sphere>
-
-  <!-- Joueur (caméra + mains VR/PC) avec capsule collider pour collisions réelles -->
+  <!-- Joueur (caméra fixe) -->
   <a-entity id="rig"
-    movement-controls
-    dynamic-body="mass: 1; shape: capsule; height: 1.6; radius: 0.3;"
-    position="0 1.6 -7">
-    <a-entity id="camera" camera look-controls wasd-controls="acceleration:20" position="0 0 0"></a-entity>
-    <a-entity id="leftHand"
-              hand-controls="hand: left; handModelStyle: highPoly; color: #e5b285"
-              super-hands
-              sphere-collider="objects: .grabbable"
-              shadow></a-entity>
+    position="0 1.6 6.6">
+    <a-entity id="camera" camera look-controls position="0 0 0"></a-entity>
     <a-entity id="rightHand"
               hand-controls="hand: right; handModelStyle: highPoly; color: #d7a878"
               super-hands
@@ -160,206 +78,147 @@
               shadow></a-entity>
   </a-entity>
 
-  <!-- Gardien IA -->
-  <a-cylinder id="gardien" position="0 1 13.3" radius="0.32" height="1.8" color="#eaf05a" segments-radial="6"></a-cylinder>
-  <!-- Bots adverses -->
-  <a-entity id="bots"></a-entity>
+  <!-- Ballon attaché à la main au début -->
+  <a-sphere id="handball" class="dynamic-body" position="0.35 1.1 6.7" radius="0.23" src="#balltex"
+    roughness="0.34" metalness="0.12"
+    dynamic-body="mass: 0.36; linearDamping:0.07; angularDamping:0.13; restitution:0.81; friction:0.33"
+    shadow handball-penalty></a-sphere>
 
-  <!-- Ambiance sonore -->
-  <audio id="ambiance-audio" src="https://cdn.pixabay.com/audio/2022/11/16/audio_12e9c1f3c3.mp3" autoplay loop></audio>
-  <audio id="goal" src="https://cdn.pixabay.com/audio/2022/05/17/audio_126b8e6e53.mp3" preload="auto"></audio>
-
-  <!-- SCRIPT : gestion du match, bots, gardien, interaction balle -->
   <script>
-    let scoreA = 0, scoreB = 0, time = 30*60, timerInt = null, playing = false;
-    let scoreUi = null, timerUi = null, msgUi = null;
-    let ball = null, goalSound = null;
-    let bots = [];
-    let gardien = null, gardienDir = 1;
-
-    function spawnBots() {
-      let botsE = document.getElementById('bots');
-      botsE.innerHTML = '';
-      bots = [];
-      for(let i=0;i<3;i++){
-        let x = -2 + i*2, z = 8+Math.random()*3;
-        let bot = document.createElement('a-box');
-        bot.setAttribute('position', {x:x, y:1, z:z});
-        bot.setAttribute('width', 0.7);
-        bot.setAttribute('depth', 0.7);
-        bot.setAttribute('height', 1.8);
-        bot.setAttribute('color', '#1976d2');
-        bot.setAttribute('dynamic-body','');
-        botsE.appendChild(bot);
-        bots.push(bot);
-      }
-      setInterval(()=>{
-        bots.forEach(bot=>{
-          let pos = bot.getAttribute('position');
-          pos.x += (Math.random()-0.5)*1.5;
-          pos.z += (Math.random()-0.5)*2;
-          if (pos.x<-5) pos.x=-5; if (pos.x>5) pos.x=5;
-          if (pos.z<3) pos.z=3; if (pos.z>13) pos.z=13;
-          bot.setAttribute('position', pos);
-        });
-      }, 1300);
+    // Score & feedback UI
+    let shots = 0, goals = 0;
+    const shotsUi = document.getElementById('shots');
+    const goalsUi = document.getElementById('goals');
+    const msgUi = document.getElementById('msg-ui');
+    function updateScore(goal) {
+      shots++;
+      if(goal) goals++;
+      shotsUi.textContent = shots;
+      goalsUi.textContent = goals;
     }
 
-    function moveGardien() {
-      let gardien = document.getElementById('gardien');
-      let pos = gardien.getAttribute('position');
-      setInterval(()=>{
-        if (!playing) return;
-        let nextX = pos.x + gardienDir * 0.25;
-        if (nextX > 1.2 || nextX < -1.2) gardienDir *= -1;
-        pos.x += gardienDir * 0.25;
-        gardien.setAttribute('position', pos);
-      }, 700);
+    // Gardien IA : choisit une direction à chaque tir, anime les bras
+    let gardienMove = 0;
+    function animateGardien(dir) {
+      // dir: -1 gauche, 0 centre, 1 droite
+      let pos = [0, 0.6, -0.6][dir+1];
+      document.getElementById('gardien').setAttribute('position', {x:pos, y:1, z:13.2});
+      document.getElementById('gardien-bras-g').setAttribute('position', {x:pos-0.6, y:1.25, z:13.2});
+      document.getElementById('gardien-bras-d').setAttribute('position', {x:pos+0.6, y:1.25, z:13.2});
+    }
+    function resetGardien() {
+      animateGardien(0);
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-      scoreUi = document.getElementById('score-ui');
-      timerUi = document.getElementById('timer-ui');
-      msgUi = document.getElementById('msg-ui');
-      ball = document.querySelector('#handball');
-      goalSound = document.querySelector('#goal');
-      gardien = document.getElementById('gardien');
-      startGame();
-    });
-
-    function startGame() {
-      scoreA = 0; scoreB = 0; time = 30*60; playing = true;
-      updateScore();
-      updateTimer();
-      msgUi.textContent = 'Coup d\'envoi !';
-      resetBall();
-      if (timerInt) clearInterval(timerInt);
-      timerInt = setInterval(tick, 1000);
-      spawnBots();
-      moveGardien();
-    }
-    function updateScore() { scoreUi.textContent = scoreA + ' - ' + scoreB; }
-    function updateTimer() {
-      let min = Math.floor(time/60), sec = ("0"+(time%60)).slice(-2);
-      timerUi.textContent = min+':'+sec;
-    }
-    function tick() {
-      if (!playing) return;
-      time--;
-      updateTimer();
-      if (time <= 0) endGame();
-    }
-    function endGame() {
-      playing = false;
-      clearInterval(timerInt);
-      msgUi.textContent = (scoreA === scoreB) ? "Match nul !" : (scoreA > scoreB ? "Victoire équipe A !" : "Victoire équipe B !");
-      setTimeout(()=>{msgUi.textContent='';startGame();}, 8000);
-    }
-    function resetBall() {
-      ball.setAttribute('position', {x: 0, y: 1.2, z: 0});
-      ball.setAttribute('velocity', {x: 0, y: 0, z: 0});
-      ball.setAttribute('angularVelocity', {x: 0, y: 0, z: 0});
-    }
-
-    // Détection de but et remise en jeu
-    AFRAME.registerComponent('goal-detect', {
-      init: function () {
-        this.el.addEventListener('collide', (e) => {
-          if (!playing) return;
-          if (e.detail.body.el && e.detail.body.el.id === 'handball') {
-            if (this.el.id === 'goal-trigger-north') { scoreA++; }
-            else if (this.el.id === 'goal-trigger-south') { scoreB++; }
-            updateScore();
-            if (goalSound) goalSound.play();
-            msgUi.textContent = "But !";
-            playing = false;
-            setTimeout(() => {msgUi.textContent='';resetBall();playing = true;}, 1600);
-          }
-        });
-      }
-    });
-    document.addEventListener('DOMContentLoaded', function () {
-      document.querySelector('#goal-trigger-north').setAttribute('goal-detect','');
-      document.querySelector('#goal-trigger-south').setAttribute('goal-detect','');
-    });
-
-    // === Balle : interaction officielle Handball (dribble, tir, passe, faute marcher)
-    AFRAME.registerComponent('handball-interaction', {
+    // Ballon interaction penalty
+    AFRAME.registerComponent('handball-penalty', {
       schema: {},
       init: function () {
-        this.held = false;
-        this.dribbleTimer = 0;
-        this.lastDribble = 0;
-        this.hand = null;
-        this.el.addEventListener('grab-start', e => {
-          this.held = true;
-          this.hand = e.detail.hand;
-          this.lastDribble = performance.now();
-        });
-        this.el.addEventListener('grab-end', e => {
-          this.held = false;
-          this.hand = null;
-        });
-        window.addEventListener('keydown', (e) => {
-          if (this.held && (e.key === 'd' || e.key === 'D')) {
-            this.lastDribble = performance.now();
-            this.el.emit('dribble', {});
-            msgUi.textContent = "Dribble !";
-            setTimeout(()=>{msgUi.textContent='';}, 500);
+        this.held = true; // On tient la balle au début
+        this.targetPos = {x:0.35,y:1.1,z:6.7};
+        this.canShoot = true;
+        this.shootStart = null;
+        this.dir = 0;
+        this.el.body.type = 1; // kinematic au début
+        // VR trigger down/up ou PC clic/espace
+        window.addEventListener('keydown', e => {
+          if (this.held && this.canShoot && (e.key === " " || e.code === "Space" || e.button === 0)) {
+            this.arm();
           }
-          if (this.held && e.code === 'Space') {
+        });
+        window.addEventListener('keyup', e => {
+          if (this.held && !this.canShoot && (e.key === " " || e.code === "Space" || e.button === 0)) {
             this.shoot();
           }
-          if (this.held && (e.key === 'p' || e.key === 'P')) {
-            this.pass();
-          }
         });
+        this.el.sceneEl.addEventListener('triggerdown', () => {
+          if (this.held && this.canShoot) this.arm();
+        });
+        this.el.sceneEl.addEventListener('triggerup', () => {
+          if (this.held && !this.canShoot) this.shoot();
+        });
+        // Reset au départ
+        this.resetBall();
       },
       tick: function() {
-        if (this.held) {
-          const rig = document.getElementById('rig');
-          if (rig && rig.components['movement-controls']) {
-            let vel = rig.components['movement-controls'].velocity;
-            let moving = Math.abs(vel.x) > 0.1 || Math.abs(vel.z) > 0.1;
-            let now = performance.now();
-            if (moving && now - this.lastDribble > 1100) {
-              msgUi.textContent = "Faute : marcher !";
-              this.el.emit('faute-marcher', {});
-              this.held = false;
-              if(this.hand && this.hand.components['super-hands']){
-                this.hand.components['super-hands'].state.release(this.el);
-              }
-              setTimeout(()=>{msgUi.textContent='';}, 1100);
-            }
+        // Suivre la main droite si en main
+        if(this.held) {
+          let rig = document.getElementById('rig');
+          if(rig) {
+            let hand = document.getElementById('rightHand');
+            let hp = hand ? hand.object3D.getWorldPosition(new THREE.Vector3()) : rig.object3D.getWorldPosition(new THREE.Vector3());
+            this.el.setAttribute('position', {x: hp.x+0.13, y: hp.y-0.2, z: hp.z+0.07});
+            this.el.body.velocity.set(0,0,0);
           }
         }
       },
-      shoot: function() {
-        const camera = document.querySelector('[camera]');
-        if (!camera) return;
-        let dir = new THREE.Vector3();
-        camera.object3D.getWorldDirection(dir);
-        this.el.body.velocity.set(dir.x*8, 4, dir.z*8);
-        this.held = false;
-        if(this.hand && this.hand.components['super-hands']){
-          this.hand.components['super-hands'].state.release(this.el);
-        }
-        msgUi.textContent = "Tir !";
-        setTimeout(()=>{msgUi.textContent='';}, 500);
+      arm: function() {
+        this.canShoot = false;
+        this.shootStart = performance.now();
+        msgUi.textContent = "Arme ton tir...";
       },
-      pass: function() {
-        const camera = document.querySelector('[camera]');
-        if (!camera) return;
-        let dir = new THREE.Vector3();
+      shoot: function() {
+        let force = Math.min(1.8, (performance.now()-this.shootStart)/350);
+        // Direction basée sur la main/caméra
+        let camera = document.getElementById('camera');
+        let dir = new THREE.Vector3(0,0,1);
         camera.object3D.getWorldDirection(dir);
-        this.el.body.velocity.set(dir.x*4, 2, dir.z*4);
+        // Ajoute une légère direction latérale selon où vise la main
+        let hand = document.getElementById('rightHand');
+        let hx = hand ? hand.object3D.position.x : 0;
+        if(hx<-0.1) dir.x-=0.35; else if(hx>0.1) dir.x+=0.35;
+        dir.normalize();
+        // Relâche la balle et applique la vitesse
         this.held = false;
-        if(this.hand && this.hand.components['super-hands']){
-          this.hand.components['super-hands'].state.release(this.el);
+        this.el.body.type = 2; // dynamique
+        this.el.body.velocity.set(dir.x*10*force, 3*force, dir.z*13*force);
+        msgUi.textContent = "Tir !";
+        // Gardien : décide où plonger
+        let gardienDir = Math.floor(Math.random()*3)-1; // -1,0,1
+        animateGardien(gardienDir);
+        setTimeout(()=>{this.checkGoal(gardienDir, dir.x);}, 700);
+      },
+      checkGoal: function(gardienDir, ballDX) {
+        // Check si le tir est dans la zone couverte par le gardien
+        let goal = false, save = false;
+        // Si gardien est sur la trajectoire (largeur +/- 0.55), arrêt
+        if(Math.abs(gardienDir - Math.sign(ballDX))<1.1 && Math.abs(ballDX)<0.7) save = true;
+        else goal = true;
+        updateScore(goal);
+        if(goal) {
+          document.getElementById('goal-sound').play();
+          msgUi.textContent = "BUT !";
+        } else {
+          document.getElementById('save-sound').play();
+          msgUi.textContent = "ARRET !";
         }
-        msgUi.textContent = "Passe !";
-        setTimeout(()=>{msgUi.textContent='';}, 500);
+        setTimeout(()=>{
+          this.resetBall();
+          resetGardien();
+        }, 1200);
+      },
+      resetBall: function() {
+        this.held = true;
+        this.canShoot = true;
+        this.shootStart = null;
+        this.el.body.type = 1; // Kinematic
+        this.el.setAttribute('position', this.targetPos);
+        this.el.body.velocity.set(0,0,0);
+        msgUi.textContent = "";
       }
+    });
+
+    // But
+    AFRAME.registerComponent('goal-trigger', {
+      init: function () {
+        this.el.addEventListener('collide', (e) => {
+          // Optionnel : effet filet, bruit de but net
+          document.getElementById('goal-sound').play();
+        });
+      }
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('goal-trigger').setAttribute('goal-trigger','');
     });
   </script>
 </a-scene>
