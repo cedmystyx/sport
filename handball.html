@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball Ultra VR - Mains Custom Animées, Ballon Très Petit</title>
+  <title>Handball Ultra VR - Correction Position et Mains</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
@@ -34,23 +34,19 @@
   shadow="type: pcfsoft">
 
   <a-assets>
-    <!-- Main 3D pour VR (orientée Z+ avant, échelle contrôleur, ANIMÉE) -->
     <a-asset-item id="main-3d-hand" src="hand/scene.gltf"></a-asset-item>
-    <!-- Ballon de handball très petit -->
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
-    <!-- Gymnase complet (terrain), positionné à 41.9425 0 0 -->
     <a-asset-item id="gymnasium" src="handball/scene.gltf"></a-asset-item>
-    <!-- Sons immersifs -->
     <audio id="public" src="https://cdn.pixabay.com/audio/2022/11/16/audio_12e9c1f3c3.mp3"></audio>
   </a-assets>
 
-  <!-- Gymnase (terrain) à la position demandée -->
+  <!-- Terrain à la bonne position -->
   <a-entity gltf-model="handball/scene.gltf" position="41.9425 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
 
-  <!-- Ballon très petit, pris en main possible -->
+  <!-- Ballon très petit, bien placé devant le joueur -->
   <a-entity id="handball"
     gltf-model="handball_1964/scene.gltf"
-    position="0 1 0.6"
+    position="41.9425 1 0.6"
     scale="0.009 0.009 0.009"
     dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
     grabbable
@@ -58,33 +54,26 @@
     obb-collider="centerModel: true"></a-entity>
 
   <!-- Sons d'ambiance -->
-  <a-sound src="#public" position="0 2 8" spatial="true" loop="true" volume="0.6" autoplay="true"></a-sound>
+  <a-sound src="#public" position="41.9425 2 8" spatial="true" loop="true" volume="0.6" autoplay="true"></a-sound>
 
-  <!-- Capsule collider joueur (caméra) -->
+  <!-- Capsule collider joueur (caméra) POSITIONNÉ SUR LE TERRAIN -->
   <a-entity id="rig"
-    position="0 1.7 0"
+    position="41.9425 1.7 0"
     dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
     <a-entity id="camera" camera look-controls wasd-controls position="0 0 0"></a-entity>
-    <!-- MAIN GAUCHE VR animée avec modèle custom à la taille des contrôleurs -->
+    <!-- MAIN GAUCHE VR animée, taille contrôleur -->
     <a-entity id="leftHand"
       hand-controls="hand: left; handModelStyle: custom; modelUrl: url(hand/scene.gltf)"
       shadow="cast: true"
-      raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
-      line="color: #228b22; opacity: 0.8"
-      teleport-controls="hand: left; cameraRig: #rig; teleportOrigin: #camera; button: trigger"
       super-hands>
     </a-entity>
-    <!-- MAIN DROITE VR animée avec modèle custom à la taille des contrôleurs -->
+    <!-- MAIN DROITE VR animée, taille contrôleur -->
     <a-entity id="rightHand"
       hand-controls="hand: right; handModelStyle: custom; modelUrl: url(hand/scene.gltf)"
       shadow="cast: true"
-      raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
-      line="color: #228b22; opacity: 0.8"
-      teleport-controls="hand: right; cameraRig: #rig; teleportOrigin: #camera; button: trigger"
       super-hands>
     </a-entity>
   </a-entity>
-
 </a-scene>
 </body>
 </html>
