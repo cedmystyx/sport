@@ -1,0 +1,561 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 3834,
+      "max": [
+        1.579999566078186,
+        2.035299301147461,
+        1.051039457321167
+      ],
+      "min": [
+        -1.5800002813339233,
+        -0.04470062628388405,
+        -0.10534566640853882
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 46008,
+      "componentType": 5126,
+      "count": 3834,
+      "max": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 3834,
+      "max": [
+        0.9788935780525208,
+        0.9990409016609192,
+        0.9987682700157166,
+        1.0
+      ],
+      "min": [
+        -0.7571488618850708,
+        -0.9940264225006104,
+        -0.9909460544586182,
+        -1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 3834,
+      "max": [
+        0.991039514541626,
+        0.9880301356315613
+      ],
+      "min": [
+        0.01661785878241062,
+        0.02533392794430256
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 16224,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 92016,
+      "componentType": 5126,
+      "count": 32,
+      "max": [
+        10.0,
+        0.04627896472811699,
+        20.004871368408203
+      ],
+      "min": [
+        -10.0,
+        -0.04627896472811699,
+        -20.004871368408203
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 92400,
+      "componentType": 5126,
+      "count": 32,
+      "max": [
+        1.0,
+        1.0,
+        0.9945055246353149
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -0.9945055246353149
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 61344,
+      "componentType": 5126,
+      "count": 32,
+      "max": [
+        4.762584993045493e-09,
+        0.994502067565918,
+        0.10468421876430511,
+        -1.0
+      ],
+      "min": [
+        -0.44443488121032715,
+        -0.9945054650306702,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 30672,
+      "componentType": 5126,
+      "count": 32,
+      "max": [
+        0.8422844409942627,
+        0.9724702835083008
+      ],
+      "min": [
+        0.22115948796272278,
+        0.02534523606300354
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 64896,
+      "componentType": 5125,
+      "count": 60,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 92784,
+      "componentType": 5126,
+      "count": 3834,
+      "max": [
+        1.579999566078186,
+        2.035299301147461,
+        1.051039457321167
+      ],
+      "min": [
+        -1.5800002813339233,
+        -0.04470062628388405,
+        -0.10534566640853882
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 138792,
+      "componentType": 5126,
+      "count": 3834,
+      "max": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 61856,
+      "componentType": 5126,
+      "count": 3834,
+      "max": [
+        0.9788935780525208,
+        0.9990409016609192,
+        0.9987682700157166,
+        1.0
+      ],
+      "min": [
+        -0.7571488618850708,
+        -0.9940264225006104,
+        -0.9909460544586182,
+        -1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 30928,
+      "componentType": 5126,
+      "count": 3834,
+      "max": [
+        0.991039514541626,
+        0.9880301356315613
+      ],
+      "min": [
+        0.01661785878241062,
+        0.02533392794430256
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 65136,
+      "componentType": 5125,
+      "count": 16224,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "LucasPresoto (https://sketchfab.com/LucasPresoto)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/handball-1ce2b10dec114863a7a5e549b5ef7047",
+      "title": "Handball"
+    },
+    "generator": "Sketchfab-15.27.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 130032,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 61600,
+      "byteOffset": 130032,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 184800,
+      "byteOffset": 191632,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 123200,
+      "byteOffset": 376432,
+      "byteStride": 16,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 499632,
+      "uri": "scene.bin"
+    }
+  ],
+  "images": [
+    {
+      "uri": "textures/Goal_baseColor.png"
+    },
+    {
+      "uri": "textures/Goal_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/Goal_normal.png"
+    },
+    {
+      "uri": "textures/Handball_baseColor.png"
+    },
+    {
+      "uri": "textures/Handball_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/Handball_normal.png"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "name": "Goal",
+      "normalTexture": {
+        "index": 2
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "Handball",
+      "normalTexture": {
+        "index": 5
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 3
+        },
+        "metallicFactor": 0.0,
+        "metallicRoughnessTexture": {
+          "index": 4
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Goal_Goal_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TANGENT": 2,
+            "TEXCOORD_0": 3
+          },
+          "indices": 4,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "Handball_Handball_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 6,
+            "POSITION": 5,
+            "TANGENT": 7,
+            "TEXCOORD_0": 8
+          },
+          "indices": 9,
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "Goal.001_Goal_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 11,
+            "POSITION": 10,
+            "TANGENT": 12,
+            "TEXCOORD_0": 13
+          },
+          "indices": 14,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        -1.0,
+        0.0,
+        0.0,
+        1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        -1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "d6b6d6ffab9c447a96f8ac40df9be485.fbx"
+    },
+    {
+      "children": [
+        3,
+        5,
+        7
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        4
+      ],
+      "matrix": [
+        -0.9999999999999964,
+        1.2246467991473515e-16,
+        8.742278000372476e-08,
+        0.0,
+        -3.698906412640348e-15,
+        0.999999999999999,
+        -4.371138840920244e-08,
+        0.0,
+        -8.742278000372468e-08,
+        -4.37113884092026e-08,
+        -0.9999999999999956,
+        0.0,
+        -41.58708190917969,
+        0.04470062255859375,
+        19.93628692626953,
+        1.0
+      ],
+      "name": "Goal"
+    },
+    {
+      "mesh": 0,
+      "name": "Goal_Goal_0"
+    },
+    {
+      "children": [
+        6
+      ],
+      "matrix": [
+        -0.9999999999999964,
+        1.2246467991473515e-16,
+        8.742278000372476e-08,
+        0.0,
+        -3.698906412640348e-15,
+        0.999999999999999,
+        -4.371138840920244e-08,
+        0.0,
+        -8.742278000372468e-08,
+        -4.37113884092026e-08,
+        -0.9999999999999956,
+        0.0,
+        -41.586978912353516,
+        -0.04627808928489685,
+        0.004871368408203125,
+        1.0
+      ],
+      "name": "Handball"
+    },
+    {
+      "mesh": 1,
+      "name": "Handball_Handball_0"
+    },
+    {
+      "children": [
+        8
+      ],
+      "matrix": [
+        0.9999999999999469,
+        -3.238973483119695e-22,
+        -3.258413698858874e-07,
+        0.0,
+        1.4242978962861966e-14,
+        0.999999999999999,
+        4.371138828673561e-08,
+        0.0,
+        3.258413698858871e-07,
+        -4.371138828673793e-08,
+        0.9999999999999459,
+        0.0,
+        -41.58708190917969,
+        0.04470062255859375,
+        -19.8946533203125,
+        1.0
+      ],
+      "name": "Goal.001"
+    },
+    {
+      "mesh": 2,
+      "name": "Goal.001_Goal_0"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    },
+    {
+      "sampler": 0,
+      "source": 3
+    },
+    {
+      "sampler": 0,
+      "source": 4
+    },
+    {
+      "sampler": 0,
+      "source": 5
+    }
+  ]
+}
