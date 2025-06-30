@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball Ultra VR - Ballon x10 plus petit, Mains Foot</title>
+  <title>Handball Ultra VR - Ballon x3 plus petit, Mains Custom Style Foot</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- A-Frame et modules -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
@@ -23,9 +23,8 @@
 <div class="msg-ui" id="msg-ui"></div>
 <div class="help-ui">
   <b>Handball Ultra VR</b><br>
-  Le ballon est 10x plus petit.<br>
-  Les mains sont inspirées du modèle utilisé dans <code>football.html</code> :<br>
-  elles suivent exactement les contrôleurs VR, sont à l’échelle des contrôleurs et bien orientées.<br>
+  Le ballon est 3x plus petit.<br>
+  Les mains utilisent le modèle 3D custom mais gardent la structure des contrôles et composants de <code>football.html</code>, avec ray, ligne et téléportation.<br>
   Tu es placé sur le terrain (<b>0 0 0</b>).
 </div>
 <a-scene
@@ -36,9 +35,9 @@
   shadow="type: pcfsoft">
 
   <a-assets>
-    <!-- Main 3D pour VR, inspirée du modèle football.html (main réaliste, échelle 1, orientation Z avant) -->
+    <!-- Main 3D pour VR (ton modèle, orienté Z avant) -->
     <a-asset-item id="main-3d-hand" src="hand/scene.gltf"></a-asset-item>
-    <!-- Ballon de handball, taille divisée par 10 -->
+    <!-- Ballon de handball, taille divisée par 3 -->
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
     <!-- Gymnase complet, positionné à 0 0 0 -->
     <a-asset-item id="gymnasium" src="handball/scene.gltf"></a-asset-item>
@@ -49,7 +48,7 @@
     <audio id="confetti" src="https://cdn.pixabay.com/audio/2022/07/26/audio_1232a6e304.mp3"></audio>
   </a-assets>
 
-  <!-- Gymnase 3D positionné à 0 0 0 (le sol du modèle doit être à y=0 pour immersion parfaite) -->
+  <!-- Gymnase 3D positionné à 0 0 0 -->
   <a-entity gltf-model="#gymnasium" position="0 0 0" scale="1 1 1" shadow="receive: true"></a-entity>
 
   <!-- Sons d'ambiance -->
@@ -63,31 +62,38 @@
     position="0 1.7 0"
     dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
     <a-entity id="camera" camera look-controls wasd-controls position="0 0 0"></a-entity>
-    <!-- Main droite VR, inspirée football.html -->
-    <a-entity
-      id="rightHand"
-      gltf-model="#main-3d-hand"
-      scale="1 1 1"
-      tracked-controls="hand: right; model: false"
+    <!-- MAIN GAUCHE VR avec modèle et contrôles inspirés football.html -->
+    <a-entity id="leftHand"
+      hand-controls="hand: left; color: #e5b285"
+      shadow="cast: true"
+      raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
+      line="color: #228b22; opacity: 0.8"
+      teleport-controls="hand: left; cameraRig: #rig; teleportOrigin: #camera; button: trigger"
       super-hands
-      shadow="cast: true">
+    >
+      <a-entity gltf-model="#main-3d-hand" scale="1 1 1"></a-entity>
+      <!-- Cube repère style foot si tu veux, sinon retire cette ligne -->
+      <!-- <a-box width="0.045" height="0.045" depth="0.009" color="#228b22" position="0 0.06 0.035"></a-box> -->
     </a-entity>
-    <!-- Main gauche VR, inspirée football.html -->
-    <a-entity
-      id="leftHand"
-      gltf-model="#main-3d-hand"
-      scale="1 1 1"
-      tracked-controls="hand: left; model: false"
+    <!-- MAIN DROITE VR avec modèle et contrôles inspirés football.html -->
+    <a-entity id="rightHand"
+      hand-controls="hand: right; color: #d7a878"
+      shadow="cast: true"
+      raycaster="objects: .raycastable; showLine: true; lineColor: #228b22"
+      line="color: #228b22; opacity: 0.8"
+      teleport-controls="hand: right; cameraRig: #rig; teleportOrigin: #camera; button: trigger"
       super-hands
-      shadow="cast: true">
+    >
+      <a-entity gltf-model="#main-3d-hand" scale="1 1 1"></a-entity>
+      <!-- <a-box width="0.045" height="0.045" depth="0.009" color="#228b22" position="0 0.06 0.035"></a-box> -->
     </a-entity>
   </a-entity>
 
-  <!-- Ballon handball 10x plus petit, posé devant toi (prise en main possible via super-hands) -->
+  <!-- Ballon handball 3x plus petit, posé devant toi (prise en main possible via super-hands) -->
   <a-entity id="handball"
     gltf-model="#handball-ball"
     position="0 1 0.6"
-    scale="0.019 0.019 0.019"
+    scale="0.063 0.063 0.063"
     dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
     grabbable
     shadow="cast: true"></a-entity>
