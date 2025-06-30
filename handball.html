@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Handball VR - Jeu Officiel Complet</title>
+  <title>Handball VR - Jeu Officiel Immersif</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Scripts compatibles -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
@@ -52,7 +52,29 @@
             rotation="90 0 0">
   </a-entity>
 
-  <!-- Terrain, lignes fixes, zones -->
+  <!-- Bande de profondeur et sol autour du terrain -->
+  <a-box position="0 0.06 0" width="20" height="0.03" depth="34" color="#B0BEC5" opacity="0.16"></a-box>
+  <a-ring position="0 0.07 0" rotation="-90 0 0" radius-inner="7.2" radius-outer="9.7" color="#90caf9" opacity="0.15"></a-ring>
+  <a-ring position="0 0.07 0" rotation="-90 0 0" radius-inner="9.8" radius-outer="10.4" color="#fff" opacity="0.09"></a-ring>
+  <a-plane position="0 0.058 0" rotation="-90 0 0" width="20" height="34" src="#parquet" repeat="4 8" opacity="0.22"></a-plane>
+
+  <!-- Barrières physiques transparentes et modernes autour du terrain -->
+  <a-box position="0 0.55 15.8" width="14.8" height="1.1" depth="0.12" color="#e0e0e0" opacity="0.7" static-body></a-box>
+  <a-box position="0 0.55 -15.8" width="14.8" height="1.1" depth="0.12" color="#e0e0e0" opacity="0.7" static-body></a-box>
+  <a-box position="7.6 0.55 0" width="0.12" height="1.1" depth="30.8" color="#e0e0e0" opacity="0.7" static-body></a-box>
+  <a-box position="-7.6 0.55 0" width="0.12" height="1.1" depth="30.8" color="#e0e0e0" opacity="0.7" static-body></a-box>
+  <!-- Coins arrondis pour esthétique gymnase -->
+  <a-cylinder position="7.6 0.55 15.8" radius="0.12" height="1.1" color="#e0e0e0" opacity="0.7" segments-radial="12" static-body></a-cylinder>
+  <a-cylinder position="-7.6 0.55 15.8" radius="0.12" height="1.1" color="#e0e0e0" opacity="0.7" segments-radial="12" static-body></a-cylinder>
+  <a-cylinder position="7.6 0.55 -15.8" radius="0.12" height="1.1" color="#e0e0e0" opacity="0.7" segments-radial="12" static-body></a-cylinder>
+  <a-cylinder position="-7.6 0.55 -15.8" radius="0.12" height="1.1" color="#e0e0e0" opacity="0.7" segments-radial="12" static-body></a-cylinder>
+  <!-- Poteaux de sécurité (option, immersion gymnase) -->
+  <a-cylinder position="6.5 1.2 15.8" radius="0.05" height="2.2" color="#607d8b" opacity="0.7" static-body></a-cylinder>
+  <a-cylinder position="-6.5 1.2 15.8" radius="0.05" height="2.2" color="#607d8b" opacity="0.7" static-body></a-cylinder>
+  <a-cylinder position="6.5 1.2 -15.8" radius="0.05" height="2.2" color="#607d8b" opacity="0.7" static-body></a-cylinder>
+  <a-cylinder position="-6.5 1.2 -15.8" radius="0.05" height="2.2" color="#607d8b" opacity="0.7" static-body></a-cylinder>
+
+  <!-- Terrain, lignes fixes, zones (identique à avant) -->
   <a-box position="0 0 0" width="14" height="0.12" depth="28" src="#parquet" color="#efd6a2" static-body></a-box>
   <a-box position="0 0.071 0" width="14" height="0.018" depth="0.18" color="#fff"></a-box>
   <a-box position="0 0.071 14" width="14" height="0.02" depth="0.18" color="#fff"></a-box>
@@ -93,7 +115,7 @@
     animation="property: rotation.z; dir: alternate; from: 0; to: -2; dur: 1100; loop: true; easing: easeInOutSine"></a-plane>
   <a-box id="goal-trigger-south" position="0 1 -13.81" width="2.6" height="1.75" depth="0.1" opacity="0" visible="false" static-body></a-box>
 
-  <!-- Tribunes animées -->
+  <!-- Tribunes animées (identique à avant) -->
   <a-plane position="0 2.7 15.4" width="14" height="5" src="#tribune"
     animation="property: position.x; dir: alternate; from: -0.1; to: 0.1; loop: true; dur: 3000"></a-plane>
   <a-plane position="0 2.7 -15.4" width="14" height="5" src="#tribune"
