@@ -43,11 +43,16 @@
   <button class="handball-btn" id="startBtn">Jouer en VR ou PC</button>
   <div style="color:#fff;margin-top:1.5rem;font-size:1.2em;">Attrape le ballon, vise, tire et marque !</div>
 </div>
-<a-scene physics="gravity:-9.8;" background="color: #e5f6ff" loading-screen="enabled:false">
+<a-scene physics="gravity:-9.8;" loading-screen="enabled:false">
   <a-assets>
     <a-asset-item id="terrain" src="handball/scene.gltf"></a-asset-item>
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
+    <!-- Skydome image asset (mets le bon chemin si besoin) -->
+    <img id="gym-sky" src="stock-photo-minsk-belarus-july-panorama-in-interior-modern-gymnasium-basketball-court-full-by-744512341.jpg" crossorigin="anonymous">
   </a-assets>
+
+  <!-- Skydome décor gymnase -->
+  <a-sky src="#gym-sky" rotation="0 -90 0"></a-sky>
 
   <!-- Terrain (exactement comme demandé) -->
   <a-entity gltf-model="handball/scene.gltf" position="41.74188 0 0" scale="" shadow=""></a-entity>
