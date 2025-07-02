@@ -2,8 +2,8 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>Handball Ultra Multiplateforme + Décor + Physique</title>
-  <meta name="description" content="Handball VR/PC/mobile avec décor 3D généré automatiquement et physique réaliste (collisions partout).">
+  <title>Handball Ultra Multiplateforme + Décor infini + Physique réelle</title>
+  <meta name="description" content="Handball VR/PC/mobile avec décor infini visuel et vraie physique partout.">
   <link href="https://fonts.googleapis.com/css?family=Kameron:700|Orbitron:900|Montserrat:400,700&display=swap" rel="stylesheet">
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
@@ -87,71 +87,42 @@
 <div id="handballOverlay" class="handball-overlay">
   <div class="handball-title">Handball Ultra Multiplateforme</div>
   <button class="handball-btn" id="startBtn">Jouer</button>
-  <div class="handball-desc">Clique/touche le ballon pour le déplacer.<br>Relâche pour le lancer avec la physique.<br>Compatible VR, PC, mobile.<br>Décor 3D généré automatiquement.</div>
+  <div class="handball-desc">Clique/touche le ballon pour le déplacer.<br>Relâche pour le lancer avec la physique.<br>Compatible VR, PC, mobile.<br>Décor 3D généré automatiquement.<br>Terrain et décor physique géant, tu ne pourras jamais sortir ou tomber.</div>
 </div>
 <a-scene physics="gravity:-9.8;" loading-screen="enabled:false" id="scene">
   <a-assets>
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
   </a-assets>
-  <a-entity environment="preset: arches; shadow: true; playArea: 1.5"></a-entity>
-  <!-- Terrain physique -->
-  <a-plane width="20" height="40" color="#eab676" position="-0.226 0.00862 0" rotation="-90 0 0" shadow static-body="shape: box;"></a-plane>
-  <!-- Lignes principales terrain -->
-  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="-0.22558 0.026 0"></a-entity>
-  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="-0.22558 0.026 -19.95"></a-entity>
-  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="-0.22558 0.026 19.95"></a-entity>
-  <!-- Lignes de touche latérales -->
-  <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40" material="color: #fff" position="-4.22558 0.026 0"></a-entity>
-  <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40" material="color: #fff" position="3.77442 0.026 0"></a-entity>
-  <!-- 9m arcs (surface de but) -->
-  <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32" position="-0.22558 0.031 -10.95" rotation="-90 0 0" material="color: #fff;"></a-torus>
-  <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32" position="-0.22558 0.031 10.95" rotation="-90 180 0" material="color: #fff;"></a-torus>
-  <!-- 6m arcs (petite surface) -->
-  <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32" position="-0.22558 0.031 -13.95" rotation="-90 0 0" material="color: #fff;"></a-torus>
-  <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32" position="-0.22558 0.031 13.95" rotation="-90 180 0" material="color: #fff;"></a-torus>
-  <!-- points de penalty -->
-  <a-cylinder radius="0.15" height="0.05" color="#fff" position="-0.22558 0.031 -16.45"></a-cylinder>
-  <a-cylinder radius="0.15" height="0.05" color="#fff" position="-0.22558 0.031 16.45"></a-cylinder>
-  <!-- Buts (physique) -->
-  <a-box width="3" height="2" depth="0.12" color="#e63c3c" position="-0.22558 1 -20.06" material="metalness:0.7; roughness:0.18;" shadow="cast:true" static-body></a-box>
-  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="-1.72558 1 -20.06" shadow static-body></a-box>
-  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="1.27442 1 -20.06" shadow static-body></a-box>
-  <a-box width="3" height="0.12" depth="0.12" color="#e63c3c" position="-0.22558 2 -20.06" shadow static-body></a-box>
-  <a-entity geometry="primitive: box; width: 3; height: 2; depth: 0.18" material="color: #fff; opacity: 0.39; side: double" position="-0.22558 1 -20.15"></a-entity>
-  <a-box width="3" height="2" depth="0.12" color="#0f82ff" position="-0.22558 1 20.06" material="metalness:0.7; roughness:0.18;" shadow="cast:true" static-body></a-box>
-  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="-1.72558 1 20.06" shadow static-body></a-box>
-  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="1.27442 1 20.06" shadow static-body></a-box>
-  <a-box width="3" height="0.12" depth="0.12" color="#0f82ff" position="-0.22558 2 20.06" shadow static-body></a-box>
-  <a-entity geometry="primitive: box; width: 3; height: 2; depth: 0.18" material="color: #fff; opacity: 0.39; side: double" position="-0.22558 1 20.15"></a-entity>
-  <!-- Tribunes (physique) -->
-  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="-0.22558 1.4 -22.7" material="opacity:0.8;" static-body></a-box>
-  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="-0.22558 1.4 22.7" material="opacity:0.8;" static-body></a-box>
-  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="-6.22558 1.4 0" material="opacity:0.8;" static-body></a-box>
-  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="5.77442 1.4 0" material="opacity:0.8;" static-body></a-box>
-  <!-- Gradins colorés (physique) -->
-  <a-box width="10" height="0.5" depth="1" color="#d0a547" position="-0.22558 0.25 -23.4" static-body></a-box>
-  <a-box width="10" height="0.5" depth="1" color="#d0a547" position="-0.22558 0.25 23.4" static-body></a-box>
-  <a-box width="1" height="0.5" depth="45" color="#d0a547" position="-7.22558 0.25 0" static-body></a-box>
-  <a-box width="1" height="0.5" depth="45" color="#d0a547" position="6.77442 0.25 0" static-body></a-box>
-  <!-- Lumières réalistes -->
-  <a-entity light="type: ambient; intensity: 0.38; color: #dbeafe"></a-entity>
-  <a-entity light="type: directional; intensity: 0.99; castShadow: true; shadowMapHeight:2048; shadowMapWidth:2048; color:#fff" position="-0.22558 17 17"></a-entity>
-  <a-entity light="type: spot; intensity: 0.12; color: #ffe066; angle:30; penumbra:0.2; distance:50" position="-0.22558 12 0"></a-entity>
+  <!-- Décor visuel infini -->
+  <a-entity environment="preset: arches; shadow: true; playArea: 1000"></a-entity>
+  <!-- Terrain physique immense -->
+  <a-plane width="1000" height="1000" color="#eab676" position="0 0 0" rotation="-90 0 0" shadow static-body="shape: box;"></a-plane>
+  <!-- Murs physiques invisibles pour ne jamais sortir du terrain -->
+  <a-box width="1000" height="20" depth="2" color="#000" opacity="0" position="0 10 -499" static-body></a-box>
+  <a-box width="1000" height="20" depth="2" color="#000" opacity="0" position="0 10 499" static-body></a-box>
+  <a-box width="2" height="20" depth="1000" color="#000" opacity="0" position="-499 10 0" static-body></a-box>
+  <a-box width="2" height="20" depth="1000" color="#000" opacity="0" position="499 10 0" static-body></a-box>
+  <!-- Décors physiques d'exemple, tu peux en ajouter plus pour l'ambiance -->
+  <a-cylinder radius="8" height="10" color="#544c29" position="200 5 150" static-body></a-cylinder>
+  <a-box width="14" height="7" depth="14" color="#777" position="-250 3.5 -200" static-body></a-box>
+  <!-- Zone handball centrale, lignes et buts (physiques) -->
+  <a-plane width="20" height="40" color="#eab676" position="0 0.01 0" rotation="-90 0 0" shadow static-body></a-plane>
+  <a-box width="3" height="2" depth="0.12" color="#e63c3c" position="0 1 -20.06" static-body></a-box>
+  <a-box width="3" height="2" depth="0.12" color="#0f82ff" position="0 1 20.06" static-body></a-box>
   <!-- Ballon physique -->
   <a-entity id="handball"
     gltf-model="#handball-ball"
-    position="-0.22558 1 0.8"
+    position="0 1 0.8"
     scale="0.009 0.009 0.009"
     dynamic-body="shape: sphere; mass: 0.36; restitution:0.81; friction:0.33"
     grabbable
     follow-pointer
-    shadow
-    obb-collider="centerModel: true"></a-entity>
-  <!-- RIG physique et piloté par physics-system -->
+    shadow></a-entity>
+  <!-- RIG physique, piloté par movement-controls rapide -->
   <a-entity id="rig"
-    position="0.60286 1.7 0"
+    position="0 1.7 5"
     dynamic-body="shape: capsule; height: 1.7; radius: 0.3; mass: 80; fixedRotation: true;"
-    movement-controls="constrainToNavMesh: false; speed: 7">
+    movement-controls="speed: 30">
     <a-entity id="camera" camera look-controls></a-entity>
     <a-entity id="leftHand"
       hand-controls
@@ -181,8 +152,6 @@
 document.getElementById('startBtn').onclick = function() {
   document.getElementById('handballOverlay').style.display = 'none';
 };
-
-// Score UI simple (exemple)
 let shots = 0, goals = 0;
 const shotsUi = document.getElementById('shots');
 const goalsUi = document.getElementById('goals');
@@ -194,8 +163,6 @@ function updateScore(goal) {
   document.getElementById('msg-ui').textContent = goal ? "But ! 🥅🏐" : "";
   setTimeout(()=>{document.getElementById('msg-ui').textContent = "";}, 1800);
 }
-
-// Drag&drop multiplateforme (PC/mobile/VR)
 AFRAME.registerComponent('follow-pointer', {
   init: function () {
     this.dragging = false;
@@ -206,11 +173,9 @@ AFRAME.registerComponent('follow-pointer', {
     this.el.isGrabbed = false;
     this.el.addEventListener('grab-start', () => { this.el.isGrabbed = true; });
     this.el.addEventListener('grab-end', () => { this.el.isGrabbed = false; });
-
     this._onDown = this.onPointerDown.bind(this);
     this._onMove = this.onPointerMove.bind(this);
     this._onUp = this.onPointerUp.bind(this);
-
     this.scene.addEventListener('mousedown', this._onDown);
     this.scene.addEventListener('touchstart', this._onDown);
     window.addEventListener('mousemove', this._onMove);
@@ -227,7 +192,7 @@ AFRAME.registerComponent('follow-pointer', {
     window.removeEventListener('touchend', this._onUp);
   },
   onPointerDown: function(e) {
-    if(this.el.isGrabbed) return; // VR en priorité
+    if(this.el.isGrabbed) return;
     let x, y;
     if(e.type.startsWith('touch')) {
       x = e.touches[0].clientX; y = e.touches[0].clientY; this.pointerId = e.touches[0].identifier;
