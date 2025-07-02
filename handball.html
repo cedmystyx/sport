@@ -2,12 +2,11 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>Handball Ultra VR</title>
-  <meta name="description" content="Handball VR immersif. Attrape le ballon, marque des buts, bats tes records. Expérience optimisée VR.">
+  <title>Handball Ultra Trajectoire</title>
+  <meta name="description" content="Handball VR/PC/mobile : attrape, trace et lance la balle avec une trajectoire comme dans FIFA corner.">
   <link href="https://fonts.googleapis.com/css?family=Kameron:700|Orbitron:900|Montserrat:400,700&display=swap" rel="stylesheet">
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-animation-component@6.0.0/dist/aframe-animation-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.controls.min.js"></script>
   <style>
@@ -108,10 +107,10 @@
 </div>
 <div class="msg-ui" id="msg-ui"></div>
 <div id="handballOverlay" class="handball-overlay">
-  <div class="handball-title">Handball Ultra VR</div>
-  <button class="handball-btn" id="startBtn">Jouer en VR ou PC</button>
-  <div class="handball-desc">Attrape le ballon avec tes mains, vise, tire et marque !<br>
-    <span style="font-size:.9em;opacity:0.7;">Compatible VR et PC &mdash; Jouabilité immersive &mdash; Terrain généré en 3D</span>
+  <div class="handball-title">Handball Ultra Trajectoire</div>
+  <button class="handball-btn" id="startBtn">Jouer</button>
+  <div class="handball-desc">Sur PC/mobile, clique ou touche la balle, trace ta trajectoire, relâche pour tirer.<br>
+    Un trait bleu te montre la direction !
   </div>
 </div>
 <a-scene physics="gravity:-9.8;" loading-screen="enabled:false">
@@ -119,9 +118,8 @@
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
   </a-assets>
 
-  <!-- Terrain de handball généré en 3D, aligné avec le ballon (X = -0.22558, Z = 0) -->
+  <!-- Terrain de handball, aligné avec la balle -->
   <a-plane width="20" height="40" color="#eab676" position="-0.22558 0 0" rotation="-90 0 0" shadow="receive:true"></a-plane>
-  <!-- Lignes principales terrain -->
   <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05"
             material="color: #fff"
             position="-0.22558 0.026 0"></a-entity>
@@ -131,31 +129,26 @@
   <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05"
             material="color: #fff"
             position="-0.22558 0.026 19.95"></a-entity>
-  <!-- Lignes de touche latérales -->
   <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40"
             material="color: #fff"
             position="-4.22558 0.026 0"></a-entity>
   <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40"
             material="color: #fff"
             position="3.77442 0.026 0"></a-entity>
-  <!-- 9m arcs (surface de but) -->
   <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32"
            position="-0.22558 0.031 -10.95" rotation="-90 0 0"
            material="color: #fff;"></a-torus>
   <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32"
            position="-0.22558 0.031 10.95" rotation="-90 180 0"
            material="color: #fff;"></a-torus>
-  <!-- 6m arcs (petite surface) -->
   <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32"
            position="-0.22558 0.031 -13.95" rotation="-90 0 0"
            material="color: #fff;"></a-torus>
   <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32"
            position="-0.22558 0.031 13.95" rotation="-90 180 0"
            material="color: #fff;"></a-torus>
-  <!-- points de penalty -->
   <a-cylinder radius="0.15" height="0.05" color="#fff" position="-0.22558 0.031 -16.45"></a-cylinder>
   <a-cylinder radius="0.15" height="0.05" color="#fff" position="-0.22558 0.031 16.45"></a-cylinder>
-  <!-- Buts -->
   <a-box width="3" height="2" depth="0.12" color="#e63c3c" position="-0.22558 1 -20.06" material="metalness:0.7; roughness:0.18;" shadow="cast:true"></a-box>
   <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="-1.72558 1 -20.06" shadow></a-box>
   <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="1.27442 1 -20.06" shadow></a-box>
@@ -170,31 +163,27 @@
   <a-entity geometry="primitive: box; width: 3; height: 2; depth: 0.18"
             material="color: #fff; opacity: 0.39; side: double"
             position="-0.22558 1 20.15" ></a-entity>
-  <!-- Tribunes -->
   <a-box width="10" height="2.5" depth="2" color="#8d9096" position="-0.22558 1.4 -22.7" material="opacity:0.8;"></a-box>
   <a-box width="10" height="2.5" depth="2" color="#8d9096" position="-0.22558 1.4 22.7" material="opacity:0.8;"></a-box>
   <a-box width="2" height="2.5" depth="45" color="#8d9096" position="-6.22558 1.4 0" material="opacity:0.8;"></a-box>
   <a-box width="2" height="2.5" depth="45" color="#8d9096" position="5.77442 1.4 0" material="opacity:0.8;"></a-box>
-  <!-- Gradins colorés -->
   <a-box width="10" height="0.5" depth="1" color="#d0a547" position="-0.22558 0.25 -23.4"></a-box>
   <a-box width="10" height="0.5" depth="1" color="#d0a547" position="-0.22558 0.25 23.4"></a-box>
   <a-box width="1" height="0.5" depth="45" color="#d0a547" position="-7.22558 0.25 0"></a-box>
   <a-box width="1" height="0.5" depth="45" color="#d0a547" position="6.77442 0.25 0"></a-box>
-  <!-- Lumières réalistes -->
   <a-entity light="type: ambient; intensity: 0.38; color: #dbeafe"></a-entity>
   <a-entity light="type: directional; intensity: 0.99; castShadow: true; shadowMapHeight:2048; shadowMapWidth:2048; color:#fff"
     position="-0.22558 17 17"></a-entity>
   <a-entity light="type: spot; intensity: 0.12; color: #ffe066; angle:30; penumbra:0.2; distance:50"
     position="-0.22558 12 0"></a-entity>
 
-  <!-- Ballon handball INTERACTIF -->
+  <!-- Ballon handball avec drag + trajectoire -->
   <a-entity id="handball"
     gltf-model="handball_1964/scene.gltf"
     position="-0.22558 1 0.8"
     scale="0.009 0.009 0.009"
     dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
-    grabbable
-    throw-on-button
+    drag-trajectory
     shadow
     obb-collider="centerModel: true"
     animation__hover="property: scale; startEvents: mouseenter; to: 0.012 0.012 0.012; dur: 200; easing: easeOutQuad"
@@ -206,32 +195,6 @@
     <a-entity id="camera" camera look-controls wasd-controls rotation="-30.02298846485515 -183.23190288283757 0"
       wasd-controls="acceleration:60;fly:false;"
       animation__start="property: components.material.material.color; from: #fff; to: #1497ff; dur:500; startEvents:mouseenter;"
-      ></a-entity>
-    <!-- MAIN GAUCHE -->
-    <a-entity id="leftHand"
-      hand-controls
-      shadow
-      super-hands
-      magicleap-controls="hand: left; model: false"
-      vive-controls="model: false"
-      oculus-touch-controls="model: false"
-      pico-controls="hand: left; model: false"
-      windows-motion-controls="hand: left; model: false"
-      hp-mixed-reality-controls="hand: left; model: false"
-      material="color:#1e90ff;metalness:0.4;roughness:0.3;"
-      ></a-entity>
-    <!-- MAIN DROITE -->
-    <a-entity id="rightHand"
-      hand-controls="hand: right"
-      shadow
-      super-hands
-      magicleap-controls="hand: right; model: false"
-      vive-controls="hand: right; model: false"
-      oculus-touch-controls="hand: right; model: false"
-      pico-controls="hand: right; model: false"
-      windows-motion-controls="model: false"
-      hp-mixed-reality-controls="hand: right; model: false"
-      material="color:#ffc107;metalness:0.4;roughness:0.3;"
       ></a-entity>
   </a-entity>
 </a-scene>
@@ -254,25 +217,158 @@
     setTimeout(()=>{document.getElementById('msg-ui').textContent = "";}, 1800);
   }
 
-  // Permet de lancer le ballon avec un bouton du contrôleur ou la barre espace
-  AFRAME.registerComponent('throw-on-button', {
+  // Ball drag & trajectory (PC + mobile : type FIFA corner)
+  AFRAME.registerComponent('drag-trajectory', {
+    schema: {
+      lineColor: {default: "#1e90ff"}
+    },
     init: function () {
       const el = this.el;
-      el.isGrabbed = false;
-      el.addEventListener('grab-start', function () { el.isGrabbed = true; });
-      el.addEventListener('grab-end', function () { el.isGrabbed = false; });
-      // PC (Space ou T)
-      window.addEventListener('keydown', function (evt) {
-        if (el.isGrabbed && (evt.code === 'Space' || evt.code === 'KeyT')) {
-          el.emit('grab-end', {});
-        }
-      });
-      // WebXR (tous boutons principaux)
-      ['triggerdown','gripdown','abuttondown','bbuttondown','xbuttondown','ybuttondown'].forEach(ev=>{
-        el.addEventListener(ev, function () {
-          if (el.isGrabbed) el.emit('grab-end', {});
+      this.dragging = false;
+      this.startPos = null;
+      this.line = null;
+      this.positions = [];
+      this.mouseDownHandler = this.onDown.bind(this);
+      this.mouseUpHandler = this.onUp.bind(this);
+      this.mouseMoveHandler = this.onMove.bind(this);
+
+      el.addEventListener('mousedown', this.mouseDownHandler);
+      el.addEventListener('touchstart', this.mouseDownHandler);
+      window.addEventListener('mousemove', this.mouseMoveHandler);
+      window.addEventListener('touchmove', this.mouseMoveHandler);
+      window.addEventListener('mouseup', this.mouseUpHandler);
+      window.addEventListener('touchend', this.mouseUpHandler);
+    },
+    remove: function () {
+      this.el.removeEventListener('mousedown', this.mouseDownHandler);
+      this.el.removeEventListener('touchstart', this.mouseDownHandler);
+      window.removeEventListener('mousemove', this.mouseMoveHandler);
+      window.removeEventListener('touchmove', this.mouseMoveHandler);
+      window.removeEventListener('mouseup', this.mouseUpHandler);
+      window.removeEventListener('touchend', this.mouseUpHandler);
+    },
+    onDown: function (e) {
+      // Check if we click/touch the ball
+      let intersected = false;
+      if (e.type.startsWith('touch')) {
+        const touch = e.touches[0];
+        intersected = this.rayTest(touch.clientX, touch.clientY);
+      } else if (e.target === this.el) {
+        intersected = true;
+      }
+      if (!intersected) return;
+
+      e.preventDefault();
+      this.dragging = true;
+      this.positions = [];
+      this.startPos = this.getWorldPos();
+      this.addLine();
+      this.positions.push(this.startPos.clone ? this.startPos.clone() : this.startPos);
+    },
+    onMove: function (e) {
+      if (!this.dragging) return;
+      let pos;
+      if (e.type.startsWith('touch')) {
+        const touch = e.touches[0];
+        pos = this.screenToWorld(touch.clientX, touch.clientY);
+      } else {
+        pos = this.screenToWorld(e.clientX, e.clientY);
+      }
+      if (pos) {
+        this.positions.push(pos.clone ? pos.clone() : pos);
+        this.updateLine();
+      }
+    },
+    onUp: function (e) {
+      if (!this.dragging) return;
+      this.dragging = false;
+      if (this.positions.length > 2) {
+        // Applique la trajectoire physique
+        this.launchBall();
+      }
+      this.removeLine();
+      this.positions = [];
+    },
+    getWorldPos: function () {
+      const pos = new THREE.Vector3();
+      this.el.object3D.getWorldPosition(pos);
+      return pos;
+    },
+    screenToWorld: function (x, y) {
+      // Convert screen -> raycast -> point on plane y=1
+      const scene = this.el.sceneEl;
+      const camera = scene.camera;
+      const mouse = new THREE.Vector2(
+        (x / window.innerWidth) * 2 - 1,
+        -(y / window.innerHeight) * 2 + 1
+      );
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+      const planeY = 1; // hauteur de la balle
+      const origin = raycaster.ray.origin;
+      const dir = raycaster.ray.direction;
+      if (Math.abs(dir.y) < 1e-4) return null;
+      const t = (planeY - origin.y) / dir.y;
+      if (t < 0) return null;
+      return origin.clone().add(dir.clone().multiplyScalar(t));
+    },
+    rayTest: function (x, y) {
+      const scene = this.el.sceneEl;
+      const camera = scene.camera;
+      const mouse = new THREE.Vector2(
+        (x / window.innerWidth) * 2 - 1,
+        -(y / window.innerHeight) * 2 + 1
+      );
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObject(this.el.object3D, true);
+      return intersects.length > 0;
+    },
+    addLine: function () {
+      if (!this.line) {
+        this.line = document.createElement('a-entity');
+        this.line.setAttribute('line', {
+          color: this.data.lineColor,
+          opacity: 0.8,
+          start: '0 0 0',
+          end: '0 0 0'
         });
+        this.el.sceneEl.appendChild(this.line);
+      }
+    },
+    updateLine: function () {
+      if (!this.line || this.positions.length < 2) return;
+      const start = this.positions[0];
+      const end = this.positions[this.positions.length - 1];
+      this.line.setAttribute('line', {
+        color: this.data.lineColor,
+        opacity: 0.8,
+        start: `${start.x} ${start.y} ${start.z}`,
+        end: `${end.x} ${end.y} ${end.z}`
       });
+    },
+    removeLine: function () {
+      if (this.line) {
+        this.line.parentNode.removeChild(this.line);
+        this.line = null;
+      }
+    },
+    launchBall: function () {
+      // Calcule la direction et force
+      const start = this.positions[0];
+      const end = this.positions[this.positions.length - 1];
+      const dir = new THREE.Vector3().subVectors(end, start);
+      const force = dir.clone().multiplyScalar(6); // Ajuste la puissance ici
+      // Enlève toute vélocité existante
+      if (this.el.body) {
+        this.el.body.velocity.set(0, 0, 0);
+        this.el.body.angularVelocity.set(0, 0, 0);
+        // Applique la force
+        this.el.body.applyImpulse(
+          new CANNON.Vec3(force.x, force.y, force.z),
+          new CANNON.Vec3(0, 0, 0)
+        );
+      }
     }
   });
 </script>
