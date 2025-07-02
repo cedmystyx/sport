@@ -2,15 +2,20 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>Handball Ultra Trajectoire</title>
-  <meta name="description" content="Handball VR/PC/mobile : attrape, trace et lance la balle avec une trajectoire comme dans FIFA corner.">
+  <title>Handball Ultra VR Multiplateforme</title>
+  <meta name="description" content="Handball VR/PC/mobile : attrape ou drag le ballon et lance-le avec une trajectoire comme dans FIFA corner.">
   <link href="https://fonts.googleapis.com/css?family=Kameron:700|Orbitron:900|Montserrat:400,700&display=swap" rel="stylesheet">
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-animation-component@6.0.0/dist/aframe-animation-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.controls.min.js"></script>
   <style>
-    body { margin:0; background:radial-gradient(ellipse at 50% 30%, #e5f6ff 40%, #b3d0ee 100%); font-family:'Montserrat',Arial,sans-serif; }
+    body {
+      margin:0;
+      background:radial-gradient(ellipse at 50% 30%, #e5f6ff 40%, #b3d0ee 100%);
+      font-family:'Montserrat',Arial,sans-serif;
+    }
     .handball-overlay {
       position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:10000;
       display:flex;align-items:center;justify-content:center;
@@ -43,35 +48,134 @@
       color:#e5f6ff; font-size:1.25em; margin-top:1.3rem; margin-bottom:0.7rem;
       text-align:center; text-shadow:0 2px 10px #0009; letter-spacing:0.04em; max-width:700px;
     }
-    @media (max-width:700px) { .handball-title {font-size:2.1rem;} .handball-desc {font-size:1em;} }
+    .score-ui {
+      position: absolute; top:28px; right:34px; background:rgba(30,144,255,0.86);
+      color:#fff; font-family:'Orbitron',Arial,sans-serif;
+      font-size:1.32em; border-radius:17px 0 15px 0;
+      box-shadow:0 4px 18px #1497ff44;
+      padding:1em 2.2em; z-index:1002; pointer-events:none; user-select:none;
+      border:2px solid #fff7;
+      letter-spacing:0.03em;
+      min-width:180px;
+      text-shadow:0 2px 8px #0a3a7499, 0 1px #fff5;
+      transition:background 0.2s;
+      text-align:right;
+    }
+    .msg-ui {
+      position:absolute;left:0;right:0;top:92px;text-align:center;z-index:1010;
+      font-family:'Orbitron',Impact,Arial,sans-serif;
+      font-size:2.2em;letter-spacing:0.07em;
+      color:#1e90ff;text-shadow:0 4px 38px #fff,0 0 30px #30c6fb99, 0 2px 0 #063a5b;
+      filter:drop-shadow(0 0 8px #fff3);
+      pointer-events:none;
+    }
+    @media (max-width:700px) { .handball-title {font-size:2.1rem;} .handball-desc {font-size:1em;} .score-ui {font-size:1em; padding:0.7em 1.2em;} }
   </style>
 </head>
 <body>
+<div class="score-ui" id="score-ui">
+  <span style="font-size:1.15em;">🏐</span>
+  Ballons :<span id="shots" style="margin:0 0.5em 0 0.2em;font-weight:bold;">0</span>
+  <span style="font-size:1.15em;">🥅</span>
+  Buts :<span id="goals" style="margin:0 0.3em 0 0.2em;font-weight:bold;">0</span>
+</div>
+<div class="msg-ui" id="msg-ui"></div>
 <div id="handballOverlay" class="handball-overlay">
-  <div class="handball-title">Handball Ultra Trajectoire</div>
-  <button class="handball-btn" id="startBtn">Jouer</button>
-  <div class="handball-desc">Sur PC/mobile, clique ou touche la balle, trace ta trajectoire, relâche pour tirer.<br>
-    Un trait bleu te montre la direction !
+  <div class="handball-title">Handball Ultra VR Multiplateforme</div>
+  <button class="handball-btn" id="startBtn">Jouer en VR, PC ou Mobile</button>
+  <div class="handball-desc">Attrape le ballon avec tes mains en VR, ou drag-le à la souris ou au doigt sur PC/mobile.<br>
+    Trace la trajectoire et relâche pour tirer !<br>
+    <span style="font-size:.9em;opacity:0.7;">Compatible VR, PC, mobile : jouabilité immersive &amp; drag multiplateforme</span>
   </div>
 </div>
 <a-scene physics="gravity:-9.8;" loading-screen="enabled:false" id="scene">
   <a-assets>
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
   </a-assets>
-  <!-- Terrain de handball, aligné avec la balle -->
-  <a-plane width="20" height="40" color="#eab676" position="-0.22558 0 0" rotation="-90 0 0"></a-plane>
-  <!-- Ballon handball interactif -->
+  <!-- Terrain de handball généré en 3D, aligné avec le ballon (X = -0.22558, Z = 0) -->
+  <a-plane width="20" height="40" color="#eab676" position="-0.22558 0 0" rotation="-90 0 0" shadow="receive:true"></a-plane>
+  <!-- Lignes principales terrain -->
+  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="-0.22558 0.026 0"></a-entity>
+  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="-0.22558 0.026 -19.95"></a-entity>
+  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="-0.22558 0.026 19.95"></a-entity>
+  <!-- Lignes de touche latérales -->
+  <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40" material="color: #fff" position="-4.22558 0.026 0"></a-entity>
+  <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40" material="color: #fff" position="3.77442 0.026 0"></a-entity>
+  <!-- 9m arcs (surface de but) -->
+  <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32" position="-0.22558 0.031 -10.95" rotation="-90 0 0" material="color: #fff;"></a-torus>
+  <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32" position="-0.22558 0.031 10.95" rotation="-90 180 0" material="color: #fff;"></a-torus>
+  <!-- 6m arcs (petite surface) -->
+  <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32" position="-0.22558 0.031 -13.95" rotation="-90 0 0" material="color: #fff;"></a-torus>
+  <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32" position="-0.22558 0.031 13.95" rotation="-90 180 0" material="color: #fff;"></a-torus>
+  <!-- points de penalty -->
+  <a-cylinder radius="0.15" height="0.05" color="#fff" position="-0.22558 0.031 -16.45"></a-cylinder>
+  <a-cylinder radius="0.15" height="0.05" color="#fff" position="-0.22558 0.031 16.45"></a-cylinder>
+  <!-- Buts -->
+  <a-box width="3" height="2" depth="0.12" color="#e63c3c" position="-0.22558 1 -20.06" material="metalness:0.7; roughness:0.18;" shadow="cast:true"></a-box>
+  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="-1.72558 1 -20.06" shadow></a-box>
+  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="1.27442 1 -20.06" shadow></a-box>
+  <a-box width="3" height="0.12" depth="0.12" color="#e63c3c" position="-0.22558 2 -20.06" shadow></a-box>
+  <a-entity geometry="primitive: box; width: 3; height: 2; depth: 0.18" material="color: #fff; opacity: 0.39; side: double" position="-0.22558 1 -20.15" ></a-entity>
+  <a-box width="3" height="2" depth="0.12" color="#0f82ff" position="-0.22558 1 20.06" material="metalness:0.7; roughness:0.18;" shadow="cast:true"></a-box>
+  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="-1.72558 1 20.06" shadow></a-box>
+  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="1.27442 1 20.06" shadow></a-box>
+  <a-box width="3" height="0.12" depth="0.12" color="#0f82ff" position="-0.22558 2 20.06" shadow></a-box>
+  <a-entity geometry="primitive: box; width: 3; height: 2; depth: 0.18" material="color: #fff; opacity: 0.39; side: double" position="-0.22558 1 20.15" ></a-entity>
+  <!-- Tribunes -->
+  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="-0.22558 1.4 -22.7" material="opacity:0.8;"></a-box>
+  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="-0.22558 1.4 22.7" material="opacity:0.8;"></a-box>
+  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="-6.22558 1.4 0" material="opacity:0.8;"></a-box>
+  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="5.77442 1.4 0" material="opacity:0.8;"></a-box>
+  <!-- Gradins colorés -->
+  <a-box width="10" height="0.5" depth="1" color="#d0a547" position="-0.22558 0.25 -23.4"></a-box>
+  <a-box width="10" height="0.5" depth="1" color="#d0a547" position="-0.22558 0.25 23.4"></a-box>
+  <a-box width="1" height="0.5" depth="45" color="#d0a547" position="-7.22558 0.25 0"></a-box>
+  <a-box width="1" height="0.5" depth="45" color="#d0a547" position="6.77442 0.25 0"></a-box>
+  <!-- Lumières réalistes -->
+  <a-entity light="type: ambient; intensity: 0.38; color: #dbeafe"></a-entity>
+  <a-entity light="type: directional; intensity: 0.99; castShadow: true; shadowMapHeight:2048; shadowMapWidth:2048; color:#fff" position="-0.22558 17 17"></a-entity>
+  <a-entity light="type: spot; intensity: 0.12; color: #ffe066; angle:30; penumbra:0.2; distance:50" position="-0.22558 12 0"></a-entity>
+
+  <!-- Ballon handball INTERACTIF ET MULTIPLATEFORME -->
   <a-entity id="handball"
     gltf-model="#handball-ball"
     position="-0.22558 1 0.8"
     scale="0.009 0.009 0.009"
     dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
-    ball-trajectory
+    grabbable
+    drag-trajectory
     shadow
     obb-collider="centerModel: true"></a-entity>
-  <!-- Camera -->
-  <a-entity id="rig" position="0.60286 1.7 0">
-    <a-entity id="camera" camera look-controls wasd-controls></a-entity>
+
+  <!-- Rig du joueur -->
+  <a-entity id="rig" position="0.60286 1.7 0" dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
+    <a-entity id="camera" camera look-controls wasd-controls rotation="-30.02298846485515 -183.23190288283757 0"
+      wasd-controls="acceleration:60;fly:false;"
+      animation__start="property: components.material.material.color; from: #fff; to: #1497ff; dur:500; startEvents:mouseenter;"></a-entity>
+    <!-- MAIN GAUCHE -->
+    <a-entity id="leftHand"
+      hand-controls
+      shadow
+      super-hands
+      magicleap-controls="hand: left; model: false"
+      vive-controls="model: false"
+      oculus-touch-controls="model: false"
+      pico-controls="hand: left; model: false"
+      windows-motion-controls="hand: left; model: false"
+      hp-mixed-reality-controls="hand: left; model: false"
+      material="color:#1e90ff;metalness:0.4;roughness:0.3;"></a-entity>
+    <!-- MAIN DROITE -->
+    <a-entity id="rightHand"
+      hand-controls="hand: right"
+      shadow
+      super-hands
+      magicleap-controls="hand: right; model: false"
+      vive-controls="hand: right; model: false"
+      oculus-touch-controls="hand: right; model: false"
+      pico-controls="hand: right; model: false"
+      windows-motion-controls="model: false"
+      hp-mixed-reality-controls="hand: right; model: false"
+      material="color:#ffc107;metalness:0.4;roughness:0.3;"></a-entity>
   </a-entity>
 </a-scene>
 <script>
@@ -79,8 +183,22 @@ document.getElementById('startBtn').onclick = function() {
   document.getElementById('handballOverlay').style.display = 'none';
 };
 
-// Composant fiable pour drag/trajectoire sur PC/mobile
-AFRAME.registerComponent('ball-trajectory', {
+// Score UI simple (exemple)
+let shots = 0, goals = 0;
+const shotsUi = document.getElementById('shots');
+const goalsUi = document.getElementById('goals');
+function updateScore(goal) {
+  shots++;
+  if(goal) goals++;
+  shotsUi.textContent = shots;
+  goalsUi.textContent = goals;
+  document.getElementById('msg-ui').textContent = goal ? "But ! 🥅🏐" : "";
+  setTimeout(()=>{document.getElementById('msg-ui').textContent = "";}, 1800);
+}
+
+// Compatibilité drag multiplateforme pour le ballon (PC/souris + mobile/touch)
+// Ne gêne pas la VR (super-hands continue de fonctionner)
+AFRAME.registerComponent('drag-trajectory', {
   schema: { lineColor: {default: "#1e90ff"} },
   init: function () {
     this.dragging = false;
@@ -109,11 +227,12 @@ AFRAME.registerComponent('ball-trajectory', {
     window.removeEventListener('touchend', this.onPointerUp);
   },
   onPointerDown: function(e) {
+    // Si déjà attrapé en VR, ne pas activer le drag PC/mobile
+    if(this.el.isGrabbed && this.el.isGrabbed === true) return;
     let x, y;
     if(e.type.startsWith('touch')) {
       x = e.touches[0].clientX; y = e.touches[0].clientY; this.pointerId = e.touches[0].identifier;
     } else { x = e.clientX; y = e.clientY; }
-    // Raycast pour check si balle sous le pointer
     const scene = this.scene;
     const camera = scene.camera;
     const mouse = new THREE.Vector2((x / window.innerWidth)*2-1, -(y/window.innerHeight)*2+1);
@@ -208,6 +327,15 @@ AFRAME.registerComponent('ball-trajectory', {
     }
   }
 });
+// Pour compatibilité VR/PC, si la balle est attrapée en VR, on désactive le drag à la souris
+AFRAME.registerComponent('track-grab-vr', {
+  init: function() {
+    this.el.isGrabbed = false;
+    this.el.addEventListener('grab-start', () => { this.el.isGrabbed = true; });
+    this.el.addEventListener('grab-end', () => { this.el.isGrabbed = false; });
+  }
+});
+document.querySelector('#handball').setAttribute('track-grab-vr','');
 </script>
 </body>
 </html>
