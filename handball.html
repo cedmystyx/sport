@@ -187,13 +187,14 @@
   <a-entity light="type: spot; intensity: 0.12; color: #ffe066; angle:30; penumbra:0.2; distance:50"
     position="-0.22558 12 0"></a-entity>
 
-  <!-- Ballon handball -->
+  <!-- Ballon handball INTERACTIF -->
   <a-entity id="handball"
     gltf-model="handball_1964/scene.gltf"
     position="-0.22558 1 0.8"
     scale="0.009 0.009 0.009"
     dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
     grabbable
+    throw-on-button
     shadow
     obb-collider="centerModel: true"
     animation__hover="property: scale; startEvents: mouseenter; to: 0.012 0.012 0.012; dur: 200; easing: easeOutQuad"
@@ -252,6 +253,28 @@
     document.getElementById('msg-ui').textContent = goal ? "But ! 🥅🏐" : "";
     setTimeout(()=>{document.getElementById('msg-ui').textContent = "";}, 1800);
   }
+
+  // Permet de lancer le ballon avec un bouton du contrôleur ou la barre espace
+  AFRAME.registerComponent('throw-on-button', {
+    init: function () {
+      const el = this.el;
+      el.isGrabbed = false;
+      el.addEventListener('grab-start', function () { el.isGrabbed = true; });
+      el.addEventListener('grab-end', function () { el.isGrabbed = false; });
+      // PC (Space ou T)
+      window.addEventListener('keydown', function (evt) {
+        if (el.isGrabbed && (evt.code === 'Space' || evt.code === 'KeyT')) {
+          el.emit('grab-end', {});
+        }
+      });
+      // WebXR (tous boutons principaux)
+      ['triggerdown','gripdown','abuttondown','bbuttondown','xbuttondown','ybuttondown'].forEach(ev=>{
+        el.addEventListener(ev, function () {
+          if (el.isGrabbed) el.emit('grab-end', {});
+        });
+      });
+    }
+  });
 </script>
 </body>
 </html>
