@@ -86,7 +86,7 @@
   <!-- Décor visuel infini + ambiance -->
   <a-entity environment="preset: arches; shadow: true; playArea: 1000"></a-entity>
   <!-- Sol physique immense -->
-  <a-plane width="1000" height="1000" color="#eab676" position="0 0 0" rotation="-90 0 0" shadow static-body></a-plane>
+  <a-sky radius="200" theta-length="110" class="environment" material="shader: skyshader; sunPosition: -0.287 0.418 0.862" visible="" geometry=""></a-sky>
   <!-- Murs physiques invisibles -->
   <a-box width="1000" height="20" depth="2" opacity="0" position="0 10 -499" static-body></a-box>
   <a-box width="1000" height="20" depth="2" opacity="0" position="0 10 499" static-body></a-box>
