@@ -2,14 +2,15 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>Handball Ultra Multiplateforme - Starter Pro</title>
-  <meta name="description" content="Starter Handball VR/PC/Mobile, décor infini, terrain physique, base extensible pour développement avancé.">
-  <link href="https://fonts.googleapis.com/css?family=Kameron:700|Orbitron:900|Montserrat:400,700&display=swap" rel="stylesheet">
+  <title>Handball Pro Multiplateforme - Simulation Réaliste</title>
+  <meta name="description" content="Handball VR/PC/Mobile, physique réaliste, terrain infini, buts améliorés, expérience fun et durable.">
+  <link href="https://fonts.googleapis.com/css?family=Orbitron:900|Montserrat:400,700&display=swap" rel="stylesheet">
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.controls.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-environment-component@1.3.1/dist/aframe-environment-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
   <style>
     body {
       margin:0;
@@ -19,7 +20,7 @@
     .handball-overlay {
       position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:10000;
       display:flex;align-items:center;justify-content:center;
-      background:rgba(0,23,50,0.88);
+      background:rgba(0,23,50,0.94);
       flex-direction:column;
       animation:fadeIn 1.4s;
     }
@@ -32,26 +33,27 @@
       cursor:pointer; transition:background 0.22s,transform 0.18s, box-shadow 0.22s;
       outline:none;
     }
+    .handball-btn:active {transform:scale(0.98);}
     .handball-btn:hover {
       background:linear-gradient(90deg, #155fa0 0%, #1497ff 100%);
       transform:scale(1.06); box-shadow:0 8px 38px #30c6fb44, 0 0px 0 #063a5b;
     }
     .handball-title {
-      font-family:'Orbitron',Arial,sans-serif;font-size:3.3rem;color:#fff;
+      font-family:'Orbitron',Arial,sans-serif;font-size:3.1rem;color:#fff;
       text-shadow:0 6px 32px #1497ff55, 0 2px 12px #063a5b;letter-spacing:0.09em;
-      margin-bottom:1.6rem;margin-top:-2rem;text-align:center;
+      margin-bottom:1.3rem;margin-top:-2rem;text-align:center;
       background: linear-gradient(90deg,#1e90ff,#30c6fb 65%,#fff 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
     .handball-desc {
-      color:#e5f6ff; font-size:1.25em; margin-top:1.3rem; margin-bottom:0.7rem;
-      text-align:center; text-shadow:0 2px 10px #0009; letter-spacing:0.04em; max-width:700px;
+      color:#e5f6ff; font-size:1.18em; margin-top:1.1rem; margin-bottom:0.5rem;
+      text-align:center; text-shadow:0 2px 10px #000b; letter-spacing:0.04em; max-width:650px;
     }
     .score-ui {
       position: absolute; top:28px; right:34px; background:rgba(30,144,255,0.86);
       color:#fff; font-family:'Orbitron',Arial,sans-serif;
-      font-size:1.32em; border-radius:17px 0 15px 0;
+      font-size:1.28em; border-radius:17px 0 15px 0;
       box-shadow:0 4px 18px #1497ff44;
       padding:1em 2.2em; z-index:1002; pointer-events:none; user-select:none;
       border:2px solid #fff7;
@@ -64,25 +66,22 @@
     .msg-ui {
       position:absolute;left:0;right:0;top:92px;text-align:center;z-index:1010;
       font-family:'Orbitron',Impact,Arial,sans-serif;
-      font-size:2.2em;letter-spacing:0.07em;
+      font-size:2.1em;letter-spacing:0.08em;
       color:#1e90ff;text-shadow:0 4px 38px #fff,0 0 30px #30c6fb99, 0 2px 0 #063a5b;
       filter:drop-shadow(0 0 8px #fff3);
       pointer-events:none;
+    }
+    .game-tips {
+      margin-top:2.3em;color:#fff9;text-shadow:0 2px 20px #000c;
+      font-size:1.05em;font-family:'Montserrat',Arial,sans-serif;
     }
     @media (max-width:700px) {
       .handball-title {font-size:2.1rem;}
       .handball-desc {font-size:1em;}
       .score-ui {font-size:1em; padding:0.7em 1.2em;}
+      .msg-ui {font-size:1.2em;}
+      .game-tips {font-size:0.97em;}
     }
-    /* Ajout barre dev pour debug rapide */
-    #devbar {
-      position: fixed; left: 14px; bottom: 12px; z-index: 9999;
-      background: rgba(0,24,60,0.88); color:#fff; border-radius:9px; padding:0.7em 1.7em 0.6em 1.2em;
-      font-size: 1.1em; font-family: monospace; box-shadow: 0 3px 16px #0007;
-      opacity:0.93; user-select:text;
-    }
-    #devbar input, #devbar button { font-size:1em; margin:0 0.25em 0 0.5em; }
-    #devbar .devtitle {font-weight:bold; letter-spacing:0.04em; color:#30c6fb;}
   </style>
 </head>
 <body>
@@ -94,62 +93,75 @@
 </div>
 <div class="msg-ui" id="msg-ui"></div>
 <div id="handballOverlay" class="handball-overlay">
-  <div class="handball-title">Handball Ultra Multiplateforme</div>
+  <div class="handball-title">Handball Simulation Pro</div>
   <button class="handball-btn" id="startBtn">Jouer</button>
   <div class="handball-desc">
-    Starter PRO - Base optimisée pour dev avancé.<br>
-    <b>Raccourcis dev :</b> barre debug, décor infini physique, rig rapide, hooks prêts.<br>
-    VR, PC, mobile friendly.<br>
-    <i>Développe : IA, joueurs, scoring, menu, bots, netcode…</i>
+    Simulation de handball physique, jouable en VR, PC, mobile.<br>
+    Décor infini, terrain et buts ultra réalistes, expérience fluide.<br>
+    <span style="color:#fff;">Ne t’ennuie jamais : scores, effets, défis, sons, stats, et plus à venir !</span>
+    <div class="game-tips">
+      <b>Astuce :</b> Clique/touche/attrape le ballon pour le déplacer ou tirer.<br>
+      Bouge-toi avec ZQSD/joystick, tirs puissants, rebonds réels, scoring fun.<br>
+      Joue des heures, tente les défis (but de loin, rebonds, etc) !
+    </div>
   </div>
-</div>
-<!-- DevBar pour debug rapide -->
-<div id="devbar">
-  <span class="devtitle">[DEV]</span>
-  Speed: <input id="devspeed" type="number" min="1" max="100" value="30" style="width:3em;">
-  <button id="centerbtn">Recenter</button>
-  <span id="devmsg"></span>
 </div>
 <a-scene physics="gravity:-9.8;" loading-screen="enabled:false" id="scene">
   <a-assets>
+    <!-- Ballon handball : change src si besoin -->
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
+    <!-- Sons -->
+    <audio id="snd-goal" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa8c6e.mp3"></audio>
+    <audio id="snd-rebound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_113b0f2b58.mp3"></audio>
   </a-assets>
-  <!-- Décor visuel infini -->
+  <!-- Décor infini -->
   <a-entity environment="preset: arches; shadow: true; playArea: 1000"></a-entity>
   <!-- Sol physique immense -->
-  <a-plane width="1000" height="1000" color="#eab676" position="0 0 0" rotation="-90 0 0" shadow static-body="shape: box;"></a-plane>
+  <a-plane width="1000" height="1000" color="#eab676" position="0 0 0" rotation="-90 0 0" shadow static-body></a-plane>
   <!-- Murs physiques invisibles -->
-  <a-box width="1000" height="20" depth="2" color="#000" opacity="0" position="0 10 -499" static-body></a-box>
-  <a-box width="1000" height="20" depth="2" color="#000" opacity="0" position="0 10 499" static-body></a-box>
-  <a-box width="2" height="20" depth="1000" color="#000" opacity="0" position="-499 10 0" static-body></a-box>
-  <a-box width="2" height="20" depth="1000" color="#000" opacity="0" position="499 10 0" static-body></a-box>
-  <!-- Terrain handball central complet -->
-  <a-plane width="20" height="40" color="#eab676" position="0 0.01 0" rotation="-90 0 0" shadow static-body></a-plane>
-  <!-- Lignes principales terrain -->
-  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="0 0.026 0"></a-entity>
-  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="0 0.026 -19.95"></a-entity>
-  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="0 0.026 19.95"></a-entity>
-  <!-- Lignes de touche latérales -->
-  <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40" material="color: #fff" position="-4 0.026 0"></a-entity>
-  <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40" material="color: #fff" position="4 0.026 0"></a-entity>
-  <!-- 9m arcs (surface de but) -->
-  <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32" position="0 0.031 -10.95" rotation="-90 0 0" material="color: #fff;"></a-torus>
-  <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32" position="0 0.031 10.95" rotation="-90 180 0" material="color: #fff;"></a-torus>
-  <!-- 6m arcs (petite surface) -->
-  <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32" position="0 0.031 -13.95" rotation="-90 0 0" material="color: #fff;"></a-torus>
-  <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32" position="0 0.031 13.95" rotation="-90 180 0" material="color: #fff;"></a-torus>
+  <a-box width="1000" height="20" depth="2" opacity="0" position="0 10 -499" static-body></a-box>
+  <a-box width="1000" height="20" depth="2" opacity="0" position="0 10 499" static-body></a-box>
+  <a-box width="2" height="20" depth="1000" opacity="0" position="-499 10 0" static-body></a-box>
+  <a-box width="2" height="20" depth="1000" opacity="0" position="499 10 0" static-body></a-box>
+  <!-- Terrain handball central amélioré -->
+  <a-plane width="20" height="40" color="#eab676" position="0 0.04908 0" rotation="-90 0 0" shadow static-body></a-plane>
+  <!-- Lignes principales -->
+  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="0 0.1 0"></a-entity>
+  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="0 0.1 -19.95"></a-entity>
+  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="0 0.1 19.95"></a-entity>
+  <!-- Lignes touches -->
+  <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40" material="color: #fff" position="-4 0.1 0"></a-entity>
+  <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40" material="color: #fff" position="4 0.1 0"></a-entity>
+  <!-- 9m arcs -->
+  <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32" position="0 0.11 -10.95" rotation="-90 0 0" material="color: #fff;"></a-torus>
+  <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32" position="0 0.11 10.95" rotation="-90 180 0" material="color: #fff;"></a-torus>
+  <!-- 6m arcs -->
+  <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32" position="0 0.11 -13.95" rotation="-90 0 0" material="color: #fff;"></a-torus>
+  <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32" position="0 0.11 13.95" rotation="-90 180 0" material="color: #fff;"></a-torus>
   <!-- Points de penalty -->
-  <a-cylinder radius="0.15" height="0.05" color="#fff" position="0 0.031 -16.45"></a-cylinder>
-  <a-cylinder radius="0.15" height="0.05" color="#fff" position="0 0.031 16.45"></a-cylinder>
-  <!-- Buts (physique) -->
+  <a-cylinder radius="0.15" height="0.05" color="#fff" position="0 0.11 -16.45"></a-cylinder>
+  <a-cylinder radius="0.15" height="0.05" color="#fff" position="0 0.11 16.45"></a-cylinder>
+  <!-- Buts améliorés (filet, rebonds, sons) -->
+  <!-- But gauche -->
   <a-box width="3" height="2" depth="0.12" color="#e63c3c" position="0 1 -20.06" static-body></a-box>
+  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="-1.44 1 -20.06" static-body></a-box>
+  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="1.44 1 -20.06" static-body></a-box>
+  <a-box width="3" height="0.12" depth="0.12" color="#e63c3c" position="0 2 -20.06" static-body></a-box>
+  <!-- Filet but gauche (rebondisant) -->
+  <a-box id="goal1net" width="3" height="2" depth="0.2" color="#7fd2ff" opacity="0.19" position="0 1 -20.19" static-body="restitution:0.99"></a-box>
+  <!-- But droit -->
   <a-box width="3" height="2" depth="0.12" color="#0f82ff" position="0 1 20.06" static-body></a-box>
-  <!-- Tribunes physiques -->
-  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="0 1.4 -22.7" material="opacity:0.8;" static-body></a-box>
-  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="0 1.4 22.7" material="opacity:0.8;" static-body></a-box>
-  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="-6 1.4 0" material="opacity:0.8;" static-body></a-box>
-  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="6 1.4 0" material="opacity:0.8;" static-body></a-box>
-  <!-- Gradins physiques -->
+  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="-1.44 1 20.06" static-body></a-box>
+  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="1.44 1 20.06" static-body></a-box>
+  <a-box width="3" height="0.12" depth="0.12" color="#0f82ff" position="0 2 20.06" static-body></a-box>
+  <!-- Filet but droit (rebondisant) -->
+  <a-box id="goal2net" width="3" height="2" depth="0.2" color="#7fd2ff" opacity="0.19" position="0 1 20.19" static-body="restitution:0.99"></a-box>
+  <!-- Tribunes -->
+  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="0 1.4 -22.7" opacity="0.7" static-body></a-box>
+  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="0 1.4 22.7" opacity="0.7" static-body></a-box>
+  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="-6 1.4 0" opacity="0.7" static-body></a-box>
+  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="6 1.4 0" opacity="0.7" static-body></a-box>
+  <!-- Gradins -->
   <a-box width="10" height="0.5" depth="1" color="#d0a547" position="0 0.25 -23.4" static-body></a-box>
   <a-box width="10" height="0.5" depth="1" color="#d0a547" position="0 0.25 23.4" static-body></a-box>
   <a-box width="1" height="0.5" depth="45" color="#d0a547" position="-7 0.25 0" static-body></a-box>
@@ -159,38 +171,18 @@
     gltf-model="#handball-ball"
     position="0 1 0.8"
     scale="0.009 0.009 0.009"
-    dynamic-body="shape: sphere; mass: 0.36; restitution:0.81; friction:0.33"
+    dynamic-body="shape: sphere; mass: 0.43; restitution:0.82; friction:0.34"
     grabbable
     follow-pointer
     shadow></a-entity>
-  <!-- RIG physique, piloté par movement-controls rapide -->
+  <!-- Rig physique, piloté par movement-controls rapide, VR/PC/Mobile -->
   <a-entity id="rig"
-    position="0 1.7 5"
-    dynamic-body="shape: capsule; height: 1.7; radius: 0.3; mass: 80; fixedRotation: true;"
-    movement-controls="speed: 30">
+    position="0 1.7 7"
+    dynamic-body="shape: capsule; height: 1.7; radius: 0.32; mass: 85; fixedRotation: true;"
+    movement-controls="speed: 28">
     <a-entity id="camera" camera look-controls></a-entity>
-    <a-entity id="leftHand"
-      hand-controls
-      shadow
-      super-hands
-      magicleap-controls="hand: left; model: false"
-      vive-controls="model: false"
-      oculus-touch-controls="model: false"
-      pico-controls="hand: left; model: false"
-      windows-motion-controls="hand: left; model: false"
-      hp-mixed-reality-controls="hand: left; model: false"
-      material="color:#1e90ff;metalness:0.4;roughness:0.3;"></a-entity>
-    <a-entity id="rightHand"
-      hand-controls="hand: right"
-      shadow
-      super-hands
-      magicleap-controls="hand: right; model: false"
-      vive-controls="hand: right; model: false"
-      oculus-touch-controls="hand: right; model: false"
-      pico-controls="hand: right; model: false"
-      windows-motion-controls="model: false"
-      hp-mixed-reality-controls="hand: right; model: false"
-      material="color:#ffc107;metalness:0.4;roughness:0.3;"></a-entity>
+    <a-entity id="leftHand" hand-controls="hand: left" shadow super-hands material="color:#1e90ff;metalness:0.4;roughness:0.3;"></a-entity>
+    <a-entity id="rightHand" hand-controls="hand: right" shadow super-hands material="color:#ffc107;metalness:0.4;roughness:0.3;"></a-entity>
   </a-entity>
 </a-scene>
 <script>
@@ -208,26 +200,24 @@ function updateScore(goal) {
   shotsUi.textContent = shots;
   goalsUi.textContent = goals;
   document.getElementById('msg-ui').textContent = goal ? "But ! 🥅🏐" : "";
+  if(goal && window.sndGoal) window.sndGoal.play();
   setTimeout(()=>{document.getElementById('msg-ui').textContent = "";}, 1800);
 }
-// Barre dev pour ajuster la vitesse et recenter le rig en 1 clic
-const devbar = document.getElementById('devbar');
-const devspeed = document.getElementById('devspeed');
-const centerbtn = document.getElementById('centerbtn');
-const devmsg = document.getElementById('devmsg');
-devspeed.onchange = function() {
-  const rig = document.getElementById('rig');
-  rig.setAttribute('movement-controls', 'speed:' + devspeed.value);
-  devmsg.textContent = 'Vitesse: ' + devspeed.value;
-  setTimeout(()=>{devmsg.textContent='';}, 1400);
-};
-centerbtn.onclick = function() {
-  const rig = document.getElementById('rig');
-  rig.setAttribute('position','0 1.7 5');
-  if(rig.body) { rig.body.position.set(0,1.7,5); rig.body.velocity.set(0,0,0);}
-  devmsg.textContent = 'Rig recentré';
-  setTimeout(()=>{devmsg.textContent='';}, 1400);
-};
+// Sons
+window.sndGoal = new Audio(document.getElementById('snd-goal').src);
+window.sndRebound = new Audio(document.getElementById('snd-rebound').src);
+
+// Détection des buts (simulation simple, ajustable pour IA/VS)
+function detectGoal(ballPos, prevPos) {
+  // Buts sur Z = -20.06 (gauche) et Z = 20.06 (droite), entre X -1.5 et X +1.5, Y ~1 à 2
+  if(Math.abs(ballPos.x) < 1.5 && ballPos.y > 0.7 && ballPos.y < 2.2) {
+    if((ballPos.z < -20 && prevPos.z >= -20) || (ballPos.z > 20 && prevPos.z <= 20)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // Drag&drop multiplateforme
 AFRAME.registerComponent('follow-pointer', {
   init: function () {
@@ -245,6 +235,22 @@ AFRAME.registerComponent('follow-pointer', {
     window.addEventListener('touchmove', this._onMove, {passive:false});
     window.addEventListener('mouseup', this._onUp);
     window.addEventListener('touchend', this._onUp);
+    // Pour scoring
+    this.prevBallPos = null;
+    this.goalTimeout = false;
+  },
+  tick: function () {
+    // Détection but : check à chaque frame
+    if(!this.el.body) return;
+    const pos = this.el.object3D.position;
+    if(this.prevBallPos) {
+      if(detectGoal(pos, this.prevBallPos) && !this.goalTimeout) {
+        updateScore(true);
+        this.goalTimeout = true;
+        setTimeout(()=>{this.goalTimeout=false;}, 1000);
+      }
+    }
+    this.prevBallPos = pos.clone();
   },
   remove: function () {
     this.scene.removeEventListener('mousedown', this._onDown);
@@ -295,7 +301,7 @@ AFRAME.registerComponent('follow-pointer', {
     if(pos && this.el.body) {
       const target = pos.clone().add(this.offset);
       const delta = target.clone().sub(this.el.object3D.position);
-      this.el.body.velocity.set(delta.x*18, delta.y*18, delta.z*18);
+      this.el.body.velocity.set(delta.x*16, delta.y*16, delta.z*16);
       this.lastPos.copy(this.el.object3D.position);
     }
     if(e.type.startsWith('touch')) e.preventDefault();
@@ -305,6 +311,7 @@ AFRAME.registerComponent('follow-pointer', {
     this.dragging = false;
     if(this.scene.components['look-controls']) this.scene.components['look-controls'].play();
     this.pointerId = null;
+    updateScore(false); // chaque tir = 1
   },
   screenToWorld: function (x, y) {
     const scene = this.scene;
@@ -319,6 +326,21 @@ AFRAME.registerComponent('follow-pointer', {
     if (t < 0) return null;
     return origin.clone().add(dir.clone().multiplyScalar(t));
   }
+});
+
+// Effets rebond sur filets (plus fun)
+AFRAME.registerComponent('net-rebound-sound', {
+  init: function() {
+    this.el.addEventListener('collide', function (e) {
+      if(window.sndRebound) window.sndRebound.play();
+    });
+  }
+});
+document.addEventListener("DOMContentLoaded",function(){
+  var net1 = document.getElementById("goal1net");
+  var net2 = document.getElementById("goal2net");
+  if(net1) net1.setAttribute("net-rebound-sound","");
+  if(net2) net2.setAttribute("net-rebound-sound","");
 });
 </script>
 </body>
