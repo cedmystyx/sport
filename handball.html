@@ -10,11 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/aframe-animation-component@6.0.0/dist/aframe-animation-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.controls.min.js"></script>
   <style>
-    body {
-      margin:0;
-      background:radial-gradient(ellipse at 50% 30%, #e5f6ff 40%, #b3d0ee 100%);
-      font-family:'Montserrat',Arial,sans-serif;
-    }
+    body { margin:0; background:radial-gradient(ellipse at 50% 30%, #e5f6ff 40%, #b3d0ee 100%); font-family:'Montserrat',Arial,sans-serif; }
     .handball-overlay {
       position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:10000;
       display:flex;align-items:center;justify-content:center;
@@ -22,90 +18,35 @@
       flex-direction:column;
       animation:fadeIn 1.4s;
     }
-    @keyframes fadeIn {
-      from {opacity:0;}
-      to {opacity:1;}
-    }
+    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
     .handball-btn {
-      font-family:'Orbitron',Arial,sans-serif;
-      font-size:2.1rem;
-      text-transform:uppercase;
-      letter-spacing:0.07em;
-      padding:1.1em 2.6em;
-      border-radius:1.4em;
+      font-family:'Orbitron',Arial,sans-serif; font-size:2.1rem; text-transform:uppercase; letter-spacing:0.07em;
+      padding:1.1em 2.6em; border-radius:1.4em;
       background:linear-gradient(90deg, #1e90ff 0%, #30c6fb 100%);
-      color:#fff;
-      border:none;
-      box-shadow:0 4px 32px #1497ff55, 0 1px 0 #063a5b;
-      cursor:pointer;
-      transition:background 0.22s,transform 0.18s, box-shadow 0.22s;
+      color:#fff; border:none; box-shadow:0 4px 32px #1497ff55, 0 1px 0 #063a5b;
+      cursor:pointer; transition:background 0.22s,transform 0.18s, box-shadow 0.22s;
       outline:none;
     }
     .handball-btn:hover {
       background:linear-gradient(90deg, #155fa0 0%, #1497ff 100%);
-      transform:scale(1.06);
-      box-shadow:0 8px 38px #30c6fb44, 0 0px 0 #063a5b;
+      transform:scale(1.06); box-shadow:0 8px 38px #30c6fb44, 0 0px 0 #063a5b;
     }
     .handball-title {
-      font-family:'Orbitron',Arial,sans-serif;
-      font-size:3.3rem;
-      color:#fff;
-      text-shadow:0 6px 32px #1497ff55, 0 2px 12px #063a5b;
-      letter-spacing:0.09em;
-      margin-bottom:1.6rem;
-      margin-top:-2rem;
-      text-align:center;
+      font-family:'Orbitron',Arial,sans-serif;font-size:3.3rem;color:#fff;
+      text-shadow:0 6px 32px #1497ff55, 0 2px 12px #063a5b;letter-spacing:0.09em;
+      margin-bottom:1.6rem;margin-top:-2rem;text-align:center;
       background: linear-gradient(90deg,#1e90ff,#30c6fb 65%,#fff 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
     .handball-desc {
-      color:#e5f6ff;
-      font-size:1.25em;
-      margin-top:1.3rem;
-      margin-bottom:0.7rem;
-      text-align:center;
-      text-shadow:0 2px 10px #0009;
-      letter-spacing:0.04em;
-      max-width:700px;
+      color:#e5f6ff; font-size:1.25em; margin-top:1.3rem; margin-bottom:0.7rem;
+      text-align:center; text-shadow:0 2px 10px #0009; letter-spacing:0.04em; max-width:700px;
     }
-    .score-ui {
-      position: absolute; top:28px; right:34px; background:rgba(30,144,255,0.86);
-      color:#fff; font-family:'Orbitron',Arial,sans-serif;
-      font-size:1.32em; border-radius:17px 0 15px 0;
-      box-shadow:0 4px 18px #1497ff44;
-      padding:1em 2.2em; z-index:1002; pointer-events:none; user-select:none;
-      border:2px solid #fff7;
-      letter-spacing:0.03em;
-      min-width:180px;
-      text-shadow:0 2px 8px #0a3a7499, 0 1px #fff5;
-      transition:background 0.2s;
-      text-align:right;
-    }
-    .msg-ui {
-      position:absolute;left:0;right:0;top:92px;text-align:center;z-index:1010;
-      font-family:'Orbitron',Impact,Arial,sans-serif;
-      font-size:2.2em;letter-spacing:0.07em;
-      color:#1e90ff;text-shadow:0 4px 38px #fff,0 0 30px #30c6fb99, 0 2px 0 #063a5b;
-      filter:drop-shadow(0 0 8px #fff3);
-      pointer-events:none;
-    }
-    @media (max-width:700px) {
-      .handball-title {font-size:2.1rem;}
-      .handball-desc {font-size:1em;}
-      .score-ui {font-size:1em; padding:0.7em 1.2em;}
-    }
+    @media (max-width:700px) { .handball-title {font-size:2.1rem;} .handball-desc {font-size:1em;} }
   </style>
 </head>
 <body>
-<div class="score-ui" id="score-ui">
-  <span style="font-size:1.15em;">🏐</span>
-  Ballons :<span id="shots" style="margin:0 0.5em 0 0.2em;font-weight:bold;">0</span>
-  <span style="font-size:1.15em;">🥅</span>
-  Buts :<span id="goals" style="margin:0 0.3em 0 0.2em;font-weight:bold;">0</span>
-</div>
-<div class="msg-ui" id="msg-ui"></div>
 <div id="handballOverlay" class="handball-overlay">
   <div class="handball-title">Handball Ultra Trajectoire</div>
   <button class="handball-btn" id="startBtn">Jouer</button>
@@ -113,264 +54,160 @@
     Un trait bleu te montre la direction !
   </div>
 </div>
-<a-scene physics="gravity:-9.8;" loading-screen="enabled:false">
+<a-scene physics="gravity:-9.8;" loading-screen="enabled:false" id="scene">
   <a-assets>
     <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
   </a-assets>
-
   <!-- Terrain de handball, aligné avec la balle -->
-  <a-plane width="20" height="40" color="#eab676" position="-0.22558 0 0" rotation="-90 0 0" shadow="receive:true"></a-plane>
-  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05"
-            material="color: #fff"
-            position="-0.22558 0.026 0"></a-entity>
-  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05"
-            material="color: #fff"
-            position="-0.22558 0.026 -19.95"></a-entity>
-  <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05"
-            material="color: #fff"
-            position="-0.22558 0.026 19.95"></a-entity>
-  <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40"
-            material="color: #fff"
-            position="-4.22558 0.026 0"></a-entity>
-  <a-entity geometry="primitive: box; width: 0.05; height: 0.05; depth: 40"
-            material="color: #fff"
-            position="3.77442 0.026 0"></a-entity>
-  <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32"
-           position="-0.22558 0.031 -10.95" rotation="-90 0 0"
-           material="color: #fff;"></a-torus>
-  <a-torus arc="180" radius="9" radius-tubular="0.035" segments-radial="32"
-           position="-0.22558 0.031 10.95" rotation="-90 180 0"
-           material="color: #fff;"></a-torus>
-  <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32"
-           position="-0.22558 0.031 -13.95" rotation="-90 0 0"
-           material="color: #fff;"></a-torus>
-  <a-torus arc="180" radius="6" radius-tubular="0.035" segments-radial="32"
-           position="-0.22558 0.031 13.95" rotation="-90 180 0"
-           material="color: #fff;"></a-torus>
-  <a-cylinder radius="0.15" height="0.05" color="#fff" position="-0.22558 0.031 -16.45"></a-cylinder>
-  <a-cylinder radius="0.15" height="0.05" color="#fff" position="-0.22558 0.031 16.45"></a-cylinder>
-  <a-box width="3" height="2" depth="0.12" color="#e63c3c" position="-0.22558 1 -20.06" material="metalness:0.7; roughness:0.18;" shadow="cast:true"></a-box>
-  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="-1.72558 1 -20.06" shadow></a-box>
-  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="1.27442 1 -20.06" shadow></a-box>
-  <a-box width="3" height="0.12" depth="0.12" color="#e63c3c" position="-0.22558 2 -20.06" shadow></a-box>
-  <a-entity geometry="primitive: box; width: 3; height: 2; depth: 0.18"
-            material="color: #fff; opacity: 0.39; side: double"
-            position="-0.22558 1 -20.15" ></a-entity>
-  <a-box width="3" height="2" depth="0.12" color="#0f82ff" position="-0.22558 1 20.06" material="metalness:0.7; roughness:0.18;" shadow="cast:true"></a-box>
-  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="-1.72558 1 20.06" shadow></a-box>
-  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="1.27442 1 20.06" shadow></a-box>
-  <a-box width="3" height="0.12" depth="0.12" color="#0f82ff" position="-0.22558 2 20.06" shadow></a-box>
-  <a-entity geometry="primitive: box; width: 3; height: 2; depth: 0.18"
-            material="color: #fff; opacity: 0.39; side: double"
-            position="-0.22558 1 20.15" ></a-entity>
-  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="-0.22558 1.4 -22.7" material="opacity:0.8;"></a-box>
-  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="-0.22558 1.4 22.7" material="opacity:0.8;"></a-box>
-  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="-6.22558 1.4 0" material="opacity:0.8;"></a-box>
-  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="5.77442 1.4 0" material="opacity:0.8;"></a-box>
-  <a-box width="10" height="0.5" depth="1" color="#d0a547" position="-0.22558 0.25 -23.4"></a-box>
-  <a-box width="10" height="0.5" depth="1" color="#d0a547" position="-0.22558 0.25 23.4"></a-box>
-  <a-box width="1" height="0.5" depth="45" color="#d0a547" position="-7.22558 0.25 0"></a-box>
-  <a-box width="1" height="0.5" depth="45" color="#d0a547" position="6.77442 0.25 0"></a-box>
-  <a-entity light="type: ambient; intensity: 0.38; color: #dbeafe"></a-entity>
-  <a-entity light="type: directional; intensity: 0.99; castShadow: true; shadowMapHeight:2048; shadowMapWidth:2048; color:#fff"
-    position="-0.22558 17 17"></a-entity>
-  <a-entity light="type: spot; intensity: 0.12; color: #ffe066; angle:30; penumbra:0.2; distance:50"
-    position="-0.22558 12 0"></a-entity>
-
-  <!-- Ballon handball avec drag + trajectoire -->
+  <a-plane width="20" height="40" color="#eab676" position="-0.22558 0 0" rotation="-90 0 0"></a-plane>
+  <!-- Ballon handball interactif -->
   <a-entity id="handball"
-    gltf-model="handball_1964/scene.gltf"
+    gltf-model="#handball-ball"
     position="-0.22558 1 0.8"
     scale="0.009 0.009 0.009"
     dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
-    drag-trajectory
+    ball-trajectory
     shadow
-    obb-collider="centerModel: true"
-    animation__hover="property: scale; startEvents: mouseenter; to: 0.012 0.012 0.012; dur: 200; easing: easeOutQuad"
-    animation__leave="property: scale; startEvents: mouseleave; to: 0.009 0.009 0.009; dur: 250; easing: easeInQuad"
-    ></a-entity>
-
-  <!-- Rig du joueur -->
-  <a-entity id="rig" position="0.60286 1.7 0" dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
-    <a-entity id="camera" camera look-controls wasd-controls rotation="-30.02298846485515 -183.23190288283757 0"
-      wasd-controls="acceleration:60;fly:false;"
-      animation__start="property: components.material.material.color; from: #fff; to: #1497ff; dur:500; startEvents:mouseenter;"
-      ></a-entity>
+    obb-collider="centerModel: true"></a-entity>
+  <!-- Camera -->
+  <a-entity id="rig" position="0.60286 1.7 0">
+    <a-entity id="camera" camera look-controls wasd-controls></a-entity>
   </a-entity>
 </a-scene>
 <script>
-  // Overlay (disparaît au clic)
-  document.getElementById('startBtn').onclick = function() {
-    document.getElementById('handballOverlay').style.display = 'none';
-  };
+document.getElementById('startBtn').onclick = function() {
+  document.getElementById('handballOverlay').style.display = 'none';
+};
 
-  // Score UI simple (exemple)
-  let shots = 0, goals = 0;
-  const shotsUi = document.getElementById('shots');
-  const goalsUi = document.getElementById('goals');
-  function updateScore(goal) {
-    shots++;
-    if(goal) goals++;
-    shotsUi.textContent = shots;
-    goalsUi.textContent = goals;
-    document.getElementById('msg-ui').textContent = goal ? "But ! 🥅🏐" : "";
-    setTimeout(()=>{document.getElementById('msg-ui').textContent = "";}, 1800);
-  }
-
-  // Ball drag & trajectory (PC + mobile : type FIFA corner)
-  AFRAME.registerComponent('drag-trajectory', {
-    schema: {
-      lineColor: {default: "#1e90ff"}
-    },
-    init: function () {
-      const el = this.el;
-      this.dragging = false;
-      this.startPos = null;
-      this.line = null;
-      this.positions = [];
-      this.mouseDownHandler = this.onDown.bind(this);
-      this.mouseUpHandler = this.onUp.bind(this);
-      this.mouseMoveHandler = this.onMove.bind(this);
-
-      el.addEventListener('mousedown', this.mouseDownHandler);
-      el.addEventListener('touchstart', this.mouseDownHandler);
-      window.addEventListener('mousemove', this.mouseMoveHandler);
-      window.addEventListener('touchmove', this.mouseMoveHandler);
-      window.addEventListener('mouseup', this.mouseUpHandler);
-      window.addEventListener('touchend', this.mouseUpHandler);
-    },
-    remove: function () {
-      this.el.removeEventListener('mousedown', this.mouseDownHandler);
-      this.el.removeEventListener('touchstart', this.mouseDownHandler);
-      window.removeEventListener('mousemove', this.mouseMoveHandler);
-      window.removeEventListener('touchmove', this.mouseMoveHandler);
-      window.removeEventListener('mouseup', this.mouseUpHandler);
-      window.removeEventListener('touchend', this.mouseUpHandler);
-    },
-    onDown: function (e) {
-      // Check if we click/touch the ball
-      let intersected = false;
-      if (e.type.startsWith('touch')) {
-        const touch = e.touches[0];
-        intersected = this.rayTest(touch.clientX, touch.clientY);
-      } else if (e.target === this.el) {
-        intersected = true;
+// Composant fiable pour drag/trajectoire sur PC/mobile
+AFRAME.registerComponent('ball-trajectory', {
+  schema: { lineColor: {default: "#1e90ff"} },
+  init: function () {
+    this.dragging = false;
+    this.positions = [];
+    this.line = null;
+    this.scene = this.el.sceneEl;
+    this.startPos = null;
+    this.pointerId = null;
+    // Raycast sur la scène pour détecter le clic/touch sur la balle
+    this.onPointerDown = this.onPointerDown.bind(this);
+    this.onPointerMove = this.onPointerMove.bind(this);
+    this.onPointerUp = this.onPointerUp.bind(this);
+    this.scene.addEventListener('mousedown', this.onPointerDown);
+    this.scene.addEventListener('touchstart', this.onPointerDown);
+    window.addEventListener('mousemove', this.onPointerMove);
+    window.addEventListener('touchmove', this.onPointerMove, {passive:false});
+    window.addEventListener('mouseup', this.onPointerUp);
+    window.addEventListener('touchend', this.onPointerUp);
+  },
+  remove: function () {
+    this.scene.removeEventListener('mousedown', this.onPointerDown);
+    this.scene.removeEventListener('touchstart', this.onPointerDown);
+    window.removeEventListener('mousemove', this.onPointerMove);
+    window.removeEventListener('touchmove', this.onPointerMove);
+    window.removeEventListener('mouseup', this.onPointerUp);
+    window.removeEventListener('touchend', this.onPointerUp);
+  },
+  onPointerDown: function(e) {
+    let x, y;
+    if(e.type.startsWith('touch')) {
+      x = e.touches[0].clientX; y = e.touches[0].clientY; this.pointerId = e.touches[0].identifier;
+    } else { x = e.clientX; y = e.clientY; }
+    // Raycast pour check si balle sous le pointer
+    const scene = this.scene;
+    const camera = scene.camera;
+    const mouse = new THREE.Vector2((x / window.innerWidth)*2-1, -(y/window.innerHeight)*2+1);
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+    const mesh = this.el.getObject3D('mesh');
+    if(!mesh) return;
+    const intersects = raycaster.intersectObject(mesh,true);
+    if(!intersects.length) return;
+    // Désactive le drag caméra
+    if (scene.components['look-controls']) scene.components['look-controls'].pause();
+    e.preventDefault();
+    this.dragging = true;
+    this.positions = [];
+    this.startPos = this.getWorldPos();
+    this.positions.push(this.startPos.clone());
+    this.addLine();
+  },
+  onPointerMove: function(e) {
+    if(!this.dragging) return;
+    let x, y;
+    if(e.type.startsWith('touch')){
+      let found = false;
+      for(let i=0; i<e.touches.length; i++) {
+        if(e.touches[i].identifier == this.pointerId) {
+          x = e.touches[i].clientX; y = e.touches[i].clientY; found=true; break;
+        }
       }
-      if (!intersected) return;
-
-      e.preventDefault();
-      this.dragging = true;
-      this.positions = [];
-      this.startPos = this.getWorldPos();
-      this.addLine();
-      this.positions.push(this.startPos.clone ? this.startPos.clone() : this.startPos);
-    },
-    onMove: function (e) {
-      if (!this.dragging) return;
-      let pos;
-      if (e.type.startsWith('touch')) {
-        const touch = e.touches[0];
-        pos = this.screenToWorld(touch.clientX, touch.clientY);
-      } else {
-        pos = this.screenToWorld(e.clientX, e.clientY);
-      }
-      if (pos) {
-        this.positions.push(pos.clone ? pos.clone() : pos);
-        this.updateLine();
-      }
-    },
-    onUp: function (e) {
-      if (!this.dragging) return;
-      this.dragging = false;
-      if (this.positions.length > 2) {
-        // Applique la trajectoire physique
-        this.launchBall();
-      }
-      this.removeLine();
-      this.positions = [];
-    },
-    getWorldPos: function () {
-      const pos = new THREE.Vector3();
-      this.el.object3D.getWorldPosition(pos);
-      return pos;
-    },
-    screenToWorld: function (x, y) {
-      // Convert screen -> raycast -> point on plane y=1
-      const scene = this.el.sceneEl;
-      const camera = scene.camera;
-      const mouse = new THREE.Vector2(
-        (x / window.innerWidth) * 2 - 1,
-        -(y / window.innerHeight) * 2 + 1
-      );
-      const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(mouse, camera);
-      const planeY = 1; // hauteur de la balle
-      const origin = raycaster.ray.origin;
-      const dir = raycaster.ray.direction;
-      if (Math.abs(dir.y) < 1e-4) return null;
-      const t = (planeY - origin.y) / dir.y;
-      if (t < 0) return null;
-      return origin.clone().add(dir.clone().multiplyScalar(t));
-    },
-    rayTest: function (x, y) {
-      const scene = this.el.sceneEl;
-      const camera = scene.camera;
-      const mouse = new THREE.Vector2(
-        (x / window.innerWidth) * 2 - 1,
-        -(y / window.innerHeight) * 2 + 1
-      );
-      const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObject(this.el.object3D, true);
-      return intersects.length > 0;
-    },
-    addLine: function () {
-      if (!this.line) {
-        this.line = document.createElement('a-entity');
-        this.line.setAttribute('line', {
-          color: this.data.lineColor,
-          opacity: 0.8,
-          start: '0 0 0',
-          end: '0 0 0'
-        });
-        this.el.sceneEl.appendChild(this.line);
-      }
-    },
-    updateLine: function () {
-      if (!this.line || this.positions.length < 2) return;
-      const start = this.positions[0];
-      const end = this.positions[this.positions.length - 1];
-      this.line.setAttribute('line', {
-        color: this.data.lineColor,
-        opacity: 0.8,
-        start: `${start.x} ${start.y} ${start.z}`,
-        end: `${end.x} ${end.y} ${end.z}`
-      });
-    },
-    removeLine: function () {
-      if (this.line) {
-        this.line.parentNode.removeChild(this.line);
-        this.line = null;
-      }
-    },
-    launchBall: function () {
-      // Calcule la direction et force
-      const start = this.positions[0];
-      const end = this.positions[this.positions.length - 1];
-      const dir = new THREE.Vector3().subVectors(end, start);
-      const force = dir.clone().multiplyScalar(6); // Ajuste la puissance ici
-      // Enlève toute vélocité existante
-      if (this.el.body) {
-        this.el.body.velocity.set(0, 0, 0);
-        this.el.body.angularVelocity.set(0, 0, 0);
-        // Applique la force
-        this.el.body.applyImpulse(
-          new CANNON.Vec3(force.x, force.y, force.z),
-          new CANNON.Vec3(0, 0, 0)
-        );
-      }
+      if(!found) return;
+    } else { x = e.clientX; y = e.clientY; }
+    const pos = this.screenToWorld(x, y);
+    if(pos) {
+      this.positions.push(pos.clone());
+      this.updateLine();
     }
-  });
+    if(e.type.startsWith('touch')) e.preventDefault();
+  },
+  onPointerUp: function(e) {
+    if(!this.dragging) return;
+    this.dragging = false;
+    // Restaure drag caméra
+    if(this.scene.components['look-controls']) this.scene.components['look-controls'].play();
+    if(this.positions.length > 2) this.launchBall();
+    this.removeLine();
+    this.positions = [];
+    this.pointerId = null;
+  },
+  getWorldPos: function () {
+    const pos = new THREE.Vector3();
+    this.el.object3D.getWorldPosition(pos);
+    return pos;
+  },
+  screenToWorld: function (x, y) {
+    const scene = this.scene;
+    const camera = scene.camera;
+    const mouse = new THREE.Vector2((x / window.innerWidth)*2-1, -(y/window.innerHeight)*2+1);
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+    const planeY = 1; // hauteur de la balle
+    const origin = raycaster.ray.origin, dir = raycaster.ray.direction;
+    if (Math.abs(dir.y) < 1e-4) return null;
+    const t = (planeY - origin.y) / dir.y;
+    if (t < 0) return null;
+    return origin.clone().add(dir.clone().multiplyScalar(t));
+  },
+  addLine: function () {
+    if(!this.line) {
+      this.line = document.createElement('a-entity');
+      this.line.setAttribute('line', {
+        color: this.data.lineColor, opacity: 0.8, start: '0 0 0', end: '0 0 0'
+      });
+      this.scene.appendChild(this.line);
+    }
+  },
+  updateLine: function () {
+    if(!this.line || this.positions.length < 2) return;
+    const start = this.positions[0], end = this.positions[this.positions.length-1];
+    this.line.setAttribute('line', {
+      color: this.data.lineColor, opacity: 0.8,
+      start: `${start.x} ${start.y} ${start.z}`,
+      end:   `${end.x} ${end.y} ${end.z}`
+    });
+  },
+  removeLine: function () { this.line && this.line.parentNode.removeChild(this.line); this.line = null; },
+  launchBall: function () {
+    const start = this.positions[0], end = this.positions[this.positions.length-1];
+    const dir = new THREE.Vector3().subVectors(end, start);
+    const force = dir.clone().multiplyScalar(6);
+    if(this.el.body) {
+      this.el.body.velocity.set(0,0,0); this.el.body.angularVelocity.set(0,0,0);
+      this.el.body.applyImpulse(new CANNON.Vec3(force.x, force.y, force.z), new CANNON.Vec3(0,0,0));
+    }
+  }
+});
 </script>
 </body>
 </html>
