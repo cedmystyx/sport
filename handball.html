@@ -119,8 +119,8 @@
   </a-assets>
   <!-- Décor généré (remplace preset par ce que tu veux) -->
   <a-entity environment="preset: arches; shadow: true; playArea: 1.5"></a-entity>
-  <!-- Terrain handball (sol) -->
-  <a-plane width="20" height="40" color="#eab676" position="-0.226 0.00862 0" rotation="-90 0 0" shadow></a-plane>
+  <!-- Terrain handball (sol physique) -->
+  <a-plane width="20" height="40" color="#eab676" position="-0.226 0.00862 0" rotation="-90 0 0" shadow static-body="shape: box;"></a-plane>
   <!-- Lignes principales terrain -->
   <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="-0.22558 0.026 0"></a-entity>
   <a-entity geometry="primitive: box; width: 8; height: 0.05; depth: 0.05" material="color: #fff" position="-0.22558 0.026 -19.95"></a-entity>
@@ -137,45 +137,43 @@
   <!-- points de penalty -->
   <a-cylinder radius="0.15" height="0.05" color="#fff" position="-0.22558 0.031 -16.45"></a-cylinder>
   <a-cylinder radius="0.15" height="0.05" color="#fff" position="-0.22558 0.031 16.45"></a-cylinder>
-  <!-- Buts -->
-  <a-box width="3" height="2" depth="0.12" color="#e63c3c" position="-0.22558 1 -20.06" material="metalness:0.7; roughness:0.18;" shadow="cast:true"></a-box>
-  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="-1.72558 1 -20.06" shadow></a-box>
-  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="1.27442 1 -20.06" shadow></a-box>
-  <a-box width="3" height="0.12" depth="0.12" color="#e63c3c" position="-0.22558 2 -20.06" shadow></a-box>
+  <!-- Buts (physique) -->
+  <a-box width="3" height="2" depth="0.12" color="#e63c3c" position="-0.22558 1 -20.06" material="metalness:0.7; roughness:0.18;" shadow="cast:true" static-body></a-box>
+  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="-1.72558 1 -20.06" shadow static-body></a-box>
+  <a-box width="0.12" height="2" depth="0.12" color="#e63c3c" position="1.27442 1 -20.06" shadow static-body></a-box>
+  <a-box width="3" height="0.12" depth="0.12" color="#e63c3c" position="-0.22558 2 -20.06" shadow static-body></a-box>
   <a-entity geometry="primitive: box; width: 3; height: 2; depth: 0.18" material="color: #fff; opacity: 0.39; side: double" position="-0.22558 1 -20.15"></a-entity>
-  <a-box width="3" height="2" depth="0.12" color="#0f82ff" position="-0.22558 1 20.06" material="metalness:0.7; roughness:0.18;" shadow="cast:true"></a-box>
-  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="-1.72558 1 20.06" shadow></a-box>
-  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="1.27442 1 20.06" shadow></a-box>
-  <a-box width="3" height="0.12" depth="0.12" color="#0f82ff" position="-0.22558 2 20.06" shadow></a-box>
+  <a-box width="3" height="2" depth="0.12" color="#0f82ff" position="-0.22558 1 20.06" material="metalness:0.7; roughness:0.18;" shadow="cast:true" static-body></a-box>
+  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="-1.72558 1 20.06" shadow static-body></a-box>
+  <a-box width="0.12" height="2" depth="0.12" color="#0f82ff" position="1.27442 1 20.06" shadow static-body></a-box>
+  <a-box width="3" height="0.12" depth="0.12" color="#0f82ff" position="-0.22558 2 20.06" shadow static-body></a-box>
   <a-entity geometry="primitive: box; width: 3; height: 2; depth: 0.18" material="color: #fff; opacity: 0.39; side: double" position="-0.22558 1 20.15"></a-entity>
-  <!-- Tribunes -->
-  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="-0.22558 1.4 -22.7" material="opacity:0.8;"></a-box>
-  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="-0.22558 1.4 22.7" material="opacity:0.8;"></a-box>
-  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="-6.22558 1.4 0" material="opacity:0.8;"></a-box>
-  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="5.77442 1.4 0" material="opacity:0.8;"></a-box>
-  <!-- Gradins colorés -->
-  <a-box width="10" height="0.5" depth="1" color="#d0a547" position="-0.22558 0.25 -23.4"></a-box>
-  <a-box width="10" height="0.5" depth="1" color="#d0a547" position="-0.22558 0.25 23.4"></a-box>
-  <a-box width="1" height="0.5" depth="45" color="#d0a547" position="-7.22558 0.25 0"></a-box>
-  <a-box width="1" height="0.5" depth="45" color="#d0a547" position="6.77442 0.25 0"></a-box>
+  <!-- Tribunes (physique) -->
+  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="-0.22558 1.4 -22.7" material="opacity:0.8;" static-body></a-box>
+  <a-box width="10" height="2.5" depth="2" color="#8d9096" position="-0.22558 1.4 22.7" material="opacity:0.8;" static-body></a-box>
+  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="-6.22558 1.4 0" material="opacity:0.8;" static-body></a-box>
+  <a-box width="2" height="2.5" depth="45" color="#8d9096" position="5.77442 1.4 0" material="opacity:0.8;" static-body></a-box>
+  <!-- Gradins colorés (physique) -->
+  <a-box width="10" height="0.5" depth="1" color="#d0a547" position="-0.22558 0.25 -23.4" static-body></a-box>
+  <a-box width="10" height="0.5" depth="1" color="#d0a547" position="-0.22558 0.25 23.4" static-body></a-box>
+  <a-box width="1" height="0.5" depth="45" color="#d0a547" position="-7.22558 0.25 0" static-body></a-box>
+  <a-box width="1" height="0.5" depth="45" color="#d0a547" position="6.77442 0.25 0" static-body></a-box>
   <!-- Lumières réalistes -->
   <a-entity light="type: ambient; intensity: 0.38; color: #dbeafe"></a-entity>
   <a-entity light="type: directional; intensity: 0.99; castShadow: true; shadowMapHeight:2048; shadowMapWidth:2048; color:#fff" position="-0.22558 17 17"></a-entity>
   <a-entity light="type: spot; intensity: 0.12; color: #ffe066; angle:30; penumbra:0.2; distance:50" position="-0.22558 12 0"></a-entity>
-
   <!-- Ballon handball INTERACTIF VR + PC + MOBILE -->
   <a-entity id="handball"
     gltf-model="#handball-ball"
     position="-0.22558 1 0.8"
     scale="0.009 0.009 0.009"
-    dynamic-body="mass: 0.36; restitution:0.81; friction:0.33"
+    dynamic-body="shape: sphere; mass: 0.36; restitution:0.81; friction:0.33"
     grabbable
     follow-pointer
     shadow
     obb-collider="centerModel: true"></a-entity>
-
-  <!-- Rig du joueur -->
-  <a-entity id="rig" position="0.60286 1.7 0" dynamic-body="shape: capsule; height: 1.7; radius: 0.3;">
+  <!-- Rig du joueur (avec collision capsule) -->
+  <a-entity id="rig" position="0.60286 1.7 0" dynamic-body="shape: capsule; height: 1.7; radius: 0.3; mass: 80; fixedRotation: true;">
     <a-entity id="camera" camera look-controls wasd-controls></a-entity>
     <a-entity id="leftHand"
       hand-controls
