@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos fixes + Pilier</title>
+  <title>PingPong Vidéos pivotées + Pilier</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -47,15 +47,17 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans fixes autour du joueur -->
+    <!-- Écrans fixes pivotés vers la droite -->
     <a-entity id="screens">
+      <!-- Une vidéo devant le joueur -->
       <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
-                    position="5 1.5 0" rotation="0 -90 0"
-                    static-body="shape: box; height: 3; width: 5; depth: 0.1"></a-curvedimage>
+                    position="0 1.5 -5" rotation="0 90 0"
+                    static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
 
+      <!-- Une vidéo derrière le joueur -->
       <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
-                    position="-5 1.5 0" rotation="0 90 0"
-                    static-body="shape: box; height: 3; width: 5; depth: 0.1"></a-curvedimage>
+                    position="0 1.5 5" rotation="0 90 0"
+                    static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
     </a-entity>
 
     <script>
@@ -64,46 +66,42 @@
       v1.play();
       v2.play();
 
-      // Gestion du son en fondu en fonction du regard
-      AFRAME.registerComponent('audio-fade', {
-        schema: {
-          fadeAngle: {type: 'number', default: 30},
-          fadeSpeed: {type: 'number', default: 2}
-        },
-        tick: function (time, delta) {
-          const dt = delta / 1000;
+      // Gestion du volume audio selon l'orientation du joueur
+      AFRAME.registerComponent('video-audio-fade', {
+        tick: function () {
           const camera = document.querySelector('[camera]').object3D;
-          const camPos = camera.position;
           const camDir = new THREE.Vector3();
-          camera.getWorldDirection(camDir);
+          camera.getWorldDirection(camDir).normalize();
 
-          this.el.object3D.getWorldPosition(this.el.object3D.position);
-          const screenPos = this.el.object3D.position;
+          ['screen1', 'screen2'].forEach((id, i) => {
+            const el = document.querySelector(`#${id}`);
+            const videoEl = document.querySelector(el.getAttribute('src'));
+            const screenPos = new THREE.Vector3();
+            el.object3D.getWorldPosition(screenPos);
 
-          const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
-          const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
+            const camPos = camera.position;
+            const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
 
-          const videoEl = document.querySelector(this.el.getAttribute('src'));
-          if (!videoEl) return;
+            const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
 
-          let targetVolume = 0;
-          if (angleDeg < this.data.fadeAngle) {
-            targetVolume = 1 - angleDeg / this.data.fadeAngle;
-          }
+            const fadeAngle = 30;
+            let targetVolume = 0;
+            if (angleDeg < fadeAngle) {
+              targetVolume = 1 - angleDeg / fadeAngle;
+            }
 
-          const currentVol = videoEl.volume;
-          let newVol = currentVol;
-          if (currentVol < targetVolume) {
-            newVol = Math.min(currentVol + this.data.fadeSpeed * dt, targetVolume);
-          } else if (currentVol > targetVolume) {
-            newVol = Math.max(currentVol - this.data.fadeSpeed * dt, targetVolume);
-          }
-          videoEl.volume = newVol;
+            const fadeSpeed = 2;
+            const currentVol = videoEl.volume;
+            if (currentVol < targetVolume) {
+              videoEl.volume = Math.min(currentVol + fadeSpeed * 0.016, targetVolume);
+            } else if (currentVol > targetVolume) {
+              videoEl.volume = Math.max(currentVol - fadeSpeed * 0.016, targetVolume);
+            }
+          });
         }
       });
 
-      document.querySelector('#screen1').setAttribute('audio-fade', '');
-      document.querySelector('#screen2').setAttribute('audio-fade', '');
+      document.querySelector('#screens').setAttribute('video-audio-fade', '');
     </script>
   </a-scene>
 </body>
