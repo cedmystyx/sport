@@ -28,7 +28,7 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     </script>
 
-    <!-- Pilier vertical multicolore (moins haut) -->
+    <!-- Pilier vertical multicolore -->
     <a-cylinder
       position="0 -245 0"
       radius="1.25"
@@ -47,16 +47,16 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans fixes pivotés autour du joueur -->
+    <!-- Écrans fixes (1 devant, 1 repositionné) -->
     <a-entity id="screens">
       <!-- Vidéo devant -->
       <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
                     position="0 1.5 -5" rotation="0 90 0"
                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
 
-      <!-- Vidéo derrière -->
+      <!-- Vidéo repositionnée -->
       <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
-                    position="0 1.5 5" rotation="0 90 0"
+                    position="0 1.5 2.46035" rotation="0 -23.066134916376683 0"
                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
     </a-entity>
 
