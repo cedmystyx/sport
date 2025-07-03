@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos pivotées + Pilier + Overlay</title>
+  <title>PingPong Vidéos pivotées + Pilier + Overlay + Rotation</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -48,7 +48,7 @@
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
     <!-- Écrans fixes (1 devant, 1 repositionné) -->
-    <a-entity id="screens">
+    <a-entity id="screens" rotate-around="speed: 10">
       <!-- Vidéo devant -->
       <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
                     position="0 1.5 -5" rotation="0 90 0"
@@ -71,6 +71,16 @@
     </a-entity>
 
     <script>
+      // Composant rotation continue autour de l’axe Y
+      AFRAME.registerComponent('rotate-around', {
+        schema: { speed: { type: 'number', default: 10 } }, // degrés par seconde
+        tick: function (time, timeDelta) {
+          const rotation = this.el.getAttribute('rotation');
+          rotation.y += this.data.speed * (timeDelta / 1000);
+          this.el.setAttribute('rotation', rotation);
+        }
+      });
+
       const v1 = document.querySelector('#vid1');
       const v2 = document.querySelector('#vid2');
       v1.play();
