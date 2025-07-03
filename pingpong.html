@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong - Socle visible et vidéos</title>
+  <title>PingPong Physique Complète</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -11,39 +11,33 @@
   </style>
 </head>
 <body>
-  <a-scene physics="gravity: -9.8" background="color: #000000" embedded>
+  <a-scene physics="gravity: -9.8" background="color: #000000">
 
-    <!-- Socle rond blanc, plus grand et plus épais -->
+    <!-- Socle physique, grand cercle blanc -->
     <a-cylinder
       position="0 0 0"
       rotation="0 0 0"
       radius="5"
-      height="0.1"
-      color="#ccc"
+      height="0.2"
+      color="#eee"
       static-body
     ></a-cylinder>
 
-    <!-- Cube test visible (pour repère) -->
-    <a-box position="2 1 0" color="red" depth="0.5" height="0.5" width="0.5"></a-box>
+    <!-- Joueur caméra avec physique dynamique capsule -->
+    <a-entity id="player" position="0 3 0" dynamic-body="shape: capsule; mass: 80; linearDamping: 0.9; angularDamping: 1" 
+              camera look-controls wasd-controls="acceleration: 50">
+    </a-entity>
 
-    <!-- Caméra avec physique, position plus haute -->
-    <a-entity
-      id="player"
-      position="0 3 0"
-      camera
-      look-controls
-      wasd-controls
-      dynamic-body="shape: capsule; mass: 5;"
-    ></a-entity>
-
-    <!-- Vidéos HTML cachées -->
+    <!-- Vidéos HTML -->
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Groupe vidéos, plus bas et plus proches -->
-    <a-entity id="videos-group" position="0 1 0">
-      <a-curvedimage id="screen1" radius="1.5" theta-length="90" height="1" src="#vid1" rotation="0 0 0"></a-curvedimage>
-      <a-curvedimage id="screen2" radius="1.5" theta-length="90" height="1" src="#vid2" rotation="0 180 0"></a-curvedimage>
+    <!-- Écrans physiques, static bodies placés en cercle autour -->
+    <a-entity id="screens" position="0 1 0">
+      <a-curvedimage id="screen1" radius="1.5" theta-length="90" height="1" src="#vid1" rotation="0 0 0"
+                    static-body="shape: box; height: 1; width: 1.5; depth: 0.1"></a-curvedimage>
+      <a-curvedimage id="screen2" radius="1.5" theta-length="90" height="1" src="#vid2" rotation="0 180 0"
+                    static-body="shape: box; height: 1; width: 1.5; depth: 0.1"></a-curvedimage>
     </a-entity>
 
     <script>
@@ -98,6 +92,10 @@
 
             el.object3D.lookAt(new THREE.Vector3(0, el.object3D.position.y, 0));
 
+            // Mise à jour collision physique static-body position (important)
+            el.body.position.set(x, el.object3D.position.y, z);
+
+            // Volume audio selon angle caméra vs écran
             const camPos = this.cameraEl.position;
             const camDir = new THREE.Vector3();
             this.cameraEl.getWorldDirection(camDir);
@@ -130,7 +128,7 @@
         }
       });
 
-      document.querySelector('#videos-group').setAttribute('circular-vertical-scroll', '');
+      document.querySelector('#screens').setAttribute('circular-vertical-scroll', '');
     </script>
   </a-scene>
 </body>
