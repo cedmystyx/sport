@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>PingPong - Vidéos courbes défilantes avec son</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-  <!-- Composant curvedimage pour écran courbé -->
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <style>
     body { margin: 0; overflow: hidden; background: black; }
@@ -14,43 +13,22 @@
   <a-scene background="color: #000000" embedded>
 
     <!-- Socle rond blanc -->
-    <a-circle
-      position="0 0 0"
-      rotation="-90 0 0"
-      radius="2"
-      color="#fff"
-    ></a-circle>
+    <a-circle position="0 0 0" rotation="-90 0 0" radius="2" color="#fff"></a-circle>
 
-    <!-- Caméra au centre du socle, un peu surélevée -->
+    <!-- Caméra au centre, un peu surélevée -->
     <a-entity camera look-controls position="0 0.2 0"></a-entity>
 
-    <!-- Vidéos HTML cachées, avec muted et loop -->
-    <video id="vid1" src="video/Ai robots taking over ping pong 👀 #shorts.mp4" loop crossorigin="anonymous" playsinline muted></video>
-    <video id="vid2" src="video/léchange de ping pong le plus fou ! 🏓.mp4" loop crossorigin="anonymous" playsinline muted></video>
+    <!-- Vidéos HTML cachées, muted pour autoplay -->
+    <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
+    <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
     <!-- Groupe vidéos -->
     <a-entity id="videos-group" position="0 1.5 0">
-      <a-curvedimage
-        id="screen1"
-        radius="1.5"
-        theta-length="90"
-        height="1"
-        src="#vid1"
-        rotation="0 0 0"
-      ></a-curvedimage>
-
-      <a-curvedimage
-        id="screen2"
-        radius="1.5"
-        theta-length="90"
-        height="1"
-        src="#vid2"
-        rotation="0 180 0"
-      ></a-curvedimage>
+      <a-curvedimage id="screen1" radius="1.5" theta-length="90" height="1" src="#vid1" rotation="0 0 0"></a-curvedimage>
+      <a-curvedimage id="screen2" radius="1.5" theta-length="90" height="1" src="#vid2" rotation="0 180 0"></a-curvedimage>
     </a-entity>
 
     <script>
-      // Démarrage des vidéos pour autoplay
       const v1 = document.querySelector('#vid1');
       const v2 = document.querySelector('#vid2');
       v1.play();
@@ -60,22 +38,18 @@
         schema: {
           radius: { type: 'number', default: 1.5 },
           speedY: { type: 'number', default: 0.8 },
-          speedRotate: { type: 'number', default: 30 }, // degrés par seconde
+          speedRotate: { type: 'number', default: 30 },
           count: { type: 'int', default: 2 },
           spacingY: { type: 'number', default: 1.5 },
-          fadeAngle: { type: 'number', default: 30 } // angle max (en degrés) pour volume max
+          fadeAngle: { type: 'number', default: 30 }
         },
         init: function () {
           this.els = this.el.children;
-          // Répartir verticalement
           for (let i = 0; i < this.els.length; i++) {
             this.els[i].object3D.position.y = this.data.spacingY * (this.data.count - 1 - i);
           }
           this.angle = 0;
-
           this.cameraEl = document.querySelector('[camera]').object3D;
-
-          // Récupérer les vidéos HTML liées aux écrans
           this.videos = [];
           for (let i = 0; i < this.els.length; i++) {
             const src = this.els[i].getAttribute('src');
@@ -92,15 +66,11 @@
 
           for (let i = 0; i < this.els.length; i++) {
             const el = this.els[i];
-            // Descente verticale
             el.object3D.position.y -= this.data.speedY * dt;
-
-            // Boucle verticale sans coupure
             if (el.object3D.position.y < 0) {
               el.object3D.position.y += this.data.spacingY * this.data.count;
             }
 
-            // Position circulaire
             const baseAngle = (360 / this.data.count) * i;
             const currentAngle = THREE.MathUtils.degToRad(baseAngle + this.angle);
             const x = this.data.radius * Math.cos(currentAngle);
@@ -108,10 +78,8 @@
             el.object3D.position.x = x;
             el.object3D.position.z = z;
 
-            // Écran regarde le joueur (centre)
             el.object3D.lookAt(new THREE.Vector3(0, el.object3D.position.y, 0));
 
-            // Calcul du volume selon regard caméra -> vidéo
             const camPos = this.cameraEl.position;
             const camDir = new THREE.Vector3();
             this.cameraEl.getWorldDirection(camDir);
@@ -131,9 +99,8 @@
             const videoEl = this.videos[i];
             if (videoEl) {
               const currentVol = videoEl.volume;
-              const fadeSpeed = 2; // volume modifié par seconde
+              const fadeSpeed = 2;
               let newVol = currentVol;
-
               if (currentVol < targetVolume) {
                 newVol = Math.min(currentVol + fadeSpeed * dt, targetVolume);
               } else if (currentVol > targetVolume) {
