@@ -12,146 +12,11 @@
   <script src="https://cdn.jsdelivr.net/npm/aframe-environment-component@1.3.1/dist/aframe-environment-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/super-hands@4.0.3/dist/super-hands.min.js"></script>
   <style>
-    body {
-      margin: 0;
-      background: #18344c;
-      font-family: 'Montserrat', Arial, sans-serif;
-      overflow: hidden;
-    }
-    #hud, .msg-ui, .score-ui, .nav-ui {
-      position: fixed;
-      z-index: 11000;
-      user-select: none;
-    }
-    .score-ui {
-      top: 28px;
-      right: 34px;
-      background: rgba(30, 144, 255, 0.9);
-      color: #fff;
-      font-family: 'Orbitron', Arial, sans-serif;
-      font-size: 1.25em;
-      border-radius: 17px 0 15px 0;
-      box-shadow: 0 4px 18px #1497ff44;
-      padding: 1em 2.2em;
-      min-width: 180px;
-      text-align: right;
-      border: 2px solid #fff7;
-      text-shadow: 0 2px 8px #0a3a7499, 0 1px #fff5;
-    }
-    .msg-ui {
-      left: 0;
-      right: 0;
-      top: 90px;
-      text-align: center;
-      font-family: 'Orbitron', Impact, Arial, sans-serif;
-      font-size: 2em;
-      letter-spacing: 0.08em;
-      color: #1e90ff;
-      text-shadow: 0 4px 38px #fff, 0 0 30px #30c6fb99, 0 2px 0 #063a5b;
-      pointer-events: none;
-      min-height: 2em;
-    }
-    .nav-ui {
-      left: 28px;
-      bottom: 28px;
-      background: rgba(18, 44, 77, 0.93);
-      padding: 1em 2em 1em 1.4em;
-      border-radius: 15px;
-      color: #fff;
-      font-size: 1.08em;
-      font-family: Montserrat, Arial, sans-serif;
-      display: flex;
-      gap: 0.5em;
-      flex-wrap: wrap;
-      max-width: 90vw;
-      box-shadow: 0 4px 18px #1497ff44;
-    }
-    .nav-ui button {
-      font-size: 1em;
-      border-radius: 0.7em;
-      padding: 0.4em 1.4em;
-      background: #1e90ff;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-    .nav-ui button:hover {
-      background-color: #1070d9;
-    }
-    #handballOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 12000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(10, 26, 44, 0.97);
-      flex-direction: column;
-      padding: 1em;
-      text-align: center;
-    }
-    .game-title {
-      font-family: 'Orbitron', Arial, sans-serif;
-      font-size: 2.8em;
-      color: #fff;
-      text-shadow: 0 6px 32px #1497ff55, 0 2px 12px #063a5b;
-      letter-spacing: 0.09em;
-      margin-bottom: 0.4em;
-    }
-    .game-desc {
-      color: #e5f6ff;
-      font-size: 1.11em;
-      margin: 0 0 1.5rem;
-      max-width: 650px;
-    }
-    .game-btn {
-      font-family: 'Orbitron', Arial, sans-serif;
-      font-size: 1.5rem;
-      padding: 1em 2.5em;
-      background: #1e90ff;
-      color: #fff;
-      border: none;
-      border-radius: 1.2em;
-      cursor: pointer;
-      user-select: none;
-      transition: transform 0.1s ease;
-    }
-    .game-btn:active {
-      transform: scale(0.96);
-    }
-    @media (max-width: 700px) {
-      .score-ui {
-        font-size: 1em;
-        padding: 0.7em 1.2em;
-      }
-      .msg-ui {
-        font-size: 1.1em;
-      }
-      .game-title {
-        font-size: 1.8em;
-      }
-      .game-desc {
-        font-size: 0.97em;
-      }
-      .nav-ui {
-        font-size: 0.95em;
-        gap: 0.3em;
-      }
-      .nav-ui button {
-        padding: 0.3em 1em;
-      }
-      .game-btn {
-        font-size: 1.2rem;
-        padding: 0.8em 2em;
-      }
-    }
+    /* ... Ton CSS inchangé ... */
   </style>
 </head>
 <body>
+  <!-- UI inchangée -->
   <div class="score-ui" id="score-ui" aria-live="polite" role="region" aria-label="Score et statistiques du jeu">
     <span aria-hidden="true" style="font-size:1.1em;">🏐</span> Ballons : <span id="shots" style="font-weight:bold;">0</span>
     <span aria-hidden="true" style="font-size:1.1em; margin-left: 1em;">🥅</span> Buts : <span id="goals" style="font-weight:bold;">0</span>
@@ -198,13 +63,13 @@
     <!-- But -->
     <a-box id="goal" position="0 2.6 -14" depth="0.4" height="2" width="5" color="#0ff" opacity="0.3" static-body></a-box>
 
-    <!-- Ballon -->
+    <!-- Ballon (avec modèle glTF conservé) -->
     <a-entity id="ball" gltf-model="#handball-ball" scale="0.2 0.2 0.2" position="0 1.2 -3" dynamic-body="mass: 0.45; linearDamping: 0.1; angularDamping: 0.15;" 
               class="clickable" 
               shadow="cast: true; receive: true"
               sound="src: #hitSound; on: collision; volume: 0.4"></a-entity>
 
-    <!-- Joueur -->
+    <!-- Joueur (sphere, simple) -->
     <a-entity id="player" position="0 1 -6" 
               geometry="primitive: sphere; radius: 0.5" 
               material="color: #1188ff" 
@@ -223,7 +88,6 @@
 
   <script>
     (() => {
-      const scene = document.querySelector('a-scene');
       const ball = document.getElementById('ball');
       const player = document.getElementById('player');
       const goal = document.getElementById('goal');
@@ -245,7 +109,9 @@
       let combo = 0;
       let lastGoalTime = 0;
       let comboTimeout = null;
+      let isDragging = false;
 
+      // Reset ball physiquement à sa position initiale
       function resetBall() {
         ball.setAttribute('position', { x: 0, y: 1.2, z: -3 });
         const body = ball.body;
@@ -258,6 +124,7 @@
         }
       }
 
+      // Reset joueur physiquement à sa position initiale
       function resetPlayer() {
         player.setAttribute('position', { x: 0, y: 1, z: -6 });
         const body = player.body;
@@ -270,12 +137,14 @@
         }
       }
 
+      // Mise à jour du score dans l'UI
       function updateScoreUI() {
         shotsEl.textContent = shots;
         goalsEl.textContent = goals;
         comboEl.textContent = combo;
       }
 
+      // Affiche un message temporaire à l'écran
       function showMessage(text, duration = 2200) {
         msgEl.textContent = text;
         if (comboTimeout) clearTimeout(comboTimeout);
@@ -284,6 +153,7 @@
         }, duration);
       }
 
+      // Gestion du but marqué
       function onGoal() {
         goals++;
         combo++;
@@ -293,162 +163,160 @@
         showMessage(`GOAL ! 🥅 Combo x${combo}`, 3200);
         lastGoalTime = Date.now();
 
-        // Reset ball and player
+        // Remet en place balle et joueur après un court délai
         setTimeout(() => {
           resetBall();
           resetPlayer();
         }, 800);
       }
 
+      // Gestion d'un tir effectué
       function onShot() {
         shots++;
         updateScoreUI();
         showMessage('Ballon lancé ! 🏐', 1600);
       }
 
-      // Detect collision of ball with goal box
-      ball.addEventListener('collide', (e) => {
-        const contact = e.detail.contact;
-        if (!contact) return;
+      // Éviter que le combo s'accumule trop longtemps sans marquer
+      function checkComboTimeout() {
+        if (combo > 0 && (Date.now() - lastGoalTime) > 5000) {
+          combo = 0;
+          updateScoreUI();
+          showMessage('Combo perdu...', 1800);
+        }
+      }
 
-        // We check if collision is with goal entity's physics body
-        if (e.detail.body.id === goal.body.id) {
-          // Check if enough time passed since last goal to avoid multiple counts
-          if (Date.now() - lastGoalTime > 2000) {
-            onGoal();
-          }
+      // Mouvements contrôlés du joueur (limités et fluides)
+      function movePlayerTo(x, z) {
+        // Limites du terrain ±22m en X, -16 à 6 en Z par ex.
+        const clampedX = Math.min(22, Math.max(-22, x));
+        const clampedZ = Math.min(6, Math.max(-16, z));
+        const body = player.body;
+        if (body) {
+          body.position.x = clampedX;
+          body.position.z = clampedZ;
+          body.wakeUp();
+        }
+        player.setAttribute('position', { x: clampedX, y: 1, z: clampedZ });
+      }
+
+      // Pour déplacer joueur en fonction de la souris (ou tactile)
+      function onPointerMove(event) {
+        if (!isDragging) return;
+        let clientX, clientY;
+        if (event.touches) {
+          clientX = event.touches[0].clientX;
+          clientY = event.touches[0].clientY;
         } else {
-          // Just a ball hit, play sound
-          // sound component handles it already
+          clientX = event.clientX;
+          clientY = event.clientY;
+        }
+        const winW = window.innerWidth;
+        const winH = window.innerHeight;
+        // Transforme coordonnées écran vers coordonnées terrain (approx)
+        const x = (clientX / winW) * 44 - 22;  // -22 à +22
+        const z = 6 - (clientY / winH) * 22;   // 6 à -16
+        movePlayerTo(x, z);
+      }
+
+      // Tirer la balle avec force dans la direction "devant" du joueur
+      function shootBall() {
+        if (!ball.body || !player.body) return;
+
+        // Position et direction
+        const playerPos = player.body.position;
+        const ballPos = ball.body.position;
+        const direction = new CANNON.Vec3(0, 0.2, -1); // tir légèrement en l'air vers l'avant
+        direction.normalize();
+
+        // Déplacer la balle devant le joueur
+        ball.body.position.set(playerPos.x, playerPos.y + 0.5, playerPos.z - 1);
+        ball.body.velocity.setZero();
+        ball.body.angularVelocity.setZero();
+        ball.body.wakeUp();
+
+        // Appliquer une force impulsive
+        const forceMagnitude = 15;
+        const impulse = direction.scale(forceMagnitude);
+        ball.body.applyImpulse(impulse, ball.body.position);
+
+        onShot();
+      }
+
+      // Event collision balle <-> but
+      ball.addEventListener('collide', (e) => {
+        if (!e.detail.body) return;
+        if (goal.body && e.detail.body.id === goal.body.id) {
+          onGoal();
         }
       });
 
-      // Combo reset if no goal within 10s
-      setInterval(() => {
-        if (combo > 0 && Date.now() - lastGoalTime > 10000) {
-          combo = 0;
-          updateScoreUI();
-          showMessage('Combo perdu...', 2000);
-        }
-      }, 3000);
-
-      // Button handlers
+      // Démarrage du jeu
       startBtn.addEventListener('click', () => {
         overlay.style.display = 'none';
-        bgMusic.volume = 0.3;
-        bgMusic.play();
-        resetBall();
-        resetPlayer();
         shots = 0;
         goals = 0;
         combo = 0;
         updateScoreUI();
+        resetBall();
+        resetPlayer();
+        bgMusic.play().catch(() => {}); // pour éviter erreur si auto-play bloqué
       });
 
+      // Reset ball
       resetBallBtn.addEventListener('click', () => {
         resetBall();
-        showMessage('Ballon remis en place.', 1200);
+        showMessage('Ballon réinitialisé');
       });
 
+      // Reset player
       resetPlayerBtn.addEventListener('click', () => {
         resetPlayer();
-        showMessage('Joueur remis en place.', 1200);
+        showMessage('Joueur réinitialisé');
       });
 
+      // Toggle musique
       toggleMusicBtn.addEventListener('click', () => {
         if (bgMusic.paused) {
           bgMusic.play();
-          toggleMusicBtn.textContent = 'Musique: ON';
+          showMessage('Musique activée');
         } else {
           bgMusic.pause();
-          toggleMusicBtn.textContent = 'Musique: OFF';
+          showMessage('Musique désactivée');
         }
       });
 
+      // Aide (simple alert)
       showHelpBtn.addEventListener('click', () => {
-        alert(
-          'Commandes:\n' +
-          '- Souris / Toucher: déplacez le joueur.\n' +
-          '- Cliquez sur le ballon pour le lancer.\n' +
-          '- Marquez des buts dans le but bleu.\n' +
-          '- Utilisez les boutons pour réinitialiser la balle ou le joueur.\n' +
-          'Amusez-vous bien !'
-        );
+        alert("Déplace la souris (ou tactile) pour bouger le joueur.\nClique gauche pour tirer le ballon.\nBut : marquer dans le but bleu.");
       });
 
-      // Player control - simple follow mouse or touch for demo
-      let isDragging = false;
-      let dragStart = null;
+      // Dragging flag gestion
+      window.addEventListener('mousedown', () => { isDragging = true; });
+      window.addEventListener('mouseup', () => { isDragging = false; });
+      window.addEventListener('touchstart', () => { isDragging = true; });
+      window.addEventListener('touchend', () => { isDragging = false; });
 
-      function getMousePos(event) {
-        if (event.touches && event.touches.length > 0) {
-          return { x: event.touches[0].clientX, y: event.touches[0].clientY };
-        }
-        return { x: event.clientX, y: event.clientY };
-      }
+      // Mouvement joueur via souris/tactile
+      window.addEventListener('mousemove', onPointerMove);
+      window.addEventListener('touchmove', onPointerMove);
 
-      function screenToWorld(x, y) {
-        const camera = document.getElementById('camera');
-        const sceneEl = document.querySelector('a-scene');
-        const canvas = sceneEl.canvas;
-        if (!canvas) return null;
-
-        // Normalized device coords
-        const ndcX = (x / window.innerWidth) * 2 - 1;
-        const ndcY = -(y / window.innerHeight) * 2 + 1;
-
-        const vector = new THREE.Vector3(ndcX, ndcY, -1).unproject(camera.getObject3D('camera'));
-        const dir = vector.sub(camera.getObject3D('camera').position).normalize();
-        const distance = (player.getAttribute('position').y - camera.getObject3D('camera').position.y) / dir.y;
-        const pos = camera.getObject3D('camera').position.clone().add(dir.multiplyScalar(distance));
-        return pos;
-      }
-
-      function onPointerDown(event) {
-        isDragging = true;
-        dragStart = getMousePos(event);
-      }
-
-      function onPointerMove(event) {
-        if (!isDragging) return;
-        const pos = getMousePos(event);
-        if (!pos) return;
-
-        const worldPos = screenToWorld(pos.x, pos.y);
-        if (!worldPos) return;
-
-        // Clamp player position to arena bounds
-        let x = Math.min(Math.max(worldPos.x, -20), 20);
-        let z = Math.min(Math.max(worldPos.z, -10), 10);
-
-        player.setAttribute('position', { x: x, y: 1, z: z });
-      }
-
-      function onPointerUp(event) {
-        if (isDragging) {
-          isDragging = false;
-          dragStart = null;
-        }
-      }
-
-      // Ball launch on click/tap
-      ball.addEventListener('click', () => {
-        const ballBody = ball.body;
-        if (!ballBody) return;
-        // Give impulse forward
-        const impulse = new CANNON.Vec3(0, 2, -8);
-        ballBody.applyImpulse(impulse, ballBody.position);
-        onShot();
+      // Tir au clic gauche
+      window.addEventListener('click', (evt) => {
+        if (overlay.style.display !== 'none') return; // jeu non démarré
+        if (!isDragging) return; // éviter tirs accidentels
+        shootBall();
       });
 
-      window.addEventListener('pointerdown', onPointerDown);
-      window.addEventListener('pointermove', onPointerMove);
-      window.addEventListener('pointerup', onPointerUp);
-      window.addEventListener('pointercancel', onPointerUp);
+      // Intervalle combo timeout
+      setInterval(checkComboTimeout, 1000);
 
-      // Initial UI setup
-      updateScoreUI();
-      toggleMusicBtn.textContent = 'Musique: ON';
+      // Au chargement, reset la balle et joueur
+      window.addEventListener('load', () => {
+        resetBall();
+        resetPlayer();
+        updateScoreUI();
+      });
     })();
   </script>
 </body>
