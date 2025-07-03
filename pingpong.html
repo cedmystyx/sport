@@ -2,50 +2,26 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos tournantes + Pilier</title>
+  <title>PingPong Vidéos + Pilier + Audio fondu</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
   <style>
-    body { margin:0; background:black; overflow: hidden; }
-    #menuOverlay {
-      position: fixed;
-      top:0; left:0; right:0; bottom:0;
-      background: rgba(0,0,0,0.85);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      z-index: 1000;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-    #menuOverlay button {
-      font-size: 1.5em;
-      padding: 1em 2em;
-      cursor: pointer;
-      border: none;
-      background: #1a73e8;
-      color: white;
-      border-radius: 0.3em;
-      transition: background 0.3s ease;
-    }
-    #menuOverlay button:hover {
-      background: #155ab6;
+    body { margin:0; background:#000; overflow: hidden; }
+    #overlay {
+      position: fixed; top: 10px; left: 10px;
+      color: white; font-family: sans-serif; background: rgba(0,0,0,0.6);
+      padding: 10px; border-radius: 8px;
+      z-index: 9999;
     }
   </style>
 </head>
 <body>
+  <div id="overlay">PingPong VR - Regarde les vidéos pour activer le son</div>
 
-  <div id="menuOverlay">
-    <h1>PingPong VR</h1>
-    <p>Appuie sur démarrer pour lancer l'expérience</p>
-    <button id="startBtn">Démarrer</button>
-  </div>
+  <a-scene physics="gravity: -9.8" background="color: #000000" embedded>
 
-  <a-scene id="scene" physics="gravity: -9.8" background="color: #000000" style="display:none">
-
-    <!-- Canvas texture dégradé arc-en-ciel -->
+    <!-- Pilier vertical "infini" multicolore -->
     <canvas id="rainbowTexture" width="1" height="256" style="display:none"></canvas>
     <script>
       const canvas = document.getElementById('rainbowTexture');
@@ -62,12 +38,11 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     </script>
 
-    <!-- Pilier vertical "infini" multicolore -->
     <a-cylinder
-      position="0 1.4 0"
+      position="0 1 0"
       radius="1.25"
-      height="1000"
-      material="shader: flat; src: #rainbowTexture; repeat: 1 50"
+      height="6"
+      material="shader: flat; src: #rainbowTexture; repeat: 1 6"
       static-body
     ></a-cylinder>
 
@@ -81,96 +56,81 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans physiques -->
-    <a-entity id="screens" position="0 2 0">
-      <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1" position="0 1.5 5" rotation="0 90 0" static-body="shape: box"></a-curvedimage>
-      <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2" position="0 1.5 -5" rotation="0 -90 0" static-body="shape: box"></a-curvedimage>
+    <!-- Ecrans incurvés placés face à face -->
+    <a-entity id="screens" position="0 1.5 0">
+
+      <!-- Vidéo en face, à z = -4 -->
+      <a-curvedimage id="screen1" radius="5" theta-length="90" height="3"
+                    src="#vid1" position="0 0 -4"
+                    rotation="0 0 0"
+                    static-body="shape: box; height: 3; width: 4; depth: 0.1"
+      ></a-curvedimage>
+
+      <!-- Vidéo derrière, à z = 4, rotation 180 -->
+      <a-curvedimage id="screen2" radius="5" theta-length="90" height="3"
+                    src="#vid2" position="0 0 4"
+                    rotation="0 180 0"
+                    static-body="shape: box; height: 3; width: 4; depth: 0.1"
+      ></a-curvedimage>
+
     </a-entity>
 
     <script>
+      // Jouer les vidéos à la boucle et muettes au départ
       const v1 = document.querySelector('#vid1');
       const v2 = document.querySelector('#vid2');
+      v1.play();
+      v2.play();
 
-      // Lancement des vidéos dès start
-      function playVideos() {
-        v1.play().catch(() => {});
-        v2.play().catch(() => {});
-      }
-
-      // Volume audio fade in/out selon angle regard joueur
-      AFRAME.registerComponent('audio-fade-on-view', {
-        init: function () {
+      // Audio fondu selon si on regarde la vidéo ou pas
+      AFRAME.registerComponent('audio-fade-view', {
+        schema: { fadeAngle: {default: 30}, fadeSpeed: {default: 1} },
+        init() {
           this.camera = document.querySelector('[camera]').object3D;
-          this.videoEl = document.querySelector(this.el.getAttribute('src'));
+          this.videoEls = [document.querySelector('#vid1'), document.querySelector('#vid2')];
+          this.screenEls = [
+            document.querySelector('#screen1'),
+            document.querySelector('#screen2')
+          ];
         },
-        tick: function () {
-          if (!this.videoEl) return;
+        tick(time, delta) {
+          const dt = delta / 1000;
           const camPos = this.camera.position;
           const camDir = new THREE.Vector3();
           this.camera.getWorldDirection(camDir);
           camDir.normalize();
 
-          const screenPos = new THREE.Vector3();
-          this.el.object3D.getWorldPosition(screenPos);
+          for (let i = 0; i < this.screenEls.length; i++) {
+            const screenEl = this.screenEls[i];
+            const videoEl = this.videoEls[i];
+            if (!videoEl) continue;
 
-          const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
-          const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
+            const screenPos = new THREE.Vector3();
+            screenEl.object3D.getWorldPosition(screenPos);
 
-          const fadeAngle = 30;
-          let targetVolume = 0;
-          if (angleDeg < fadeAngle) {
-            targetVolume = 1 - angleDeg / fadeAngle;
+            const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
+            const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
+
+            let targetVolume = 0;
+            if (angleDeg < this.data.fadeAngle) {
+              targetVolume = 1 - (angleDeg / this.data.fadeAngle);
+            }
+
+            let currentVol = videoEl.volume;
+            if (currentVol < targetVolume) {
+              currentVol = Math.min(currentVol + this.data.fadeSpeed * dt, targetVolume);
+            } else if (currentVol > targetVolume) {
+              currentVol = Math.max(currentVol - this.data.fadeSpeed * dt, targetVolume);
+            }
+            videoEl.volume = currentVol;
           }
-
-          const fadeSpeed = 2 * (AFRAME.TICK_TIME / 1000);
-          const currentVol = this.videoEl.volume;
-          let newVol = currentVol;
-          if (currentVol < targetVolume) {
-            newVol = Math.min(currentVol + fadeSpeed, targetVolume);
-          } else if (currentVol > targetVolume) {
-            newVol = Math.max(currentVol - fadeSpeed, targetVolume);
-          }
-          this.videoEl.volume = newVol;
         }
       });
 
-      document.querySelector('#screen1').setAttribute('audio-fade-on-view', '');
-      document.querySelector('#screen2').setAttribute('audio-fade-on-view', '');
+      document.querySelector('#screens').setAttribute('audio-fade-view', '');
 
-      // Start button handler
-      document.getElementById('startBtn').addEventListener('click', () => {
-        document.getElementById('menuOverlay').style.display = 'none';
-        document.getElementById('scene').style.display = 'block';
-        playVideos();
-      });
     </script>
+
   </a-scene>
-
-  <script>
-    // Anti-IA / Anti-Devtools basique
-    // Désactive clic droit, sélection, copier-coller
-    document.addEventListener('selectstart', e => e.preventDefault());
-    document.addEventListener('copy', e => e.preventDefault());
-    document.addEventListener('cut', e => e.preventDefault());
-    document.addEventListener('contextmenu', e => e.preventDefault());
-
-    // Détecte ouverture console devtools et recharge la page
-    let devtoolsOpen = false;
-    const threshold = 160;
-    setInterval(() => {
-      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-      if (widthThreshold || heightThreshold) {
-        if (!devtoolsOpen) {
-          devtoolsOpen = true;
-          alert('Accès développeur détecté ! La page va se recharger.');
-          location.reload();
-        }
-      } else {
-        devtoolsOpen = false;
-      }
-    }, 1000);
-  </script>
-
 </body>
 </html>
