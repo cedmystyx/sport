@@ -2,19 +2,10 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos tournantes + Pilier sécurisé</title>
-  
-  <!-- Content Security Policy basique -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://aframe.io https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; media-src 'self'; object-src 'none';">
-  
-  <meta http-equiv="X-Frame-Options" content="DENY">
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="Referrer-Policy" content="no-referrer">
-
+  <title>PingPong Vidéos tournantes + Pilier</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
-
   <style> body { margin:0; background:black; } </style>
 </head>
 <body>
@@ -39,7 +30,7 @@
 
     <!-- Pilier vertical "infini" multicolore -->
     <a-cylinder
-      position="0 -500 0"
+      position="0 1.4 0"
       radius="1.25"
       height="1000"
       material="shader: flat; src: #rainbowTexture; repeat: 1 50"
@@ -58,10 +49,8 @@
 
     <!-- Écrans physiques -->
     <a-entity id="screens" position="0 2 0">
-      <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1" position="0 1.5 -5" rotation="0 90 0"
-                    static-body="shape: box; height: 3; width: 5; depth: 0.1"></a-curvedimage>
-      <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2" position="0 1.5 5" rotation="0 -90 0"
-                    static-body="shape: box; height: 3; width: 5; depth: 0.1"></a-curvedimage>
+      <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1" position="0 1.5 5" rotation="0 90 0" static-body="shape: box"></a-curvedimage>
+      <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2" position="0 1.5 -5" rotation="0 -90 0" static-body="shape: box"></a-curvedimage>
     </a-entity>
 
     <script>
@@ -70,93 +59,72 @@
       v1.play();
       v2.play();
 
-      AFRAME.registerComponent('rotate-around-player', {
-        schema: {
-          radius: {type: 'number', default: 5},
-          speedRotate: {type: 'number', default: 5},
-          count: {type: 'int', default: 2},
-        },
+      // Volume audio fade in/out selon angle regard joueur
+      AFRAME.registerComponent('audio-fade-on-view', {
         init: function () {
-          this.els = this.el.children;
-          this.angle = 0;
+          this.camera = document.querySelector('[camera]').object3D;
+          this.videoEl = document.querySelector(this.el.getAttribute('src'));
         },
-        tick: function (time, delta) {
-          const dt = delta / 1000;
-          this.angle += this.data.speedRotate * dt;
-          if (this.angle >= 360) this.angle -= 360;
+        tick: function () {
+          if (!this.videoEl) return;
+          const camPos = this.camera.position;
+          const camDir = new THREE.Vector3();
+          this.camera.getWorldDirection(camDir);
+          camDir.normalize();
 
-          for (let i = 0; i < this.els.length; i++) {
-            const baseAngle = (360 / this.data.count) * i;
-            const currentAngle = THREE.MathUtils.degToRad(baseAngle + this.angle);
+          const screenPos = new THREE.Vector3();
+          this.el.object3D.getWorldPosition(screenPos);
 
-            const x = this.data.radius * Math.sin(currentAngle);
-            const z = this.data.radius * Math.cos(currentAngle);
-            const el = this.els[i];
+          const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
+          const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
 
-            el.object3D.position.set(x, 0, z);
-
-            // Toujours face au joueur (0,0,0)
-            el.object3D.lookAt(new THREE.Vector3(0, 0, 0));
-
-            if (el.body) el.body.position.set(x, 2, z);
-
-            // Gestion du volume audio
-            const videoEl = document.querySelector(el.getAttribute('src'));
-            if (!videoEl) continue;
-
-            const camera = document.querySelector('[camera]').object3D;
-            const camPos = camera.position;
-            const camDir = new THREE.Vector3();
-            camera.getWorldDirection(camDir);
-            camDir.normalize();
-
-            const screenPos = new THREE.Vector3();
-            el.object3D.getWorldPosition(screenPos);
-
-            const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
-            const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
-
-            const fadeAngle = 30;
-            let targetVolume = 0;
-            if (angleDeg < fadeAngle) {
-              targetVolume = 1 - angleDeg / fadeAngle;
-            }
-
-            const fadeSpeed = 2;
-            const currentVol = videoEl.volume;
-            let newVol = currentVol;
-            if (currentVol < targetVolume) {
-              newVol = Math.min(currentVol + fadeSpeed * dt, targetVolume);
-            } else if (currentVol > targetVolume) {
-              newVol = Math.max(currentVol - fadeSpeed * dt, targetVolume);
-            }
-            videoEl.volume = newVol;
+          const fadeAngle = 30;
+          let targetVolume = 0;
+          if (angleDeg < fadeAngle) {
+            targetVolume = 1 - angleDeg / fadeAngle;
           }
+
+          const fadeSpeed = 2 * (AFRAME.TICK_TIME / 1000);
+          const currentVol = this.videoEl.volume;
+          let newVol = currentVol;
+          if (currentVol < targetVolume) {
+            newVol = Math.min(currentVol + fadeSpeed, targetVolume);
+          } else if (currentVol > targetVolume) {
+            newVol = Math.max(currentVol - fadeSpeed, targetVolume);
+          }
+          this.videoEl.volume = newVol;
         }
       });
 
-      document.querySelector('#screens').setAttribute('rotate-around-player', '');
+      document.querySelector('#screen1').setAttribute('audio-fade-on-view', '');
+      document.querySelector('#screen2').setAttribute('audio-fade-on-view', '');
     </script>
   </a-scene>
 
   <script>
-    // 🔒 Bloque clic droit
-    document.addEventListener('contextmenu', e => {
-      e.preventDefault();
-      alert("🚨 Action interdite pour votre sécurité !");
-    });
+    // Anti-IA / Anti-Devtools basique
+    // Désactive clic droit, sélection, copier-coller
+    document.addEventListener('selectstart', e => e.preventDefault());
+    document.addEventListener('copy', e => e.preventDefault());
+    document.addEventListener('cut', e => e.preventDefault());
+    document.addEventListener('contextmenu', e => e.preventDefault());
 
-    // 🔒 Bloque F12, Ctrl+Shift+I, Ctrl+U
-    document.addEventListener('keydown', e => {
-      if (
-        e.key === "F12" ||
-        (e.ctrlKey && e.shiftKey && e.key === "I") ||
-        (e.ctrlKey && e.key === "U")
-      ) {
-        e.preventDefault();
-        alert("🚨 Console bloquée pour votre sécurité !");
+    // Détecte ouverture console devtools et recharge la page
+    let devtoolsOpen = false;
+    const threshold = 160;
+    setInterval(() => {
+      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+      if (widthThreshold || heightThreshold) {
+        if (!devtoolsOpen) {
+          devtoolsOpen = true;
+          alert('Accès développeur détecté ! La page va se recharger.');
+          location.reload();
+        }
+      } else {
+        devtoolsOpen = false;
       }
-    });
+    }, 1000);
   </script>
 </body>
 </html>
