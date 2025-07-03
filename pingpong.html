@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos tournantes + Pilier</title>
+  <title>PingPong Vidéos fixes + Pilier</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -28,17 +28,17 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     </script>
 
-    <!-- Pilier vertical "infini" multicolore -->
+    <!-- Pilier vertical multicolore -->
     <a-cylinder
-      position="0 -250 0"
+      position="0 -248 0"
       radius="1.25"
-      height="1000"
+      height="500"
       material="shader: flat; src: #rainbowTexture; repeat: 1 50"
       static-body
     ></a-cylinder>
 
-    <!-- Joueur dynamique -->
-    <a-entity id="player" position="0 2 0" 
+    <!-- Joueur dynamique placé au sommet du pilier -->
+    <a-entity id="player" position="0 1.5 0" 
               camera look-controls wasd-controls="acceleration: 50"
               dynamic-body="shape: capsule; mass: 80; linearDamping: 0.9; angularDamping: 1">
     </a-entity>
@@ -47,11 +47,14 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans physiques -->
-    <a-entity id="screens" position="0 0 0">
-      <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1" rotation="0 0 0"
+    <!-- Écrans fixes autour du joueur -->
+    <a-entity id="screens">
+      <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
+                    position="5 1.5 0" rotation="0 -90 0"
                     static-body="shape: box; height: 3; width: 5; depth: 0.1"></a-curvedimage>
-      <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2" rotation="0 180 0"
+
+      <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
+                    position="-5 1.5 0" rotation="0 90 0"
                     static-body="shape: box; height: 3; width: 5; depth: 0.1"></a-curvedimage>
     </a-entity>
 
@@ -61,75 +64,47 @@
       v1.play();
       v2.play();
 
-      AFRAME.registerComponent('rotate-around-player', {
+      // Gestion du son en fondu en fonction du regard
+      AFRAME.registerComponent('audio-fade', {
         schema: {
-          radius: {type: 'number', default: 5},       // distance des vidéos
-          speedRotate: {type: 'number', default: 5}, // vitesse rotation degrés/seconde
-          count: {type: 'int', default: 2},          // nombre d'écrans
-        },
-        init: function () {
-          this.els = this.el.children;
-          this.angle = 0;
+          fadeAngle: {type: 'number', default: 30},
+          fadeSpeed: {type: 'number', default: 2}
         },
         tick: function (time, delta) {
           const dt = delta / 1000;
-          this.angle += this.data.speedRotate * dt;
-          if (this.angle >= 360) this.angle -= 360;
+          const camera = document.querySelector('[camera]').object3D;
+          const camPos = camera.position;
+          const camDir = new THREE.Vector3();
+          camera.getWorldDirection(camDir);
 
-          for (let i = 0; i < this.els.length; i++) {
-            const baseAngle = (360 / this.data.count) * i; // 0 et 180°
-            const currentAngle = THREE.MathUtils.degToRad(baseAngle + this.angle);
+          this.el.object3D.getWorldPosition(this.el.object3D.position);
+          const screenPos = this.el.object3D.position;
 
-            const x = this.data.radius * Math.sin(currentAngle);
-            const z = this.data.radius * Math.cos(currentAngle);
-            const y = 2; // hauteur fixe
+          const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
+          const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
 
-            const el = this.els[i];
-            el.object3D.position.set(x, y, z);
+          const videoEl = document.querySelector(this.el.getAttribute('src'));
+          if (!videoEl) return;
 
-            // Toujours face au joueur, même hauteur, rotation sur Y uniquement
-            el.object3D.lookAt(new THREE.Vector3(0, y, 0));
-
-            if (el.body) el.body.position.set(x, y, z);
-
-            // Gestion du volume audio pour chaque vidéo selon où regarde le joueur
-            const videoEl = document.querySelector(el.getAttribute('src'));
-            if (!videoEl) continue;
-
-            const camera = document.querySelector('[camera]').object3D;
-            const camPos = camera.position;
-            const camDir = new THREE.Vector3();
-            camera.getWorldDirection(camDir);
-            camDir.normalize();
-
-            const screenPos = new THREE.Vector3();
-            el.object3D.getWorldPosition(screenPos);
-
-            const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
-            const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
-
-            const fadeAngle = 30;
-            let targetVolume = 0;
-            if (angleDeg < fadeAngle) {
-              targetVolume = 1 - angleDeg / fadeAngle;
-            }
-
-            const fadeSpeed = 2;
-            const currentVol = videoEl.volume;
-            let newVol = currentVol;
-            if (currentVol < targetVolume) {
-              newVol = Math.min(currentVol + fadeSpeed * dt, targetVolume);
-            } else if (currentVol > targetVolume) {
-              newVol = Math.max(currentVol - fadeSpeed * dt, targetVolume);
-            }
-            videoEl.volume = newVol;
+          let targetVolume = 0;
+          if (angleDeg < this.data.fadeAngle) {
+            targetVolume = 1 - angleDeg / this.data.fadeAngle;
           }
+
+          const currentVol = videoEl.volume;
+          let newVol = currentVol;
+          if (currentVol < targetVolume) {
+            newVol = Math.min(currentVol + this.data.fadeSpeed * dt, targetVolume);
+          } else if (currentVol > targetVolume) {
+            newVol = Math.max(currentVol - this.data.fadeSpeed * dt, targetVolume);
+          }
+          videoEl.volume = newVol;
         }
       });
 
-      document.querySelector('#screens').setAttribute('rotate-around-player', '');
+      document.querySelector('#screen1').setAttribute('audio-fade', '');
+      document.querySelector('#screen2').setAttribute('audio-fade', '');
     </script>
-
   </a-scene>
 </body>
 </html>
