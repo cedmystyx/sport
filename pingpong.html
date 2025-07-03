@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos pivotées + Pilier avec rotation</title>
+  <title>PingPong Vidéos pivotées + Pilier avec rotation autour du joueur</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -66,9 +66,9 @@
 
     <!-- Pilier vertical multicolore -->
     <a-cylinder
-      position="0 0 0"
+      position="0 -245 0"
       radius="1.25"
-      height="3"
+      height="490"
       material="shader: flat; src: #rainbowTexture; repeat: 1 50"
       static-body
     ></a-cylinder>
@@ -83,7 +83,7 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans fixes avec rotation autour joueur -->
+    <!-- Écrans fixes (1 devant, 1 repositionné) -->
     <a-entity id="screens">
       <!-- Vidéo devant -->
       <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
@@ -92,7 +92,7 @@
 
       <!-- Vidéo repositionnée -->
       <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
-                    position="0 1.5 2.46035" rotation="0 -23.066 0"
+                    position="0 1.5 2.46035" rotation="0 -23.066134916376683 0"
                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
     </a-entity>
 
@@ -138,34 +138,31 @@
 
       document.querySelector('#screens').setAttribute('video-audio-fade', '');
 
-      // Composant rotation lente autour du joueur, sans modifier position initiale des vidéos
+      // Composant rotation lente autour du joueur, sans modifier la rotation propre des vidéos
       AFRAME.registerComponent('rotate-around-player', {
         schema: {
           speed: {type: 'number', default: 10} // degrés par seconde
         },
         init: function () {
           this.angle = 0;
-          // On stocke les positions initiales
           this.screens = [document.querySelector('#screen1'), document.querySelector('#screen2')];
           this.initPositions = this.screens.map(el => el.object3D.position.clone());
           this.initRotations = this.screens.map(el => el.object3D.rotation.clone());
         },
         tick: function (time, delta) {
-          this.angle += this.data.speed * delta / 1000; // incrément en degrés
+          this.angle += this.data.speed * delta / 1000;
           if (this.angle >= 360) this.angle -= 360;
 
           const rad = THREE.MathUtils.degToRad(this.angle);
 
           this.screens.forEach((el, i) => {
-            // Position de base
             const pos = this.initPositions[i].clone();
 
-            // Calcul nouvelle position en rotation autour de Y=0 (le joueur)
+            // Calcul de la position tournante autour de Y=0 (le joueur)
             const x = pos.x * Math.cos(rad) - pos.z * Math.sin(rad);
             const z = pos.x * Math.sin(rad) + pos.z * Math.cos(rad);
-            el.object3D.position.set(x, pos.y, z);
 
-            // Garder la rotation propre initiale
+            el.object3D.position.set(x, pos.y, z);
             el.object3D.rotation.copy(this.initRotations[i]);
           });
         }
