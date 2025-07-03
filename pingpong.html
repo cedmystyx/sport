@@ -2,14 +2,12 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos pivotées + Pilier avec Overlay</title>
+  <title>PingPong Vidéos pivotées + Pilier avec rotation autour du joueur</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
   <style> 
-    body { margin:0; background:black; overflow: hidden; } 
-
-    /* Overlay */
+    body { margin: 0; background: black; overflow: hidden; } 
     #overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -19,50 +17,35 @@
       justify-content: center;
       align-items: center;
       color: #e0e0e0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      z-index: 10000;
-      padding: 20px;
+      font-family: Arial, sans-serif;
+      z-index: 9999;
     }
-    #overlay h1 {
-      font-size: 3rem;
-      margin-bottom: 10px;
-      text-shadow: 0 0 10px #00ccff;
-    }
-    #overlay p {
-      font-size: 1.5rem;
-      max-width: 450px;
-      margin-bottom: 40px;
-      text-shadow: 0 0 6px #00ccff;
-    }
-    #startBtn {
-      background: #00ccff;
+    #overlay button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 18px;
+      background: #1e90ff;
       border: none;
-      padding: 15px 50px;
-      font-size: 1.8rem;
-      color: #003349;
-      border-radius: 40px;
+      border-radius: 8px;
+      color: white;
       cursor: pointer;
-      box-shadow: 0 5px 15px rgba(0,204,255,0.6);
-      transition: background 0.3s ease, transform 0.2s ease;
+      transition: background 0.3s;
     }
-    #startBtn:hover {
-      background: #0099cc;
-      transform: scale(1.05);
+    #overlay button:hover {
+      background: #005bb5;
     }
   </style>
 </head>
 <body>
 
-  <!-- Overlay d'accueil -->
+  <!-- Overlay avant démarrage scène -->
   <div id="overlay">
     <h1>Bienvenue dans PingPong VR</h1>
-    <p>Explore les vidéos immersives autour de toi.<br />Clique sur le bouton pour commencer l’expérience.</p>
-    <button id="startBtn">Entrer dans la scène</button>
+    <p>Appuie sur démarrer pour entrer dans la scène</p>
+    <button id="startBtn">Démarrer</button>
   </div>
 
-  <!-- Scène A-Frame cachée au départ -->
-  <a-scene physics="gravity: -9.8" background="color: #000000" style="display:none">
+  <a-scene physics="gravity: -9.8" background="color: #000000" embedded style="display:none">
 
     <!-- Canvas texture dégradé arc-en-ciel -->
     <canvas id="rainbowTexture" width="1" height="256" style="display:none"></canvas>
@@ -100,17 +83,19 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans fixes (positions et rotations d’origine) -->
+    <!-- Écrans fixes (1 devant, 1 repositionné) -->
     <a-entity id="screens">
       <!-- Vidéo devant -->
-      <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
-                    position="0 1.5 -5" rotation="0 90 0"
-                    static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
+      <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1" 
+        position="0 1.5 -5" rotation="0 90 0" 
+        static-body="shape: box; sphereRadius: NaN" material="" geometry="thetaLength: 90" velocity="" scale="1 1.5 1">
+      </a-curvedimage>
 
       <!-- Vidéo repositionnée -->
-      <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
-                    position="0 1.5 2.46035" rotation="0 -23.066134916376683 0"
-                    static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
+      <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2" 
+        position="0 1.5 2.46035" rotation="0 -23.066134916376683 0" 
+        static-body="shape: box; sphereRadius: NaN" material="" geometry="thetaLength: 90" velocity="" scale="1 1.5 1">
+      </a-curvedimage>
     </a-entity>
 
     <script>
@@ -119,7 +104,7 @@
       v1.play();
       v2.play();
 
-      // Gestion volume audio fade suivant l'angle caméra-écran
+      // Gestion volume audio
       AFRAME.registerComponent('video-audio-fade', {
         tick: function () {
           const camera = document.querySelector('[camera]').object3D;
@@ -155,18 +140,47 @@
 
       document.querySelector('#screens').setAttribute('video-audio-fade', '');
 
-      // Gestion overlay + démarrage scène & vidéos
-      const overlay = document.getElementById('overlay');
-      const startBtn = document.getElementById('startBtn');
-      const scene = document.querySelector('a-scene');
+      // Composant rotation lente autour du joueur, sans modifier la rotation propre des vidéos
+      AFRAME.registerComponent('rotate-around-player', {
+        schema: {
+          speed: {type: 'number', default: 10} // degrés par seconde
+        },
+        init: function () {
+          this.angle = 0;
+          this.screens = [document.querySelector('#screen1'), document.querySelector('#screen2')];
+          this.initPositions = this.screens.map(el => el.object3D.position.clone());
+          this.initRotations = this.screens.map(el => el.object3D.rotation.clone());
+        },
+        tick: function (time, delta) {
+          this.angle += this.data.speed * delta / 1000;
+          if (this.angle >= 360) this.angle -= 360;
 
-      startBtn.addEventListener('click', () => {
+          const rad = THREE.MathUtils.degToRad(this.angle);
+
+          this.screens.forEach((el, i) => {
+            const pos = this.initPositions[i].clone();
+
+            // Calcul de la position tournante autour de Y=0 (le joueur)
+            const x = pos.x * Math.cos(rad) - pos.z * Math.sin(rad);
+            const z = pos.x * Math.sin(rad) + pos.z * Math.cos(rad);
+
+            el.object3D.position.set(x, pos.y, z);
+            el.object3D.rotation.copy(this.initRotations[i]);
+          });
+        }
+      });
+
+      document.querySelector('#screens').setAttribute('rotate-around-player', '');
+
+      // Gestion overlay démarrage
+      const overlay = document.getElementById('overlay');
+      const scene = document.querySelector('a-scene');
+      document.getElementById('startBtn').addEventListener('click', () => {
         overlay.style.display = 'none';
         scene.style.display = 'block';
-        v1.play().catch(() => {});
-        v2.play().catch(() => {});
       });
     </script>
+
   </a-scene>
 
 </body>
