@@ -2,14 +2,50 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos pivotées + Pilier + Overlay + Rotation</title>
+  <title>PingPong Vidéos pivotées + Pilier + Overlay d'accueil</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
-  <style> body { margin:0; background:black; } </style>
+  <style>
+    body { margin:0; background:black; overflow:hidden; }
+    #overlay {
+      position: fixed;
+      top:0; left:0; right:0; bottom:0;
+      background: rgba(0,0,0,0.9);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      z-index: 9999;
+    }
+    #overlay button {
+      margin-top: 20px;
+      padding: 12px 30px;
+      font-size: 20px;
+      cursor: pointer;
+      background: #0099ff;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      transition: background 0.3s ease;
+    }
+    #overlay button:hover {
+      background: #007acc;
+    }
+  </style>
 </head>
 <body>
-  <a-scene physics="gravity: -9.8" background="color: #000000">
+
+  <!-- Overlay d'accueil -->
+  <div id="overlay">
+    <h1>Bienvenue dans PingPong VR</h1>
+    <p>Regarde les vidéos pour activer le son.</p>
+    <button id="startBtn">Entrer dans la scène</button>
+  </div>
+
+  <a-scene physics="gravity: -9.8" background="color: #000000" embedded style="width:100vw; height:100vh;">
 
     <!-- Canvas texture dégradé arc-en-ciel -->
     <canvas id="rainbowTexture" width="1" height="256" style="display:none"></canvas>
@@ -48,7 +84,7 @@
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
     <!-- Écrans fixes (1 devant, 1 repositionné) -->
-    <a-entity id="screens" rotate-around="speed: 10">
+    <a-entity id="screens">
       <!-- Vidéo devant -->
       <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
                     position="0 1.5 -5" rotation="0 90 0"
@@ -60,31 +96,15 @@
                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
     </a-entity>
 
-    <!-- Overlay fixe au-dessus du joueur -->
-    <a-entity position="0 2.5 -1" rotation="0 0 0">
-      <a-plane height="0.35" width="1.5" color="#000" opacity="0.6"></a-plane>
-      <a-text value="👾 Instructions : Regarde les vidéos pour activer le son" 
-              align="center" color="#fff" width="2"
-              position="0 0 0.01"
-              wrap-count="30">
-      </a-text>
-    </a-entity>
-
     <script>
-      // Composant rotation continue autour de l’axe Y
-      AFRAME.registerComponent('rotate-around', {
-        schema: { speed: { type: 'number', default: 10 } }, // degrés par seconde
-        tick: function (time, timeDelta) {
-          const rotation = this.el.getAttribute('rotation');
-          rotation.y += this.data.speed * (timeDelta / 1000);
-          this.el.setAttribute('rotation', rotation);
-        }
-      });
-
       const v1 = document.querySelector('#vid1');
       const v2 = document.querySelector('#vid2');
-      v1.play();
-      v2.play();
+
+      // Ne pas lancer les vidéos avant entrée
+      function startVideos() {
+        v1.play();
+        v2.play();
+      }
 
       // Gestion volume audio
       AFRAME.registerComponent('video-audio-fade', {
@@ -121,7 +141,14 @@
       });
 
       document.querySelector('#screens').setAttribute('video-audio-fade', '');
+
+      // Bouton démarrage
+      document.getElementById('startBtn').addEventListener('click', () => {
+        document.getElementById('overlay').style.display = 'none';
+        startVideos();
+      });
     </script>
+
   </a-scene>
 </body>
 </html>
