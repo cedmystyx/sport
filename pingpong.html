@@ -2,22 +2,25 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Sécurisé</title>
+  <title>PingPong Vidéos tournantes + Pilier sécurisé</title>
+  
+  <!-- Content Security Policy basique -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://aframe.io https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; media-src 'self'; object-src 'none';">
+  
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="Referrer-Policy" content="no-referrer">
+
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
-  <style>
-    body { margin:0; background:black; }
-  </style>
+
+  <style> body { margin:0; background:black; } </style>
 </head>
 <body>
   <a-scene physics="gravity: -9.8" background="color: #000000">
 
-    <!-- Pilier vertical multicolore -->
+    <!-- Canvas texture dégradé arc-en-ciel -->
     <canvas id="rainbowTexture" width="1" height="256" style="display:none"></canvas>
     <script>
       const canvas = document.getElementById('rainbowTexture');
@@ -34,6 +37,7 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     </script>
 
+    <!-- Pilier vertical "infini" multicolore -->
     <a-cylinder
       position="0 -500 0"
       radius="1.25"
@@ -42,28 +46,96 @@
       static-body
     ></a-cylinder>
 
-    <!-- Joueur -->
-    <a-entity id="player" position="0 2 0"
+    <!-- Joueur dynamique -->
+    <a-entity id="player" position="0 2 0" 
               camera look-controls wasd-controls="acceleration: 50"
               dynamic-body="shape: capsule; mass: 80; linearDamping: 0.9; angularDamping: 1">
     </a-entity>
 
-    <!-- Vidéos -->
+    <!-- Vidéos HTML -->
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans -->
-    <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
-                   position="0 1.5 -5" rotation="0 90 0" static-body></a-curvedimage>
-
-    <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
-                   position="0 1.5 5" rotation="0 -90 0" static-body></a-curvedimage>
+    <!-- Écrans physiques -->
+    <a-entity id="screens" position="0 2 0">
+      <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1" position="0 1.5 -5" rotation="0 90 0"
+                    static-body="shape: box; height: 3; width: 5; depth: 0.1"></a-curvedimage>
+      <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2" position="0 1.5 5" rotation="0 -90 0"
+                    static-body="shape: box; height: 3; width: 5; depth: 0.1"></a-curvedimage>
+    </a-entity>
 
     <script>
       const v1 = document.querySelector('#vid1');
       const v2 = document.querySelector('#vid2');
       v1.play();
       v2.play();
+
+      AFRAME.registerComponent('rotate-around-player', {
+        schema: {
+          radius: {type: 'number', default: 5},
+          speedRotate: {type: 'number', default: 5},
+          count: {type: 'int', default: 2},
+        },
+        init: function () {
+          this.els = this.el.children;
+          this.angle = 0;
+        },
+        tick: function (time, delta) {
+          const dt = delta / 1000;
+          this.angle += this.data.speedRotate * dt;
+          if (this.angle >= 360) this.angle -= 360;
+
+          for (let i = 0; i < this.els.length; i++) {
+            const baseAngle = (360 / this.data.count) * i;
+            const currentAngle = THREE.MathUtils.degToRad(baseAngle + this.angle);
+
+            const x = this.data.radius * Math.sin(currentAngle);
+            const z = this.data.radius * Math.cos(currentAngle);
+            const el = this.els[i];
+
+            el.object3D.position.set(x, 0, z);
+
+            // Toujours face au joueur (0,0,0)
+            el.object3D.lookAt(new THREE.Vector3(0, 0, 0));
+
+            if (el.body) el.body.position.set(x, 2, z);
+
+            // Gestion du volume audio
+            const videoEl = document.querySelector(el.getAttribute('src'));
+            if (!videoEl) continue;
+
+            const camera = document.querySelector('[camera]').object3D;
+            const camPos = camera.position;
+            const camDir = new THREE.Vector3();
+            camera.getWorldDirection(camDir);
+            camDir.normalize();
+
+            const screenPos = new THREE.Vector3();
+            el.object3D.getWorldPosition(screenPos);
+
+            const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
+            const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
+
+            const fadeAngle = 30;
+            let targetVolume = 0;
+            if (angleDeg < fadeAngle) {
+              targetVolume = 1 - angleDeg / fadeAngle;
+            }
+
+            const fadeSpeed = 2;
+            const currentVol = videoEl.volume;
+            let newVol = currentVol;
+            if (currentVol < targetVolume) {
+              newVol = Math.min(currentVol + fadeSpeed * dt, targetVolume);
+            } else if (currentVol > targetVolume) {
+              newVol = Math.max(currentVol - fadeSpeed * dt, targetVolume);
+            }
+            videoEl.volume = newVol;
+          }
+        }
+      });
+
+      document.querySelector('#screens').setAttribute('rotate-around-player', '');
     </script>
   </a-scene>
 
