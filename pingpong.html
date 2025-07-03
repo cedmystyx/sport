@@ -1,65 +1,152 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <title>PingPong - Socle rond dans le vide</title>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <style>
-      body { margin: 0; overflow: hidden; background: black; }
-    </style>
-  </head>
-  <body>
-    <a-scene background="color: #000000" embedded>
-      <!-- Sol blanc rond -->
-      <a-circle
-        position="0 0 0"
-        rotation="-90 0 0"
-        radius="2"
-        color="#fff"
-      ></a-circle>
+<head>
+  <meta charset="UTF-8" />
+  <title>PingPong - Vidéos courbes défilantes avec son</title>
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <!-- Composant curvedimage pour écran courbé -->
+  <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; background: black; }
+  </style>
+</head>
+<body>
+  <a-scene background="color: #000000" embedded>
 
-      <!-- Caméra positionnée sur le socle, légèrement au-dessus -->
-      <a-entity camera look-controls position="0 0.2 0"></a-entity>
+    <!-- Socle rond blanc -->
+    <a-circle
+      position="0 0 0"
+      rotation="-90 0 0"
+      radius="2"
+      color="#fff"
+    ></a-circle>
 
-      <!-- Groupe vidéo placé devant, un peu plus proche -->
-      <a-entity id="video-group" position="0 1.5 -1.5">
-        <a-plane id="video1" width="1.2" height="0.7" position="0 2.1 0" color="#333"></a-plane>
-        <a-plane id="video2" width="1.2" height="0.7" position="0 1.0 0" color="#555"></a-plane>
-        <a-plane id="video3" width="1.2" height="0.7" position="0 0.0 0" color="#777"></a-plane>
-        <a-plane id="video4" width="1.2" height="0.7" position="0 -1.1 0" color="#999"></a-plane>
-      </a-entity>
+    <!-- Caméra au centre du socle, un peu surélevée -->
+    <a-entity camera look-controls position="0 0.2 0"></a-entity>
 
-      <script>
-        AFRAME.registerComponent('vertical-loop', {
-          schema: {
-            speed: { type: 'number', default: 0.5 },
-            spacing: { type: 'number', default: 1.1 },
-            count: { type: 'int', default: 4 }
-          },
-          init: function () {
-            this.planes = this.el.children;
-          },
-          tick: function (time, delta) {
-            const dt = delta / 1000;
-            for (let i = 0; i < this.planes.length; i++) {
-              const plane = this.planes[i];
-              plane.object3D.position.y -= this.data.speed * dt;
-              if (plane.object3D.position.y < -this.data.spacing * (this.data.count - 1)) {
-                let maxY = -Infinity;
-                for (let j = 0; j < this.planes.length; j++) {
-                  if (j !== i) {
-                    const y = this.planes[j].object3D.position.y;
-                    if (y > maxY) maxY = y;
-                  }
-                }
-                plane.object3D.position.y = maxY + this.data.spacing;
-              }
+    <!-- Vidéos HTML cachées, avec muted et loop -->
+    <video id="vid1" src="video/Ai robots taking over ping pong 👀 #shorts.mp4" loop crossorigin="anonymous" playsinline muted></video>
+    <video id="vid2" src="video/léchange de ping pong le plus fou ! 🏓.mp4" loop crossorigin="anonymous" playsinline muted></video>
+
+    <!-- Groupe vidéos -->
+    <a-entity id="videos-group" position="0 1.5 0">
+      <a-curvedimage
+        id="screen1"
+        radius="1.5"
+        theta-length="90"
+        height="1"
+        src="#vid1"
+        rotation="0 0 0"
+      ></a-curvedimage>
+
+      <a-curvedimage
+        id="screen2"
+        radius="1.5"
+        theta-length="90"
+        height="1"
+        src="#vid2"
+        rotation="0 180 0"
+      ></a-curvedimage>
+    </a-entity>
+
+    <script>
+      // Démarrage des vidéos pour autoplay
+      const v1 = document.querySelector('#vid1');
+      const v2 = document.querySelector('#vid2');
+      v1.play();
+      v2.play();
+
+      AFRAME.registerComponent('circular-vertical-scroll', {
+        schema: {
+          radius: { type: 'number', default: 1.5 },
+          speedY: { type: 'number', default: 0.8 },
+          speedRotate: { type: 'number', default: 30 }, // degrés par seconde
+          count: { type: 'int', default: 2 },
+          spacingY: { type: 'number', default: 1.5 },
+          fadeAngle: { type: 'number', default: 30 } // angle max (en degrés) pour volume max
+        },
+        init: function () {
+          this.els = this.el.children;
+          // Répartir verticalement
+          for (let i = 0; i < this.els.length; i++) {
+            this.els[i].object3D.position.y = this.data.spacingY * (this.data.count - 1 - i);
+          }
+          this.angle = 0;
+
+          this.cameraEl = document.querySelector('[camera]').object3D;
+
+          // Récupérer les vidéos HTML liées aux écrans
+          this.videos = [];
+          for (let i = 0; i < this.els.length; i++) {
+            const src = this.els[i].getAttribute('src');
+            if (src && src.startsWith('#')) {
+              const videoEl = document.querySelector(src);
+              if (videoEl) this.videos.push(videoEl);
             }
           }
-        });
+        },
+        tick: function (time, delta) {
+          const dt = delta / 1000;
+          this.angle += this.data.speedRotate * dt;
+          if (this.angle >= 360) this.angle -= 360;
 
-        document.querySelector('#video-group').setAttribute('vertical-loop', 'speed:0.8; spacing:1.1; count:4');
-      </script>
-    </a-scene>
-  </body>
+          for (let i = 0; i < this.els.length; i++) {
+            const el = this.els[i];
+            // Descente verticale
+            el.object3D.position.y -= this.data.speedY * dt;
+
+            // Boucle verticale sans coupure
+            if (el.object3D.position.y < 0) {
+              el.object3D.position.y += this.data.spacingY * this.data.count;
+            }
+
+            // Position circulaire
+            const baseAngle = (360 / this.data.count) * i;
+            const currentAngle = THREE.MathUtils.degToRad(baseAngle + this.angle);
+            const x = this.data.radius * Math.cos(currentAngle);
+            const z = this.data.radius * Math.sin(currentAngle);
+            el.object3D.position.x = x;
+            el.object3D.position.z = z;
+
+            // Écran regarde le joueur (centre)
+            el.object3D.lookAt(new THREE.Vector3(0, el.object3D.position.y, 0));
+
+            // Calcul du volume selon regard caméra -> vidéo
+            const camPos = this.cameraEl.position;
+            const camDir = new THREE.Vector3();
+            this.cameraEl.getWorldDirection(camDir);
+            camDir.normalize();
+
+            const videoPos = new THREE.Vector3();
+            el.object3D.getWorldPosition(videoPos);
+
+            const camToVideo = new THREE.Vector3().subVectors(videoPos, camPos).normalize();
+            const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToVideo));
+
+            let targetVolume = 0;
+            if (angleDeg < this.data.fadeAngle) {
+              targetVolume = 1 - angleDeg / this.data.fadeAngle;
+            }
+
+            const videoEl = this.videos[i];
+            if (videoEl) {
+              const currentVol = videoEl.volume;
+              const fadeSpeed = 2; // volume modifié par seconde
+              let newVol = currentVol;
+
+              if (currentVol < targetVolume) {
+                newVol = Math.min(currentVol + fadeSpeed * dt, targetVolume);
+              } else if (currentVol > targetVolume) {
+                newVol = Math.max(currentVol - fadeSpeed * dt, targetVolume);
+              }
+              videoEl.volume = newVol;
+            }
+          }
+        }
+      });
+
+      document.querySelector('#videos-group').setAttribute('circular-vertical-scroll', '');
+    </script>
+  </a-scene>
+</body>
 </html>
