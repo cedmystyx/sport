@@ -6,8 +6,10 @@
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
-  <style>
-    body { margin:0; background:black; overflow: hidden; }
+  <style> 
+    body { margin:0; background:black; overflow: hidden; } 
+
+    /* Overlay */
     #overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -59,7 +61,8 @@
     <button id="startBtn">Entrer dans la scène</button>
   </div>
 
-  <a-scene physics="gravity: -9.8" background="color: #000000" embedded style="display:none">
+  <!-- Scène A-Frame cachée au départ -->
+  <a-scene physics="gravity: -9.8" background="color: #000000" style="display:none">
 
     <!-- Canvas texture dégradé arc-en-ciel -->
     <canvas id="rainbowTexture" width="1" height="256" style="display:none"></canvas>
@@ -97,10 +100,13 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans fixes tournant autour du joueur -->
+    <!-- Écrans fixes (1 devant, 1 repositionné) -->
     <a-entity id="screens" position="0 1.5 0">
+      <!-- Vidéo devant -->
       <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
+
+      <!-- Vidéo repositionnée -->
       <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
     </a-entity>
@@ -108,9 +114,14 @@
     <script>
       const v1 = document.querySelector('#vid1');
       const v2 = document.querySelector('#vid2');
-      v1.play();
-      v2.play();
 
+      // Joue les vidéos (les navigateurs exigent interaction utilisateur)
+      function playVideos() {
+        v1.play().catch(() => {});
+        v2.play().catch(() => {});
+      }
+
+      // Composant de rotation autour du joueur
       AFRAME.registerComponent('rotate-around-player', {
         schema: {
           radius: {type: 'number', default: 5},
@@ -135,13 +146,10 @@
             const el = this.els[i];
 
             el.object3D.position.set(x, 0, z);
-            // Toujours face au joueur (0,0,0)
             el.object3D.lookAt(new THREE.Vector3(0, 0, 0));
 
-            // Position physique
             if (el.body) el.body.position.set(x, 1.5, z);
 
-            // Gestion du volume audio
             const videoEl = document.querySelector(el.getAttribute('src'));
             if (!videoEl) continue;
 
@@ -178,7 +186,7 @@
 
       document.querySelector('#screens').setAttribute('rotate-around-player', '');
 
-      // Démarrage de la scène après clic sur le bouton
+      // Bouton d'entrée dans la scène
       const overlay = document.getElementById('overlay');
       const startBtn = document.getElementById('startBtn');
       const scene = document.querySelector('a-scene');
@@ -186,12 +194,11 @@
       startBtn.addEventListener('click', () => {
         overlay.style.display = 'none';
         scene.style.display = 'block';
-
-        // Re-jouer les vidéos pour éviter les soucis d'autoplay
-        v1.play();
-        v2.play();
+        playVideos();
       });
     </script>
+
   </a-scene>
+
 </body>
 </html>
