@@ -2,7 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <title>PingPong - Défilement vidéos</title>
+    <title>PingPong - Socle rond dans le vide</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <style>
       body { margin: 0; overflow: hidden; background: black; }
@@ -18,11 +18,11 @@
         color="#fff"
       ></a-circle>
 
-      <!-- Caméra avec position sol -->
-      <a-entity camera look-controls position="0 1.6 3"></a-entity>
+      <!-- Caméra positionnée sur le socle, légèrement au-dessus -->
+      <a-entity camera look-controls position="0 0.2 0"></a-entity>
 
-      <!-- Groupe vidéo -->
-      <a-entity id="video-group" position="0 1.5 -2">
+      <!-- Groupe vidéo placé devant, un peu plus proche -->
+      <a-entity id="video-group" position="0 1.5 -1.5">
         <a-plane id="video1" width="1.2" height="0.7" position="0 2.1 0" color="#333"></a-plane>
         <a-plane id="video2" width="1.2" height="0.7" position="0 1.0 0" color="#555"></a-plane>
         <a-plane id="video3" width="1.2" height="0.7" position="0 0.0 0" color="#777"></a-plane>
@@ -32,21 +32,19 @@
       <script>
         AFRAME.registerComponent('vertical-loop', {
           schema: {
-            speed: { type: 'number', default: 0.5 }, // unités par seconde
-            spacing: { type: 'number', default: 1.1 }, // distance verticale entre écrans
+            speed: { type: 'number', default: 0.5 },
+            spacing: { type: 'number', default: 1.1 },
             count: { type: 'int', default: 4 }
           },
           init: function () {
             this.planes = this.el.children;
           },
           tick: function (time, delta) {
-            const dt = delta / 1000; // secondes écoulées
+            const dt = delta / 1000;
             for (let i = 0; i < this.planes.length; i++) {
               const plane = this.planes[i];
               plane.object3D.position.y -= this.data.speed * dt;
-              // Si l'écran est trop bas, on le remonte tout en haut au-dessus du premier écran
               if (plane.object3D.position.y < -this.data.spacing * (this.data.count - 1)) {
-                // Trouver max Y parmi tous les écrans
                 let maxY = -Infinity;
                 for (let j = 0; j < this.planes.length; j++) {
                   if (j !== i) {
@@ -60,7 +58,6 @@
           }
         });
 
-        // Ajout du composant au groupe
         document.querySelector('#video-group').setAttribute('vertical-loop', 'speed:0.8; spacing:1.1; count:4');
       </script>
     </a-scene>
