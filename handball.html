@@ -2,13 +2,11 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <title>Handball Arena – Jeu Web VR</title>
-  <meta name="description" content="Handball Arena : jeu web VR, scoring, combos, physique." />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  
-  <!-- Polices -->
+  <title>Handball Arena – Jeu web VR fonctionnel</title>
+  <meta name="description" content="Handball web jouable, fun, solide, compatible VR et PC" />
   <link href="https://fonts.googleapis.com/css?family=Orbitron:900|Montserrat:400,700&display=swap" rel="stylesheet" />
-  
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+
   <!-- A-Frame + Physique + Extras + Environnement + Super Hands -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@5.0.0/dist/aframe-physics-system.min.js"></script>
@@ -18,79 +16,111 @@
 
   <style>
     body, html {
-      margin: 0; padding: 0; overflow: hidden; background: #0a0a2a; color: #eee;
+      margin: 0;
+      overflow: hidden;
       font-family: 'Montserrat', sans-serif;
+      background-color: #111;
+      color: #eee;
       user-select: none;
     }
     .score-ui {
-      position: fixed; top: 10px; left: 10px; font-size: 1.2em; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 6px;
-      z-index: 9999; pointer-events: none;
-      font-weight: 700;
+      position: fixed;
+      top: 1em;
+      left: 1em;
+      font-size: 1.2em;
+      background: rgba(0,0,0,0.5);
+      padding: 0.5em 1em;
+      border-radius: 8px;
+      z-index: 10;
     }
     .msg-ui {
-      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-      font-size: 1.4em; background: rgba(0,0,0,0.7); padding: 12px 20px; border-radius: 8px;
-      pointer-events: none; color: #55ff55; font-weight: 700;
-      z-index: 9999;
-      min-width: 220px;
+      position: fixed;
+      bottom: 1em;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.1em;
+      background: rgba(0,0,0,0.6);
+      padding: 0.5em 1em;
+      border-radius: 8px;
+      z-index: 10;
+      min-width: 200px;
       text-align: center;
+      color: #0f0;
     }
     .nav-ui {
-      position: fixed; bottom: 10px; right: 10px;
-      z-index: 9999;
+      position: fixed;
+      bottom: 1em;
+      right: 1em;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5em;
+      z-index: 10;
     }
     .nav-ui button {
-      background: #222244; border: none; color: #eef; font-weight: 700;
-      padding: 8px 14px; margin-left: 8px; border-radius: 6px;
+      font-size: 1em;
+      padding: 0.4em 1em;
+      border: none;
+      background: #0a74da;
+      color: white;
+      border-radius: 6px;
       cursor: pointer;
-      font-family: 'Montserrat', sans-serif;
       transition: background 0.3s ease;
     }
     .nav-ui button:hover {
-      background: #3366ff;
+      background: #0959a1;
     }
     #handballOverlay {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: linear-gradient(135deg, #000022, #000044);
-      display: flex; justify-content: center; align-items: center;
-      flex-direction: column; color: #99bbff;
+      position: fixed;
+      inset: 0;
+      background: #222c;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+      color: #fff;
       font-family: 'Orbitron', sans-serif;
-      z-index: 10000;
+      user-select: none;
+    }
+    #handballOverlay > div {
+      background: #111f;
+      padding: 2em;
+      border-radius: 12px;
+      max-width: 320px;
       text-align: center;
-      padding: 20px;
     }
     #handballOverlay .game-title {
-      font-size: 3em; font-weight: 900; margin-bottom: 0.2em;
-      text-shadow: 0 0 12px #44f, 0 0 24px #77bbff;
+      font-size: 1.8em;
+      margin-bottom: 0.5em;
+      color: #0af;
     }
     #handballOverlay .game-desc {
-      font-size: 1.3em; margin-bottom: 2em;
-      line-height: 1.4;
-      color: #aaccee;
+      font-size: 1em;
+      margin-bottom: 1.5em;
+      line-height: 1.3;
+      color: #9af;
     }
     #handballOverlay .game-btn {
-      background: #3366ff;
-      color: #fff;
+      background: #0af;
       border: none;
-      font-size: 1.6em;
-      padding: 12px 40px;
-      border-radius: 10px;
+      padding: 0.8em 1.5em;
+      font-size: 1.2em;
+      border-radius: 8px;
       cursor: pointer;
-      font-family: 'Montserrat', sans-serif;
-      box-shadow: 0 0 18px #5599ff;
-      transition: background 0.4s ease;
+      color: #fff;
+      transition: background 0.3s ease;
     }
     #handballOverlay .game-btn:hover {
-      background: #5588ff;
-      box-shadow: 0 0 28px #77bbff;
+      background: #059;
     }
   </style>
 </head>
 <body>
 
-  <div class="score-ui" id="score-ui" aria-live="polite" role="region" aria-label="Score et statistiques">
-    🏐 Ballons : <span id="shots">0</span> &nbsp;🥅 Buts : <span id="goals">0</span><br/>
-    Combo : <span id="combo">0</span>
+  <div class="score-ui" id="score-ui" aria-live="polite" role="region" aria-label="Score et statistiques du jeu">
+    <span aria-hidden="true" style="font-size:1.1em;">🏐</span> Ballons : <span id="shots" style="font-weight:bold;">0</span>
+    <span aria-hidden="true" style="font-size:1.1em; margin-left: 1em;">🥅</span> Buts : <span id="goals" style="font-weight:bold;">0</span>
+    <br />
+    <small style="font-size:0.9em; color:#eee;">Combo: <span id="combo">0</span></small>
   </div>
 
   <div class="msg-ui" id="msg-ui" aria-live="assertive" role="alert" aria-atomic="true"></div>
@@ -104,25 +134,18 @@
 
   <div id="handballOverlay" role="dialog" aria-modal="true" aria-labelledby="gameTitle" aria-describedby="gameDesc">
     <div>
-      <div id="gameTitle" class="game-title">Handball Arena</div>
+      <div id="gameTitle" class="game-title">Handball Arena – Web Game</div>
       <div id="gameDesc" class="game-desc">
-        <b>Simulation réaliste, scoring, combos, rebonds, physique solide.</b><br/>
-        Multiplateforme VR / PC / Mobile.<br/>
-        Prêt pour multi, leaderboards, progression, succès, bots, skins.<br/><br/>
-        <i>Joue pour exploser les records, défie tes amis !</i>
+        <b>Simulation réaliste, scoring, combos, rebonds, physique solide.</b><br />
+        <b>Multiplateforme VR/PC/Mobile.</b><br />
+        <span style="color:#b7f;">Prêt pour multi, leaderboards, progression, succès, bots, skins.</span><br /><br />
+        <span style="font-style: italic;">Joue pour exploser les records, défie tes amis !</span>
       </div>
       <button class="game-btn" id="startBtn" type="button" aria-label="Démarrer le jeu">Jouer !</button>
     </div>
   </div>
 
-  <a-scene
-    id="scene"
-    physics="gravity: -9.8"
-    vr-mode-ui="enterVRButton: true"
-    embedded
-    loading-screen="enabled: false"
-    background="color: #001022"
-  >
+  <a-scene physics="gravity: -9.8;" loading-screen="enabled: false" vr-mode-ui="enterVRButton: true">
     <a-assets>
       <a-asset-item id="handball-ball" src="handball_1964/scene.gltf"></a-asset-item>
       <audio id="goalSound" src="sounds/goal.wav" preload="auto"></audio>
@@ -130,221 +153,184 @@
       <audio id="backgroundMusic" src="sounds/bg_music.mp3" preload="auto" loop></audio>
     </a-assets>
 
-    <!-- Lumière ambiante -->
-    <a-light type="ambient" color="#888"></a-light>
-    <!-- Lumière directionnelle pour éclairage -->
-    <a-light type="directional" color="#fff" intensity="0.9" position="5 10 7" castShadow="true"></a-light>
+    <!-- Environnement réaliste -->
+    <a-entity environment="preset: stadium; groundColor: #444; skyColor: #88aaff; fog: 0.7;"></a-entity>
 
-    <!-- Environnement stade -->
-    <a-entity environment="preset: stadium; groundColor: #334433; skyColor: #4477cc; fog: 0.7;"></a-entity>
-
-    <!-- Sol statique -->
-    <a-plane rotation="-90 0 0" width="50" height="30" color="#4a6" static-body receive-shadow="true"></a-plane>
+    <!-- Sol -->
+    <a-plane rotation="-90 0 0" width="50" height="30" color="#6a7" static-body></a-plane>
 
     <!-- But -->
-    <a-box id="goal" position="0 2.6 -14" depth="0.4" height="2" width="5" color="#0ff" opacity="0.35" static-body></a-box>
+    <a-box id="goal" position="0 2.6 -14" depth="0.4" height="2" width="5" color="#0ff" opacity="0.3" static-body></a-box>
 
-    <!-- Ballon -->
-    <a-entity
-      id="ball"
-      gltf-model="#handball-ball"
-      scale="0.2 0.2 0.2"
-      position="0 1.2 -3"
-      dynamic-body="mass: 0.45; linearDamping: 0.1; angularDamping: 0.15;"
-      shadow="cast: true; receive: true"
-      sound="src: #hitSound; on: collision; volume: 0.4"
-      class="clickable"
-    ></a-entity>
-
-    <!-- Joueur simple (sphere) -->
-    <a-entity
-      id="player"
-      geometry="primitive: sphere; radius: 0.5"
-      material="color: #0055ff; opacity: 0.85"
-      position="0 0.5 3"
-      dynamic-body="mass: 2"
-      shadow="cast: true"
-    ></a-entity>
-
-    <!-- Caméra avec contrôles clavier + VR controllers -->
-    <a-entity id="cameraRig" position="0 1.6 7">
-      <a-camera
-        id="camera"
-        wasd-controls-enabled="true"
-        look-controls="pointerLockEnabled: true"
-        position="0 0 0"
-        camera
-        user-height="1.6"
-        raycaster="objects: .clickable"
-        cursor="fuse: false; rayOrigin: mouse"
-      >
-        <a-cursor
-          id="cursor"
-          fuse="false"
-          color="#55aaff"
-          raycaster="objects: .clickable"
-          animation__click="property: scale; startEvents: click; from: 1 1 1; to: 0.7 0.7 0.7; dur: 150; dir: alternate"
-        ></a-cursor>
-      </a-camera>
-
-      <!-- Contrôleurs VR -->
-      <a-entity hand-controls="left" super-hands="colliderEvent: collisions; colliderEventProperty: els; grabStartButtons: triggerdown; grabEndButtons: triggerup"></a-entity>
-      <a-entity hand-controls="right" super-hands="colliderEvent: collisions; colliderEventProperty: els; grabStartButtons: triggerdown; grabEndButtons: triggerup"></a-entity>
+    <!-- Ballon avec modèle glTF -->
+    <a-entity id="ball" gltf-model="#handball-ball" scale="0.2 0.2 0.2" position="0 1.2 -3" 
+              dynamic-body="mass: 0.45; linearDamping: 0.1; angularDamping: 0.15" 
+              class="clickable" 
+              shadow="cast: true; receive: true"
+              sound="src: #hitSound; on: collision; volume: 0.4">
     </a-entity>
 
+    <!-- Joueur simple sphère -->
+    <a-sphere id="player" position="0 1 -6" radius="0.5" color="#1188ff" dynamic-body="mass: 75; linearDamping: 0.95; angularDamping: 0.95" kinematic-body shadow="cast: true; receive: true">
+    </a-sphere>
+
+    <!-- Caméra rig -->
+    <a-entity id="cameraRig" position="0 1.6 6">
+      <a-camera id="camera" wasd-controls="acceleration: 25" look-controls="pointerLockEnabled: true" fov="80" near="0.01" far="1000">
+        <a-cursor color="#1e90ff" fuse="true" fuseTimeout="1500"></a-cursor>
+      </a-camera>
+    </a-entity>
   </a-scene>
 
-<script>
-  (() => {
-    const overlay = document.getElementById('handballOverlay');
-    const startBtn = document.getElementById('startBtn');
-    const scoreUI = document.getElementById('score-ui');
-    const msgUI = document.getElementById('msg-ui');
+  <script>
+    (() => {
+      const ball = document.getElementById('ball');
+      const player = document.getElementById('player');
+      const goal = document.getElementById('goal');
+      const shotsEl = document.getElementById('shots');
+      const goalsEl = document.getElementById('goals');
+      const comboEl = document.getElementById('combo');
+      const msgEl = document.getElementById('msg-ui');
+      const overlay = document.getElementById('handballOverlay');
+      const startBtn = document.getElementById('startBtn');
+      const resetBallBtn = document.getElementById('resetBallBtn');
+      const resetPlayerBtn = document.getElementById('resetPlayerBtn');
+      const toggleMusicBtn = document.getElementById('toggleMusicBtn');
+      const showHelpBtn = document.getElementById('showHelpBtn');
+      const bgMusic = document.getElementById('backgroundMusic');
+      const goalSound = document.getElementById('goalSound');
+      const hitSound = document.getElementById('hitSound');
 
-    const shotsSpan = document.getElementById('shots');
-    const goalsSpan = document.getElementById('goals');
-    const comboSpan = document.getElementById('combo');
+      let shots = 0;
+      let goals = 0;
+      let combo = 0;
+      let lastGoalTime = 0;
+      let comboTimeout;
 
-    const resetBallBtn = document.getElementById('resetBallBtn');
-    const resetPlayerBtn = document.getElementById('resetPlayerBtn');
-    const toggleMusicBtn = document.getElementById('toggleMusicBtn');
-    const showHelpBtn = document.getElementById('showHelpBtn');
+      // Setup initial positions
+      const initialBallPos = { x: 0, y: 1.2, z: -3 };
+      const initialPlayerPos = { x: 0, y: 1, z: -6 };
 
-    const ball = document.getElementById('ball');
-    const player = document.getElementById('player');
-    const goal = document.getElementById('goal');
-    const bgMusic = document.getElementById('backgroundMusic');
-    const goalSound = document.getElementById('goalSound');
+      // Flag pour jeu actif
+      let gameStarted = false;
 
-    let shots = 0;
-    let goals = 0;
-    let combo = 0;
-    let lastGoalTime = 0;
-    const comboTimeout = 5000; // ms pour reset combo
+      // Reset ball position & velocity
+      function resetBall() {
+        if (!ball.body) return;
+        ball.body.position.set(initialBallPos.x, initialBallPos.y, initialBallPos.z);
+        ball.body.velocity.set(0, 0, 0);
+        ball.body.angularVelocity.set(0, 0, 0);
+      }
 
-    let gameStarted = false;
+      // Reset player position & velocity
+      function resetPlayer() {
+        if (!player.body) return;
+        player.body.position.set(initialPlayerPos.x, initialPlayerPos.y, initialPlayerPos.z);
+        player.body.velocity.set(0, 0, 0);
+        player.body.angularVelocity.set(0, 0, 0);
+      }
 
-    // Fonction de remise à zéro du ballon
-    function resetBall() {
-      ball.setAttribute('position', { x: 0, y: 1.2, z: -3 });
-      ball.body.velocity.set(0, 0, 0);
-      ball.body.angularVelocity.set(0, 0, 0);
-    }
+      // Mise à jour du score dans l'UI
+      function updateScoreUI() {
+        shotsEl.textContent = shots;
+        goalsEl.textContent = goals;
+        comboEl.textContent = combo;
+      }
 
-    // Fonction de remise à zéro du joueur
-    function resetPlayer() {
-      player.setAttribute('position', { x: 0, y: 0.5, z: 3 });
-      player.body.velocity.set(0, 0, 0);
-      player.body.angularVelocity.set(0, 0, 0);
-    }
+      // Message temporaire affiché
+      function showMessage(text, duration = 2000) {
+        msgEl.textContent = text;
+        clearTimeout(msgEl._timeout);
+        msgEl._timeout = setTimeout(() => { msgEl.textContent = ''; }, duration);
+      }
 
-    // Affichage message temporaire
-    function showMessage(text, duration = 2500) {
-      msgUI.textContent = text;
-      msgUI.style.opacity = '1';
-      setTimeout(() => {
-        msgUI.style.opacity = '0';
-      }, duration);
-    }
+      // Gestion collision ballon - but
+      function onBallGoalCollision() {
+        const now = Date.now();
 
-    // Met à jour le score dans l'UI
-    function updateScore() {
-      shotsSpan.textContent = shots;
-      goalsSpan.textContent = goals;
-      comboSpan.textContent = combo;
-    }
-
-    // Détection de but simple : si ballon traverse zone but en Z < -14, score +1
-    function checkGoal() {
-      const pos = ball.getAttribute('position');
-      if (pos.z < -13.5 && Math.abs(pos.x) < 2.5 && pos.y < 2.5 && pos.y > 0.2) {
         goals++;
-        combo++;
         shots++;
-        updateScore();
+        if (now - lastGoalTime < 3000) {
+          combo++;
+          showMessage(`Combo x${combo} ! But marqué ! 🎉`, 2500);
+        } else {
+          combo = 1;
+          showMessage('But marqué ! 🔥', 2000);
+        }
+        lastGoalTime = now;
+        updateScoreUI();
         goalSound.play();
-        showMessage('🎉 But !');
         resetBall();
       }
-    }
 
-    // Gestion combo timeout
-    function updateCombo() {
-      if (combo > 0) {
-        const now = Date.now();
-        if (now - lastGoalTime > comboTimeout) {
-          combo = 0;
-          updateScore();
-        }
+      // Gestion collision ballon - joueur
+      function onBallPlayerCollision() {
+        shots++;
+        combo = 0;
+        showMessage('Touché ! 🏐', 1000);
+        updateScoreUI();
+        hitSound.play();
       }
-    }
 
-    // Initialisation après clic "Jouer !"
-    startBtn.addEventListener('click', () => {
-      gameStarted = true;
-      overlay.style.display = 'none';
-      scoreUI.style.display = 'block';
-      msgUI.style.opacity = '0.8';
-      bgMusic.volume = 0.3;
-      bgMusic.play();
-    });
+      // Ecoute collisions physiques
+      ball.addEventListener('collide', e => {
+        if (!gameStarted) return;
+        const otherEl = e.detail.body.el;
+        if (!otherEl) return;
 
-    // Boutons UI
-    resetBallBtn.addEventListener('click', () => {
-      if (gameStarted) resetBall();
-    });
-    resetPlayerBtn.addEventListener('click', () => {
-      if (gameStarted) resetPlayer();
-    });
-    toggleMusicBtn.addEventListener('click', () => {
-      if (bgMusic.paused) {
-        bgMusic.play();
-        toggleMusicBtn.textContent = 'Musique';
-      } else {
-        bgMusic.pause();
-        toggleMusicBtn.textContent = 'Musique Off';
-      }
-    });
-    showHelpBtn.addEventListener('click', () => {
-      alert(
-        'Contrôles:\n' +
-        '- WASD pour déplacer la caméra\n' +
-        '- Clic / trigger pour interagir avec le ballon\n' +
-        '- Réinitialiser ballon / joueur avec les boutons\n' +
-        '- VR : utiliser contrôleurs pour saisir et lancer le ballon\n' +
-        '- Marquer des buts en lançant dans la zone bleue devant\n' +
-        '- Combo si buts rapides'
-      );
-    });
-
-    // Détection collision ballon avec but (simplifiée)
-    ball.addEventListener('collide', (e) => {
-      if (!gameStarted) return;
-      // Si collision avec la box du but
-      if (e.detail.body.el.id === 'goal') {
-        checkGoal();
-        lastGoalTime = Date.now();
-      }
-    });
-
-    // Cycle principal avec update combo + score
-    AFRAME.scenes[0].addEventListener('loaded', () => {
-      updateScore();
-      scoreUI.style.display = 'none';
-      msgUI.style.opacity = '0';
-
-      // Tick loop classique
-      AFRAME.registerComponent('game-loop', {
-        tick: function () {
-          if (!gameStarted) return;
-          updateCombo();
-          // On peut ajouter plus de logique ici (combo, vitesse ballon, ...)
+        if (otherEl === goal) {
+          onBallGoalCollision();
+        } else if (otherEl === player) {
+          onBallPlayerCollision();
         }
       });
-      document.querySelector('a-scene').setAttribute('game-loop', '');
-    });
-  })();
-</script>
+
+      // Contrôles boutons UI
+      startBtn.addEventListener('click', () => {
+        overlay.style.display = 'none';
+        gameStarted = true;
+        bgMusic.volume = 0.2;
+        bgMusic.play();
+        showMessage('Jeu démarré !', 1500);
+      });
+
+      resetBallBtn.addEventListener('click', () => {
+        resetBall();
+        showMessage('Ballon remis en place');
+      });
+
+      resetPlayerBtn.addEventListener('click', () => {
+        resetPlayer();
+        showMessage('Joueur remis en place');
+      });
+
+      toggleMusicBtn.addEventListener('click', () => {
+        if (bgMusic.paused) {
+          bgMusic.play();
+          toggleMusicBtn.textContent = 'Musique ON';
+        } else {
+          bgMusic.pause();
+          toggleMusicBtn.textContent = 'Musique OFF';
+        }
+      });
+
+      showHelpBtn.addEventListener('click', () => {
+        alert(
+          'Contrôles:\n' +
+          '- Déplacer le joueur: touches WASD\n' +
+          '- Regarder autour: souris ou casque VR\n' +
+          '- Tirer ballon: clic ou trigger VR\n' +
+          '- Boutons UI pour reset et musique\n' +
+          '\nAmuse-toi bien !'
+        );
+      });
+
+      // Initial reset
+      resetBall();
+      resetPlayer();
+      updateScoreUI();
+    })();
+  </script>
 
 </body>
 </html>
