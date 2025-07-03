@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos pivotées + Pilier</title>
+  <title>PingPong Vidéos + Audio Fondu + Pilier</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -47,17 +47,17 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans fixes (1 devant, 1 repositionné) -->
+    <!-- Écrans fixes -->
     <a-entity id="screens">
       <!-- Vidéo devant -->
       <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
-                    position="0 1.5 -5" rotation="0 90 0"
-                    static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
+                     position="0 1.5 -5" rotation="0 90 0"
+                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
 
       <!-- Vidéo repositionnée -->
       <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
-                    position="0 1.5 2.46035" rotation="0 -23.066134916376683 0"
-                    static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
+                     position="0 1.5 2.46035" rotation="0 -23.066 0"
+                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
     </a-entity>
 
     <script>
@@ -65,9 +65,17 @@
       const v2 = document.querySelector('#vid2');
       v1.play();
       v2.play();
+      v1.muted = false;
+      v2.muted = false;
+      v1.volume = 0;
+      v2.volume = 0;
 
-      // Gestion volume audio
+      // Gestion du fade audio
       AFRAME.registerComponent('video-audio-fade', {
+        schema: {
+          fadeSpeed: { type: 'number', default: 1.0 }, // vitesse du fondu (1 = lent, 5 = rapide)
+          fadeAngle: { type: 'number', default: 30 }  // angle de vision pour activer le son
+        },
         tick: function () {
           const camera = document.querySelector('[camera]').object3D;
           const camDir = new THREE.Vector3();
@@ -83,18 +91,20 @@
             const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
 
             const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
-            const fadeAngle = 30;
+
+            // Calcul du volume cible
             let targetVolume = 0;
-            if (angleDeg < fadeAngle) {
-              targetVolume = 1 - angleDeg / fadeAngle;
+            if (angleDeg < this.data.fadeAngle) {
+              targetVolume = 1 - (angleDeg / this.data.fadeAngle);
             }
 
-            const fadeSpeed = 2;
-            const currentVol = videoEl.volume;
-            if (currentVol < targetVolume) {
-              videoEl.volume = Math.min(currentVol + fadeSpeed * 0.016, targetVolume);
-            } else if (currentVol > targetVolume) {
-              videoEl.volume = Math.max(currentVol - fadeSpeed * 0.016, targetVolume);
+            // Appliquer un fondu fluide
+            const dt = 1 / 60; // approx 60fps
+            const fadeStep = this.data.fadeSpeed * dt;
+            if (videoEl.volume < targetVolume) {
+              videoEl.volume = Math.min(videoEl.volume + fadeStep, targetVolume);
+            } else if (videoEl.volume > targetVolume) {
+              videoEl.volume = Math.max(videoEl.volume - fadeStep, targetVolume);
             }
           });
         }
