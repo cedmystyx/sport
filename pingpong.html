@@ -28,9 +28,9 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     </script>
 
-    <!-- Pilier vertical "infini" multicolore, largeur divisée par 4 -->
+    <!-- Pilier vertical "infini" multicolore, largeur divisée par 4, remonté -->
     <a-cylinder
-      position="0 -500 0"
+      position="0 -250 0"  <!-- remonté: de -500 à -250 -->
       rotation="0 0 0"
       radius="1.25"
       height="1000"
@@ -38,7 +38,7 @@
       static-body
     ></a-cylinder>
 
-    <!-- Joueur dynamique au dessus -->
+    <!-- Joueur dynamique au dessus, position classique -->
     <a-entity id="player" position="0 2 0" 
               camera look-controls wasd-controls="acceleration: 50"
               dynamic-body="shape: capsule; mass: 80; linearDamping: 0.9; angularDamping: 1">
@@ -50,9 +50,9 @@
 
     <!-- Écrans physiques, static bodies placés en cercle autour -->
     <a-entity id="screens" position="0 1 0">
-      <a-curvedimage id="screen1" radius="1.5" theta-length="90" height="1" src="#vid1" rotation="0 0 0"
+      <a-curvedimage id="screen1" radius="3" theta-length="90" height="1" src="#vid1" rotation="0 0 0"
                     static-body="shape: box; height: 1; width: 1.5; depth: 0.1"></a-curvedimage>
-      <a-curvedimage id="screen2" radius="1.5" theta-length="90" height="1" src="#vid2" rotation="0 180 0"
+      <a-curvedimage id="screen2" radius="3" theta-length="90" height="1" src="#vid2" rotation="0 180 0"
                     static-body="shape: box; height: 1; width: 1.5; depth: 0.1"></a-curvedimage>
     </a-entity>
 
@@ -64,8 +64,8 @@
 
       AFRAME.registerComponent('circular-vertical-scroll', {
         schema: {
-          radius: { type: 'number', default: 1.5 },
-          speedY: { type: 'number', default: 0.03 },       // descente très lente (générique)
+          radius: { type: 'number', default: 3 },          // éloignement augmenté
+          speedY: { type: 'number', default: 0.01 },       // descente très lente (divisé par 3)
           speedRotate: { type: 'number', default: 5 },     // rotation lente
           count: { type: 'int', default: 2 },
           spacingY: { type: 'number', default: 1.5 },
