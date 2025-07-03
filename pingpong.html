@@ -2,16 +2,22 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos + Audio Fondu + Pilier</title>
+  <title>PingPong Sécurisé</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://aframe.io https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; media-src 'self'; object-src 'none';">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="Referrer-Policy" content="no-referrer">
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
-  <style> body { margin:0; background:black; } </style>
+  <style>
+    body { margin:0; background:black; }
+  </style>
 </head>
 <body>
   <a-scene physics="gravity: -9.8" background="color: #000000">
 
-    <!-- Canvas texture dégradé arc-en-ciel -->
+    <!-- Pilier vertical multicolore -->
     <canvas id="rainbowTexture" width="1" height="256" style="display:none"></canvas>
     <script>
       const canvas = document.getElementById('rainbowTexture');
@@ -28,90 +34,57 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     </script>
 
-    <!-- Pilier vertical multicolore -->
     <a-cylinder
-      position="0 -245 0"
+      position="0 -500 0"
       radius="1.25"
-      height="490"
+      height="1000"
       material="shader: flat; src: #rainbowTexture; repeat: 1 50"
       static-body
     ></a-cylinder>
 
-    <!-- Joueur dynamique posé sur le pilier -->
-    <a-entity id="player" position="0 1.5 0" 
+    <!-- Joueur -->
+    <a-entity id="player" position="0 2 0"
               camera look-controls wasd-controls="acceleration: 50"
               dynamic-body="shape: capsule; mass: 80; linearDamping: 0.9; angularDamping: 1">
     </a-entity>
 
-    <!-- Vidéos HTML -->
+    <!-- Vidéos -->
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans fixes -->
-    <a-entity id="screens">
-      <!-- Vidéo devant -->
-      <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
-                     position="0 1.5 -5" rotation="0 90 0"
-                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
+    <!-- Écrans -->
+    <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
+                   position="0 1.5 -5" rotation="0 90 0" static-body></a-curvedimage>
 
-      <!-- Vidéo repositionnée -->
-      <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
-                     position="0 1.5 2.46035" rotation="0 -23.066 0"
-                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
-    </a-entity>
+    <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
+                   position="0 1.5 5" rotation="0 -90 0" static-body></a-curvedimage>
 
     <script>
       const v1 = document.querySelector('#vid1');
       const v2 = document.querySelector('#vid2');
       v1.play();
       v2.play();
-      v1.muted = false;
-      v2.muted = false;
-      v1.volume = 0;
-      v2.volume = 0;
-
-      // Gestion du fade audio
-      AFRAME.registerComponent('video-audio-fade', {
-        schema: {
-          fadeSpeed: { type: 'number', default: 1.0 }, // vitesse du fondu (1 = lent, 5 = rapide)
-          fadeAngle: { type: 'number', default: 30 }  // angle de vision pour activer le son
-        },
-        tick: function () {
-          const camera = document.querySelector('[camera]').object3D;
-          const camDir = new THREE.Vector3();
-          camera.getWorldDirection(camDir).normalize();
-
-          ['screen1', 'screen2'].forEach((id) => {
-            const el = document.querySelector(`#${id}`);
-            const videoEl = document.querySelector(el.getAttribute('src'));
-            const screenPos = new THREE.Vector3();
-            el.object3D.getWorldPosition(screenPos);
-
-            const camPos = camera.position;
-            const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
-
-            const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
-
-            // Calcul du volume cible
-            let targetVolume = 0;
-            if (angleDeg < this.data.fadeAngle) {
-              targetVolume = 1 - (angleDeg / this.data.fadeAngle);
-            }
-
-            // Appliquer un fondu fluide
-            const dt = 1 / 60; // approx 60fps
-            const fadeStep = this.data.fadeSpeed * dt;
-            if (videoEl.volume < targetVolume) {
-              videoEl.volume = Math.min(videoEl.volume + fadeStep, targetVolume);
-            } else if (videoEl.volume > targetVolume) {
-              videoEl.volume = Math.max(videoEl.volume - fadeStep, targetVolume);
-            }
-          });
-        }
-      });
-
-      document.querySelector('#screens').setAttribute('video-audio-fade', '');
     </script>
   </a-scene>
+
+  <script>
+    // 🔒 Bloque clic droit
+    document.addEventListener('contextmenu', e => {
+      e.preventDefault();
+      alert("🚨 Action interdite pour votre sécurité !");
+    });
+
+    // 🔒 Bloque F12, Ctrl+Shift+I, Ctrl+U
+    document.addEventListener('keydown', e => {
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && e.key === "I") ||
+        (e.ctrlKey && e.key === "U")
+      ) {
+        e.preventDefault();
+        alert("🚨 Console bloquée pour votre sécurité !");
+      }
+    });
+  </script>
 </body>
 </html>
