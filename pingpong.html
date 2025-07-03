@@ -2,26 +2,16 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos + Pilier + Audio fondu</title>
+  <title>PingPong Vidéos pivotées + Pilier + Overlay</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
-  <style>
-    body { margin:0; background:#000; overflow: hidden; }
-    #overlay {
-      position: fixed; top: 10px; left: 10px;
-      color: white; font-family: sans-serif; background: rgba(0,0,0,0.6);
-      padding: 10px; border-radius: 8px;
-      z-index: 9999;
-    }
-  </style>
+  <style> body { margin:0; background:black; } </style>
 </head>
 <body>
-  <div id="overlay">PingPong VR - Regarde les vidéos pour activer le son</div>
+  <a-scene physics="gravity: -9.8" background="color: #000000">
 
-  <a-scene physics="gravity: -9.8" background="color: #000000" embedded>
-
-    <!-- Pilier vertical "infini" multicolore -->
+    <!-- Canvas texture dégradé arc-en-ciel -->
     <canvas id="rainbowTexture" width="1" height="256" style="display:none"></canvas>
     <script>
       const canvas = document.getElementById('rainbowTexture');
@@ -38,16 +28,17 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     </script>
 
+    <!-- Pilier vertical multicolore -->
     <a-cylinder
-      position="0 1 0"
+      position="0 -245 0"
       radius="1.25"
-      height="6"
-      material="shader: flat; src: #rainbowTexture; repeat: 1 6"
+      height="490"
+      material="shader: flat; src: #rainbowTexture; repeat: 1 50"
       static-body
     ></a-cylinder>
 
-    <!-- Joueur dynamique -->
-    <a-entity id="player" position="0 2 0" 
+    <!-- Joueur dynamique posé sur le pilier -->
+    <a-entity id="player" position="0 1.5 0" 
               camera look-controls wasd-controls="acceleration: 50"
               dynamic-body="shape: capsule; mass: 80; linearDamping: 0.9; angularDamping: 1">
     </a-entity>
@@ -56,81 +47,71 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Ecrans incurvés placés face à face -->
-    <a-entity id="screens" position="0 1.5 0">
+    <!-- Écrans fixes (1 devant, 1 repositionné) -->
+    <a-entity id="screens">
+      <!-- Vidéo devant -->
+      <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
+                    position="0 1.5 -5" rotation="0 90 0"
+                    static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
 
-      <!-- Vidéo en face, à z = -4 -->
-      <a-curvedimage id="screen1" radius="5" theta-length="90" height="3"
-                    src="#vid1" position="0 0 -4"
-                    rotation="0 0 0"
-                    static-body="shape: box; height: 3; width: 4; depth: 0.1"
-      ></a-curvedimage>
+      <!-- Vidéo repositionnée -->
+      <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
+                    position="0 1.5 2.46035" rotation="0 -23.066134916376683 0"
+                    static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
+    </a-entity>
 
-      <!-- Vidéo derrière, à z = 4, rotation 180 -->
-      <a-curvedimage id="screen2" radius="5" theta-length="90" height="3"
-                    src="#vid2" position="0 0 4"
-                    rotation="0 180 0"
-                    static-body="shape: box; height: 3; width: 4; depth: 0.1"
-      ></a-curvedimage>
-
+    <!-- Overlay fixe au-dessus du joueur -->
+    <a-entity position="0 2.5 -1" rotation="0 0 0">
+      <a-plane height="0.35" width="1.5" color="#000" opacity="0.6"></a-plane>
+      <a-text value="👾 Instructions : Regarde les vidéos pour activer le son" 
+              align="center" color="#fff" width="2"
+              position="0 0 0.01"
+              wrap-count="30">
+      </a-text>
     </a-entity>
 
     <script>
-      // Jouer les vidéos à la boucle et muettes au départ
       const v1 = document.querySelector('#vid1');
       const v2 = document.querySelector('#vid2');
       v1.play();
       v2.play();
 
-      // Audio fondu selon si on regarde la vidéo ou pas
-      AFRAME.registerComponent('audio-fade-view', {
-        schema: { fadeAngle: {default: 30}, fadeSpeed: {default: 1} },
-        init() {
-          this.camera = document.querySelector('[camera]').object3D;
-          this.videoEls = [document.querySelector('#vid1'), document.querySelector('#vid2')];
-          this.screenEls = [
-            document.querySelector('#screen1'),
-            document.querySelector('#screen2')
-          ];
-        },
-        tick(time, delta) {
-          const dt = delta / 1000;
-          const camPos = this.camera.position;
+      // Gestion volume audio
+      AFRAME.registerComponent('video-audio-fade', {
+        tick: function () {
+          const camera = document.querySelector('[camera]').object3D;
           const camDir = new THREE.Vector3();
-          this.camera.getWorldDirection(camDir);
-          camDir.normalize();
+          camera.getWorldDirection(camDir).normalize();
 
-          for (let i = 0; i < this.screenEls.length; i++) {
-            const screenEl = this.screenEls[i];
-            const videoEl = this.videoEls[i];
-            if (!videoEl) continue;
-
+          ['screen1', 'screen2'].forEach((id) => {
+            const el = document.querySelector(`#${id}`);
+            const videoEl = document.querySelector(el.getAttribute('src'));
             const screenPos = new THREE.Vector3();
-            screenEl.object3D.getWorldPosition(screenPos);
+            el.object3D.getWorldPosition(screenPos);
 
+            const camPos = camera.position;
             const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
+
             const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
-
+            const fadeAngle = 30;
             let targetVolume = 0;
-            if (angleDeg < this.data.fadeAngle) {
-              targetVolume = 1 - (angleDeg / this.data.fadeAngle);
+            if (angleDeg < fadeAngle) {
+              targetVolume = 1 - angleDeg / fadeAngle;
             }
 
-            let currentVol = videoEl.volume;
+            const fadeSpeed = 2;
+            const currentVol = videoEl.volume;
             if (currentVol < targetVolume) {
-              currentVol = Math.min(currentVol + this.data.fadeSpeed * dt, targetVolume);
+              videoEl.volume = Math.min(currentVol + fadeSpeed * 0.016, targetVolume);
             } else if (currentVol > targetVolume) {
-              currentVol = Math.max(currentVol - this.data.fadeSpeed * dt, targetVolume);
+              videoEl.volume = Math.max(currentVol - fadeSpeed * 0.016, targetVolume);
             }
-            videoEl.volume = currentVol;
-          }
+          });
         }
       });
 
-      document.querySelector('#screens').setAttribute('audio-fade-view', '');
-
+      document.querySelector('#screens').setAttribute('video-audio-fade', '');
     </script>
-
   </a-scene>
 </body>
 </html>
