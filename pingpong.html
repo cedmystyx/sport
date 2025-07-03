@@ -2,37 +2,51 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos pivotées + Pilier + Overlay d'accueil + Rotation</title>
+  <title>PingPong Vidéos pivotées + Pilier avec Overlay</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
   <style>
-    body { margin:0; background:black; overflow:hidden; }
+    body { margin:0; background:black; overflow: hidden; }
     #overlay {
       position: fixed;
-      top:0; left:0; right:0; bottom:0;
-      background: rgba(0,0,0,0.9);
-      color: white;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      font-family: Arial, sans-serif;
-      z-index: 9999;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      z-index: 10000;
+      padding: 20px;
     }
-    #overlay button {
-      margin-top: 20px;
-      padding: 12px 30px;
-      font-size: 20px;
-      cursor: pointer;
-      background: #0099ff;
+    #overlay h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px #00ccff;
+    }
+    #overlay p {
+      font-size: 1.5rem;
+      max-width: 450px;
+      margin-bottom: 40px;
+      text-shadow: 0 0 6px #00ccff;
+    }
+    #startBtn {
+      background: #00ccff;
       border: none;
-      border-radius: 8px;
-      color: white;
-      transition: background 0.3s ease;
+      padding: 15px 50px;
+      font-size: 1.8rem;
+      color: #003349;
+      border-radius: 40px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,204,255,0.6);
+      transition: background 0.3s ease, transform 0.2s ease;
     }
-    #overlay button:hover {
-      background: #007acc;
+    #startBtn:hover {
+      background: #0099cc;
+      transform: scale(1.05);
     }
   </style>
 </head>
@@ -41,11 +55,11 @@
   <!-- Overlay d'accueil -->
   <div id="overlay">
     <h1>Bienvenue dans PingPong VR</h1>
-    <p>Regarde les vidéos pour activer le son.</p>
+    <p>Explore les vidéos immersives autour de toi.<br />Clique sur le bouton pour commencer l’expérience.</p>
     <button id="startBtn">Entrer dans la scène</button>
   </div>
 
-  <a-scene physics="gravity: -9.8" background="color: #000000" embedded style="width:100vw; height:100vh;">
+  <a-scene physics="gravity: -9.8" background="color: #000000" embedded style="display:none">
 
     <!-- Canvas texture dégradé arc-en-ciel -->
     <canvas id="rainbowTexture" width="1" height="256" style="display:none"></canvas>
@@ -83,46 +97,66 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans fixes (1 devant, 1 repositionné) -->
-    <a-entity id="screens" rotation="0 0 0">
-      <!-- Vidéo devant -->
+    <!-- Écrans fixes tournant autour du joueur -->
+    <a-entity id="screens" position="0 1.5 0">
       <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
-                    position="0 1.5 -5" rotation="0 90 0"
                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
-
-      <!-- Vidéo repositionnée -->
       <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
-                    position="0 1.5 2.46035" rotation="0 -23.066134916376683 0"
                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
     </a-entity>
 
     <script>
       const v1 = document.querySelector('#vid1');
       const v2 = document.querySelector('#vid2');
+      v1.play();
+      v2.play();
 
-      // Ne pas lancer les vidéos avant entrée
-      function startVideos() {
-        v1.play();
-        v2.play();
-      }
+      AFRAME.registerComponent('rotate-around-player', {
+        schema: {
+          radius: {type: 'number', default: 5},
+          speedRotate: {type: 'number', default: 10},
+          count: {type: 'int', default: 2},
+        },
+        init: function () {
+          this.els = this.el.children;
+          this.angle = 0;
+        },
+        tick: function (time, delta) {
+          const dt = delta / 1000;
+          this.angle += this.data.speedRotate * dt;
+          if (this.angle >= 360) this.angle -= 360;
 
-      // Gestion volume audio
-      AFRAME.registerComponent('video-audio-fade', {
-        tick: function () {
-          const camera = document.querySelector('[camera]').object3D;
-          const camDir = new THREE.Vector3();
-          camera.getWorldDirection(camDir).normalize();
+          for (let i = 0; i < this.els.length; i++) {
+            const baseAngle = (360 / this.data.count) * i;
+            const currentAngle = THREE.MathUtils.degToRad(baseAngle + this.angle);
 
-          ['screen1', 'screen2'].forEach((id) => {
-            const el = document.querySelector(`#${id}`);
+            const x = this.data.radius * Math.sin(currentAngle);
+            const z = this.data.radius * Math.cos(currentAngle);
+            const el = this.els[i];
+
+            el.object3D.position.set(x, 0, z);
+            // Toujours face au joueur (0,0,0)
+            el.object3D.lookAt(new THREE.Vector3(0, 0, 0));
+
+            // Position physique
+            if (el.body) el.body.position.set(x, 1.5, z);
+
+            // Gestion du volume audio
             const videoEl = document.querySelector(el.getAttribute('src'));
+            if (!videoEl) continue;
+
+            const camera = document.querySelector('[camera]').object3D;
+            const camPos = camera.position;
+            const camDir = new THREE.Vector3();
+            camera.getWorldDirection(camDir);
+            camDir.normalize();
+
             const screenPos = new THREE.Vector3();
             el.object3D.getWorldPosition(screenPos);
 
-            const camPos = camera.position;
             const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
-
             const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
+
             const fadeAngle = 30;
             let targetVolume = 0;
             if (angleDeg < fadeAngle) {
@@ -131,39 +165,33 @@
 
             const fadeSpeed = 2;
             const currentVol = videoEl.volume;
+            let newVol = currentVol;
             if (currentVol < targetVolume) {
-              videoEl.volume = Math.min(currentVol + fadeSpeed * 0.016, targetVolume);
+              newVol = Math.min(currentVol + fadeSpeed * dt, targetVolume);
             } else if (currentVol > targetVolume) {
-              videoEl.volume = Math.max(currentVol - fadeSpeed * 0.016, targetVolume);
+              newVol = Math.max(currentVol - fadeSpeed * dt, targetVolume);
             }
-          });
+            videoEl.volume = newVol;
+          }
         }
       });
 
-      document.querySelector('#screens').setAttribute('video-audio-fade', '');
+      document.querySelector('#screens').setAttribute('rotate-around-player', '');
 
-      // Component rotation autour du joueur
-      AFRAME.registerComponent('rotate-around-player', {
-        schema: { speed: {type: 'number', default: 10} }, // degrés par seconde
-        tick: function (time, timeDelta) {
-          // rotation sur y à chaque tick
-          const rotation = this.el.getAttribute('rotation');
-          rotation.y += this.data.speed * (timeDelta / 1000);
-          this.el.setAttribute('rotation', rotation);
-        }
-      });
+      // Démarrage de la scène après clic sur le bouton
+      const overlay = document.getElementById('overlay');
+      const startBtn = document.getElementById('startBtn');
+      const scene = document.querySelector('a-scene');
 
-      const screensEl = document.querySelector('#screens');
-      screensEl.removeAttribute('rotate-around-player'); // au départ désactivé
+      startBtn.addEventListener('click', () => {
+        overlay.style.display = 'none';
+        scene.style.display = 'block';
 
-      // Bouton démarrage
-      document.getElementById('startBtn').addEventListener('click', () => {
-        document.getElementById('overlay').style.display = 'none';
-        startVideos();
-        screensEl.setAttribute('rotate-around-player', 'speed: 10');
+        // Re-jouer les vidéos pour éviter les soucis d'autoplay
+        v1.play();
+        v2.play();
       });
     </script>
-
   </a-scene>
 </body>
 </html>
