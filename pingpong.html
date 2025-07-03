@@ -2,10 +2,9 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong - Socle physique + vidéos</title>
+  <title>PingPong - Socle visible et vidéos</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
-  <!-- Physics system -->
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
   <style>
     body { margin: 0; overflow: hidden; background: black; }
@@ -14,32 +13,35 @@
 <body>
   <a-scene physics="gravity: -9.8" background="color: #000000" embedded>
 
-    <!-- Socle rond blanc avec physique -->
+    <!-- Socle rond blanc, plus grand et plus épais -->
     <a-cylinder
       position="0 0 0"
       rotation="0 0 0"
-      radius="2"
+      radius="5"
       height="0.1"
-      color="#fff"
+      color="#ccc"
       static-body
     ></a-cylinder>
 
-    <!-- Caméra avec corps physique pour poser sur le socle -->
+    <!-- Cube test visible (pour repère) -->
+    <a-box position="2 1 0" color="red" depth="0.5" height="0.5" width="0.5"></a-box>
+
+    <!-- Caméra avec physique, position plus haute -->
     <a-entity
       id="player"
-      position="0 1.6 0"
+      position="0 3 0"
       camera
       look-controls
       wasd-controls
       dynamic-body="shape: capsule; mass: 5;"
     ></a-entity>
 
-    <!-- Vidéos HTML cachées, muted pour autoplay -->
+    <!-- Vidéos HTML cachées -->
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Groupe vidéos -->
-    <a-entity id="videos-group" position="0 2 0">
+    <!-- Groupe vidéos, plus bas et plus proches -->
+    <a-entity id="videos-group" position="0 1 0">
       <a-curvedimage id="screen1" radius="1.5" theta-length="90" height="1" src="#vid1" rotation="0 0 0"></a-curvedimage>
       <a-curvedimage id="screen2" radius="1.5" theta-length="90" height="1" src="#vid2" rotation="0 180 0"></a-curvedimage>
     </a-entity>
