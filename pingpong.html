@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Pilier Multicolore Infini</title>
+  <title>PingPong Pilier & Vidéos Générique</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -28,11 +28,11 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     </script>
 
-    <!-- Pilier vertical "infini" multicolore -->
+    <!-- Pilier vertical "infini" multicolore, largeur divisée par 4 -->
     <a-cylinder
       position="0 -500 0"
       rotation="0 0 0"
-      radius="5"
+      radius="1.25"
       height="1000"
       material="shader: flat; src: #rainbowTexture; repeat: 1 50"
       static-body
@@ -65,8 +65,8 @@
       AFRAME.registerComponent('circular-vertical-scroll', {
         schema: {
           radius: { type: 'number', default: 1.5 },
-          speedY: { type: 'number', default: 0.8 },
-          speedRotate: { type: 'number', default: 30 },
+          speedY: { type: 'number', default: 0.03 },       // descente très lente (générique)
+          speedRotate: { type: 'number', default: 5 },     // rotation lente
           count: { type: 'int', default: 2 },
           spacingY: { type: 'number', default: 1.5 },
           fadeAngle: { type: 'number', default: 30 }
