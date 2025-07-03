@@ -100,71 +100,42 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans fixes (1 devant, 1 repositionné) -->
-    <a-entity id="screens" position="0 1.5 0">
+    <!-- Écrans fixes (positions et rotations d’origine) -->
+    <a-entity id="screens">
       <!-- Vidéo devant -->
       <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
+                    position="0 1.5 -5" rotation="0 90 0"
                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
 
       <!-- Vidéo repositionnée -->
       <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
+                    position="0 1.5 2.46035" rotation="0 -23.066134916376683 0"
                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
     </a-entity>
 
     <script>
       const v1 = document.querySelector('#vid1');
       const v2 = document.querySelector('#vid2');
+      v1.play();
+      v2.play();
 
-      // Joue les vidéos (les navigateurs exigent interaction utilisateur)
-      function playVideos() {
-        v1.play().catch(() => {});
-        v2.play().catch(() => {});
-      }
+      // Gestion volume audio fade suivant l'angle caméra-écran
+      AFRAME.registerComponent('video-audio-fade', {
+        tick: function () {
+          const camera = document.querySelector('[camera]').object3D;
+          const camDir = new THREE.Vector3();
+          camera.getWorldDirection(camDir).normalize();
 
-      // Composant de rotation autour du joueur
-      AFRAME.registerComponent('rotate-around-player', {
-        schema: {
-          radius: {type: 'number', default: 5},
-          speedRotate: {type: 'number', default: 10},
-          count: {type: 'int', default: 2},
-        },
-        init: function () {
-          this.els = this.el.children;
-          this.angle = 0;
-        },
-        tick: function (time, delta) {
-          const dt = delta / 1000;
-          this.angle += this.data.speedRotate * dt;
-          if (this.angle >= 360) this.angle -= 360;
-
-          for (let i = 0; i < this.els.length; i++) {
-            const baseAngle = (360 / this.data.count) * i;
-            const currentAngle = THREE.MathUtils.degToRad(baseAngle + this.angle);
-
-            const x = this.data.radius * Math.sin(currentAngle);
-            const z = this.data.radius * Math.cos(currentAngle);
-            const el = this.els[i];
-
-            el.object3D.position.set(x, 0, z);
-            el.object3D.lookAt(new THREE.Vector3(0, 0, 0));
-
-            if (el.body) el.body.position.set(x, 1.5, z);
-
+          ['screen1', 'screen2'].forEach((id) => {
+            const el = document.querySelector(`#${id}`);
             const videoEl = document.querySelector(el.getAttribute('src'));
-            if (!videoEl) continue;
-
-            const camera = document.querySelector('[camera]').object3D;
-            const camPos = camera.position;
-            const camDir = new THREE.Vector3();
-            camera.getWorldDirection(camDir);
-            camDir.normalize();
-
             const screenPos = new THREE.Vector3();
             el.object3D.getWorldPosition(screenPos);
 
+            const camPos = camera.position;
             const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
-            const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
 
+            const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
             const fadeAngle = 30;
             let targetVolume = 0;
             if (angleDeg < fadeAngle) {
@@ -173,20 +144,18 @@
 
             const fadeSpeed = 2;
             const currentVol = videoEl.volume;
-            let newVol = currentVol;
             if (currentVol < targetVolume) {
-              newVol = Math.min(currentVol + fadeSpeed * dt, targetVolume);
+              videoEl.volume = Math.min(currentVol + fadeSpeed * 0.016, targetVolume);
             } else if (currentVol > targetVolume) {
-              newVol = Math.max(currentVol - fadeSpeed * dt, targetVolume);
+              videoEl.volume = Math.max(currentVol - fadeSpeed * 0.016, targetVolume);
             }
-            videoEl.volume = newVol;
-          }
+          });
         }
       });
 
-      document.querySelector('#screens').setAttribute('rotate-around-player', '');
+      document.querySelector('#screens').setAttribute('video-audio-fade', '');
 
-      // Bouton d'entrée dans la scène
+      // Gestion overlay + démarrage scène & vidéos
       const overlay = document.getElementById('overlay');
       const startBtn = document.getElementById('startBtn');
       const scene = document.querySelector('a-scene');
@@ -194,10 +163,10 @@
       startBtn.addEventListener('click', () => {
         overlay.style.display = 'none';
         scene.style.display = 'block';
-        playVideos();
+        v1.play().catch(() => {});
+        v2.play().catch(() => {});
       });
     </script>
-
   </a-scene>
 
 </body>
