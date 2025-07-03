@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos pivotées + Pilier + Overlay d'accueil</title>
+  <title>PingPong Vidéos pivotées + Pilier + Overlay d'accueil + Rotation</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -84,7 +84,7 @@
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
     <!-- Écrans fixes (1 devant, 1 repositionné) -->
-    <a-entity id="screens">
+    <a-entity id="screens" rotation="0 0 0">
       <!-- Vidéo devant -->
       <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
                     position="0 1.5 -5" rotation="0 90 0"
@@ -142,10 +142,25 @@
 
       document.querySelector('#screens').setAttribute('video-audio-fade', '');
 
+      // Component rotation autour du joueur
+      AFRAME.registerComponent('rotate-around-player', {
+        schema: { speed: {type: 'number', default: 10} }, // degrés par seconde
+        tick: function (time, timeDelta) {
+          // rotation sur y à chaque tick
+          const rotation = this.el.getAttribute('rotation');
+          rotation.y += this.data.speed * (timeDelta / 1000);
+          this.el.setAttribute('rotation', rotation);
+        }
+      });
+
+      const screensEl = document.querySelector('#screens');
+      screensEl.removeAttribute('rotate-around-player'); // au départ désactivé
+
       // Bouton démarrage
       document.getElementById('startBtn').addEventListener('click', () => {
         document.getElementById('overlay').style.display = 'none';
         startVideos();
+        screensEl.setAttribute('rotate-around-player', 'speed: 10');
       });
     </script>
 
