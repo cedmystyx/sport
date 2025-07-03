@@ -2,30 +2,46 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Physique Complète</title>
+  <title>PingPong Pilier Multicolore Infini</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
-  <style>
-    body { margin: 0; overflow: hidden; background: black; }
-  </style>
+  <style> body { margin:0; background:black; } </style>
 </head>
 <body>
   <a-scene physics="gravity: -9.8" background="color: #000000">
 
-    <!-- Socle physique, grand cercle blanc -->
+    <!-- Canvas texture dégradé arc-en-ciel -->
+    <canvas id="rainbowTexture" width="1" height="256" style="display:none"></canvas>
+    <script>
+      const canvas = document.getElementById('rainbowTexture');
+      const ctx = canvas.getContext('2d');
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0.0, "red");
+      gradient.addColorStop(0.17, "orange");
+      gradient.addColorStop(0.34, "yellow");
+      gradient.addColorStop(0.51, "green");
+      gradient.addColorStop(0.68, "blue");
+      gradient.addColorStop(0.85, "indigo");
+      gradient.addColorStop(1.0, "violet");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    </script>
+
+    <!-- Pilier vertical "infini" multicolore -->
     <a-cylinder
-      position="0 0 0"
+      position="0 -500 0"
       rotation="0 0 0"
       radius="5"
-      height="0.2"
-      color="#eee"
+      height="1000"
+      material="shader: flat; src: #rainbowTexture; repeat: 1 50"
       static-body
     ></a-cylinder>
 
-    <!-- Joueur caméra avec physique dynamique capsule -->
-    <a-entity id="player" position="0 3 0" dynamic-body="shape: capsule; mass: 80; linearDamping: 0.9; angularDamping: 1" 
-              camera look-controls wasd-controls="acceleration: 50">
+    <!-- Joueur dynamique au dessus -->
+    <a-entity id="player" position="0 2 0" 
+              camera look-controls wasd-controls="acceleration: 50"
+              dynamic-body="shape: capsule; mass: 80; linearDamping: 0.9; angularDamping: 1">
     </a-entity>
 
     <!-- Vidéos HTML -->
@@ -92,8 +108,8 @@
 
             el.object3D.lookAt(new THREE.Vector3(0, el.object3D.position.y, 0));
 
-            // Mise à jour collision physique static-body position (important)
-            el.body.position.set(x, el.object3D.position.y, z);
+            // Mise à jour collision physique static-body position
+            if (el.body) el.body.position.set(x, el.object3D.position.y, z);
 
             // Volume audio selon angle caméra vs écran
             const camPos = this.cameraEl.position;
@@ -130,6 +146,7 @@
 
       document.querySelector('#screens').setAttribute('circular-vertical-scroll', '');
     </script>
+
   </a-scene>
 </body>
 </html>
