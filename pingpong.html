@@ -28,16 +28,16 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     </script>
 
-    <!-- Pilier vertical multicolore -->
+    <!-- Pilier vertical multicolore (moins haut) -->
     <a-cylinder
-      position="0 -248 0"
+      position="0 -245 0"
       radius="1.25"
-      height="500"
+      height="490"
       material="shader: flat; src: #rainbowTexture; repeat: 1 50"
       static-body
     ></a-cylinder>
 
-    <!-- Joueur dynamique placé au sommet du pilier -->
+    <!-- Joueur dynamique posé sur le pilier -->
     <a-entity id="player" position="0 1.5 0" 
               camera look-controls wasd-controls="acceleration: 50"
               dynamic-body="shape: capsule; mass: 80; linearDamping: 0.9; angularDamping: 1">
@@ -47,14 +47,14 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans fixes pivotés vers la droite -->
+    <!-- Écrans fixes pivotés autour du joueur -->
     <a-entity id="screens">
-      <!-- Une vidéo devant le joueur -->
+      <!-- Vidéo devant -->
       <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1"
                     position="0 1.5 -5" rotation="0 90 0"
                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
 
-      <!-- Une vidéo derrière le joueur -->
+      <!-- Vidéo derrière -->
       <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2"
                     position="0 1.5 5" rotation="0 90 0"
                     static-body="shape: box; height: 3; width: 4; depth: 0.1"></a-curvedimage>
@@ -66,14 +66,14 @@
       v1.play();
       v2.play();
 
-      // Gestion du volume audio selon l'orientation du joueur
+      // Gestion volume audio
       AFRAME.registerComponent('video-audio-fade', {
         tick: function () {
           const camera = document.querySelector('[camera]').object3D;
           const camDir = new THREE.Vector3();
           camera.getWorldDirection(camDir).normalize();
 
-          ['screen1', 'screen2'].forEach((id, i) => {
+          ['screen1', 'screen2'].forEach((id) => {
             const el = document.querySelector(`#${id}`);
             const videoEl = document.querySelector(el.getAttribute('src'));
             const screenPos = new THREE.Vector3();
@@ -83,7 +83,6 @@
             const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
 
             const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
-
             const fadeAngle = 30;
             let targetVolume = 0;
             if (angleDeg < fadeAngle) {
