@@ -6,13 +6,20 @@
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
-  <style> 
-    body { margin:0; background:black; overflow: hidden; } 
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+    }
 
     /* Overlay */
     #overlay {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       display: flex;
       flex-direction: column;
@@ -43,7 +50,7 @@
       color: #003349;
       border-radius: 40px;
       cursor: pointer;
-      box-shadow: 0 5px 15px rgba(0,204,255,0.6);
+      box-shadow: 0 5px 15px rgba(0, 204, 255, 0.6);
       transition: background 0.3s ease, transform 0.2s ease;
     }
     #startBtn:hover {
@@ -62,10 +69,10 @@
   </div>
 
   <!-- Scène A-Frame cachée au départ -->
-  <a-scene physics="gravity: -9.8" background="color: #000000" style="display:none">
+  <a-scene physics="gravity: -9.8" background="color: #000000" style="display: none">
 
     <!-- Canvas texture dégradé arc-en-ciel -->
-    <canvas id="rainbowTexture" width="1" height="256" style="display:none"></canvas>
+    <canvas id="rainbowTexture" width="1" height="256" style="display: none"></canvas>
     <script>
       const canvas = document.getElementById('rainbowTexture');
       const ctx = canvas.getContext('2d');
@@ -91,29 +98,49 @@
     ></a-cylinder>
 
     <!-- Joueur dynamique posé sur le pilier -->
-    <a-entity id="player" position="0 1.5 0" 
-              camera look-controls wasd-controls="acceleration: 50"
-              dynamic-body="shape: capsule; mass: 80; linearDamping: 0.9; angularDamping: 1">
-    </a-entity>
+    <a-entity id="player"
+      position="0 1.5 0"
+      camera
+      look-controls
+      wasd-controls="acceleration: 50"
+      dynamic-body="shape: capsule; mass: 80; linearDamping: 0.9; angularDamping: 1"
+    ></a-entity>
 
     <!-- Vidéos HTML -->
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans fixes (positions et rotations d’origine) -->
+    <!-- Écrans fixes -->
     <a-entity id="screens">
       <!-- Vidéo devant -->
-      <a-curvedimage id="screen1" radius="5" theta-length="90" height="3" src="#vid1" position="0 1.5 0.0614" rotation="0 90 0" static-body="shape: box; sphereRadius: NaN" material="" geometry="thetaLength: 90" velocity=""></a-curvedimage>
+      <a-curvedimage id="screen1"
+        radius="5"
+        theta-length="90"
+        height="3"
+        src="#vid1"
+        position="0 1.5 0.06"
+        rotation="0 90 0"
+        static-body="shape: box"
+      ></a-curvedimage>
 
       <!-- Vidéo repositionnée -->
-      <a-curvedimage id="screen2" radius="5" theta-length="90" height="3" src="#vid2" position="0 1.5 0.06886" rotation="0 -23.066134916376683 0" static-body="shape: box; sphereRadius: NaN" material="" geometry="thetaLength: 90" velocity=""></a-curvedimage>
+      <a-curvedimage id="screen2"
+        radius="5"
+        theta-length="90"
+        height="3"
+        src="#vid2"
+        position="0 1.5 0.07"
+        rotation="0 -23 0"
+        static-body="shape: box"
+      ></a-curvedimage>
     </a-entity>
 
     <script>
       const v1 = document.querySelector('#vid1');
       const v2 = document.querySelector('#vid2');
-      v1.play();
-      v2.play();
+
+      // Démarrage immédiat des vidéos
+      Promise.all([v1.play(), v2.play()]).catch(() => {});
 
       // Gestion volume audio fade suivant l'angle caméra-écran
       AFRAME.registerComponent('video-audio-fade', {
@@ -124,7 +151,9 @@
 
           ['screen1', 'screen2'].forEach((id) => {
             const el = document.querySelector(`#${id}`);
-            const videoEl = document.querySelector(el.getAttribute('src'));
+            const videoId = el.getAttribute('src').replace('#', '');
+            const videoEl = document.getElementById(videoId);
+
             const screenPos = new THREE.Vector3();
             el.object3D.getWorldPosition(screenPos);
 
@@ -134,16 +163,18 @@
             const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
             const fadeAngle = 30;
             let targetVolume = 0;
+
             if (angleDeg < fadeAngle) {
               targetVolume = 1 - angleDeg / fadeAngle;
             }
 
-            const fadeSpeed = 2;
+            const fadeSpeed = 2; // volume change par seconde
+            const deltaTime = this.el.sceneEl.clock.getDelta();
             const currentVol = videoEl.volume;
             if (currentVol < targetVolume) {
-              videoEl.volume = Math.min(currentVol + fadeSpeed * 0.016, targetVolume);
+              videoEl.volume = Math.min(currentVol + fadeSpeed * deltaTime, targetVolume);
             } else if (currentVol > targetVolume) {
-              videoEl.volume = Math.max(currentVol - fadeSpeed * 0.016, targetVolume);
+              videoEl.volume = Math.max(currentVol - fadeSpeed * deltaTime, targetVolume);
             }
           });
         }
@@ -151,7 +182,7 @@
 
       document.querySelector('#screens').setAttribute('video-audio-fade', '');
 
-      // Gestion overlay + démarrage scène & vidéos
+      // Gestion overlay + démarrage scène
       const overlay = document.getElementById('overlay');
       const startBtn = document.getElementById('startBtn');
       const scene = document.querySelector('a-scene');
@@ -159,8 +190,7 @@
       startBtn.addEventListener('click', () => {
         overlay.style.display = 'none';
         scene.style.display = 'block';
-        v1.play().catch(() => {});
-        v2.play().catch(() => {});
+        Promise.all([v1.play(), v2.play()]).catch(() => {});
       });
     </script>
   </a-scene>
