@@ -62,29 +62,12 @@
   <!-- Scène A-Frame -->
   <a-scene physics="gravity: -9.8" background="color: #000000">
 
-    <!-- Canvas texture dégradé arc-en-ciel -->
-    <canvas id="rainbowTexture" width="1" height="256" style="display:none"></canvas>
-    <script>
-      const canvas = document.getElementById('rainbowTexture');
-      const ctx = canvas.getContext('2d');
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0.0, "red");
-      gradient.addColorStop(0.17, "orange");
-      gradient.addColorStop(0.34, "yellow");
-      gradient.addColorStop(0.51, "green");
-      gradient.addColorStop(0.68, "blue");
-      gradient.addColorStop(0.85, "indigo");
-      gradient.addColorStop(1.0, "violet");
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    </script>
-
-    <!-- Pilier vertical multicolore -->
+    <!-- Pilier vertical unicolor -->
     <a-cylinder
       position="0 -245 0"
       radius="1.25"
       height="490"
-      material="shader: flat; src: #rainbowTexture; repeat: 1 50"
+      color="#00ccff"
       static-body
     ></a-cylinder>
 
@@ -130,7 +113,7 @@
       v1.play();
       v2.play();
 
-      // Défilement lent + fade in/out lent (2-5 secondes)
+      // Défilement lent + fade in/out lent
       AFRAME.registerComponent('scroll-fade', {
         schema: {
           speed: {type: 'number', default: 0.0005},
@@ -145,7 +128,6 @@
           if (pos.y < -this.data.fadeHeight) {
             pos.y = this.initialY + this.data.fadeHeight;
           }
-          // Calcul fade lent (2 à 5 sec selon vitesse)
           const distanceFromCenter = Math.abs(pos.y - this.initialY);
           let opacity = 1 - (distanceFromCenter / this.data.fadeHeight);
           opacity = Math.max(0, Math.min(1, opacity));
