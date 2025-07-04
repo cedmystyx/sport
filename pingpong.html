@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos pivotées + Pilier avec Rotation</title>
+  <title>PingPong VR avec texte synchronisé</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -60,7 +60,7 @@
   </div>
 
   <!-- Scène A-Frame -->
-  <a-scene physics="gravity: -9.8" background="color: #000000">
+  <a-scene physics="gravity: -9.8" background="color: #000000" style="display:none">
 
     <!-- Pilier vertical unicolor -->
     <a-cylinder
@@ -71,7 +71,7 @@
       static-body
     ></a-cylinder>
 
-    <!-- Joueur dynamique posé sur le pilier -->
+    <!-- Joueur dynamique -->
     <a-entity id="player" position="0 1.5 0"
               camera look-controls wasd-controls="acceleration: 50"
               dynamic-body="shape: capsule; mass: 80; linearDamping: 0.9; angularDamping: 1">
@@ -81,8 +81,10 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans tournants et défilants autour du joueur -->
-    <a-entity id="screens" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 60000; easing: linear">
+    <!-- Écrans + Texte qui tournent autour du joueur -->
+    <a-entity id="screens-text" rotation="0 0 0" 
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 60000; easing: linear">
+      
       <!-- Vidéo 1 -->
       <a-curvedimage id="screen1"
         radius="5"
@@ -90,7 +92,9 @@
         height="3"
         src="#vid1"
         position="0 1.5 0.06"
-        rotation="7.058267078216611 -165.99102986955566 -11.816681566778099"
+        rotation="7 -165 -12"
+        material="opacity: 1; transparent: true"
+        animation__fade="property: material.opacity; from:1; to:0; dir:alternate; dur:5000; loop:true; easing:easeInOutSine"
         static-body="shape: box">
       </a-curvedimage>
 
@@ -101,87 +105,42 @@
         height="3"
         src="#vid2"
         position="0 1.5 0.07"
-        rotation="-3.1822075941565924 17.479796413851155 1.409476176021825"
+        rotation="-3 17 1"
+        material="opacity: 1; transparent: true"
+        animation__fade="property: material.opacity; from:1; to:0; dir:alternate; dur:5000; loop:true; easing:easeInOutSine"
         static-body="shape: box">
       </a-curvedimage>
+
+      <!-- Texte derrière les vidéos, synchronisé -->
+      <a-entity position="0 1.5 -8">
+        <a-text
+          value="Lycée Louis de Cormontaigne - Ping Pong\n\nINTRODUCTION\n\nLe tennis de table, appelé aussi ping-pong, est un sport de raquette opposant deux ou quatre joueurs autour d'une table. Le tennis de table est une activité de loisir, mais c'est également un sport olympique depuis 1988.\n\nIl existe plusieurs dénominations de ce sport à travers le monde : ping pang qiu (乒乓球, pīng pāng qiú, « balle ping-pang »), en république populaire de Chine et république de Chine (Taïwan), ou également en Chine zhuo qiu (桌球, zhuō qiú, « balle de table »), qui se prononce au Japon takkyū (卓球?). Le mot ping-pong proviendrait de la marque commerciale sous laquelle le jeu est produit aux États-Unis au début du XXe siècle. Le terme « ping-pong » est plutôt utilisé pour désigner le jeu de loisirs, alors que « tennis de table » est utilisé pour désigner la pratique sportive. Un pratiquant de ce sport, y compris en compétition, s'appelle un « pongiste »."
+          align="center"
+          width="8"
+          color="#ffffff"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/DejaVu-sdf.fnt"
+          material="opacity: 1; transparent: true"
+          animation__fade="property: material.opacity; from:1; to:0; dir:alternate; dur:5000; loop:true; easing:easeInOutSine">
+        </a-text>
+      </a-entity>
+
     </a-entity>
 
-    <!-- Scroll et fade des vidéos -->
     <script>
       const v1 = document.querySelector('#vid1');
       const v2 = document.querySelector('#vid2');
       v1.play();
       v2.play();
 
-      // Défilement lent + fade in/out lent
-      AFRAME.registerComponent('scroll-fade', {
-        schema: {
-          speed: {type: 'number', default: 0.0005},
-          fadeHeight: {type: 'number', default: 5}
-        },
-        init: function () {
-          this.initialY = this.el.object3D.position.y;
-        },
-        tick: function (time, delta) {
-          const pos = this.el.object3D.position;
-          pos.y -= this.data.speed * delta;
-          if (pos.y < -this.data.fadeHeight) {
-            pos.y = this.initialY + this.data.fadeHeight;
-          }
-          const distanceFromCenter = Math.abs(pos.y - this.initialY);
-          let opacity = 1 - (distanceFromCenter / this.data.fadeHeight);
-          opacity = Math.max(0, Math.min(1, opacity));
-          this.el.setAttribute('material', 'opacity', opacity);
-          this.el.setAttribute('material', 'transparent', true);
-        }
-      });
-
-      document.querySelectorAll('a-curvedimage').forEach((el) => {
-        el.setAttribute('scroll-fade', 'speed: 0.0005; fadeHeight: 5');
-      });
-
-      // Volume audio fade selon angle caméra-écran
-      AFRAME.registerComponent('video-audio-fade', {
-        tick: function () {
-          const camera = document.querySelector('[camera]').object3D;
-          const camDir = new THREE.Vector3();
-          camera.getWorldDirection(camDir).normalize();
-
-          ['screen1', 'screen2'].forEach((id) => {
-            const el = document.querySelector(`#${id}`);
-            const videoEl = document.querySelector(el.getAttribute('src'));
-            const screenPos = new THREE.Vector3();
-            el.object3D.getWorldPosition(screenPos);
-
-            const camPos = camera.position;
-            const camToScreen = new THREE.Vector3().subVectors(screenPos, camPos).normalize();
-
-            const angleDeg = THREE.MathUtils.radToDeg(camDir.angleTo(camToScreen));
-            const fadeAngle = 30;
-            let targetVolume = 0;
-            if (angleDeg < fadeAngle) {
-              targetVolume = 1 - angleDeg / fadeAngle;
-            }
-
-            const fadeSpeed = 2;
-            const currentVol = videoEl.volume;
-            if (currentVol < targetVolume) {
-              videoEl.volume = Math.min(currentVol + fadeSpeed * 0.016, targetVolume);
-            } else if (currentVol > targetVolume) {
-              videoEl.volume = Math.max(currentVol - fadeSpeed * 0.016, targetVolume);
-            }
-          });
-        }
-      });
-
-      document.querySelector('#screens').setAttribute('video-audio-fade', '');
-
-      // Overlay gestion
+      // Gestion overlay + démarrage
       const overlay = document.getElementById('overlay');
       const startBtn = document.getElementById('startBtn');
+      const scene = document.querySelector('a-scene');
 
       startBtn.addEventListener('click', () => {
         overlay.style.display = 'none';
+        scene.style.display = 'block';
         v1.play().catch(() => {});
         v2.play().catch(() => {});
       });
