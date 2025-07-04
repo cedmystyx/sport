@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos pivotées + Pilier avec Rotation</title>
+  <title>PingPong Vidéos Défilement Vertical + Fondu</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -98,16 +98,17 @@
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans tournants autour du joueur -->
-    <a-entity id="screens" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 60000; easing: linear">
+    <!-- Écrans qui descendent en boucle -->
+    <a-entity id="screens" position="0 10 0">
       <!-- Vidéo 1 -->
       <a-curvedimage id="screen1"
         radius="5"
         theta-length="90"
         height="3"
         src="#vid1"
-        position="0 1.5 0.06"
-        rotation="7.058267078216611 -165.99102986955566 -11.816681566778099"
+        position="0 0 0.06"
+        rotation="7.05 -165.99 -11.81"
+        material="opacity: 1; transparent: true"
         static-body="shape: box">
       </a-curvedimage>
 
@@ -117,8 +118,9 @@
         theta-length="90"
         height="3"
         src="#vid2"
-        position="0 1.5 0.07"
-        rotation="-3.1822075941565924 17.479796413851155 1.409476176021825"
+        position="0 -5 0.07"
+        rotation="-3.18 17.47 1.40"
+        material="opacity: 1; transparent: true"
         static-body="shape: box">
       </a-curvedimage>
     </a-entity>
@@ -128,6 +130,36 @@
       const v2 = document.querySelector('#vid2');
       v1.play();
       v2.play();
+
+      // Défilement vertical lent avec fondu en boucle
+      AFRAME.registerComponent('vertical-scroll-fade', {
+        schema: { speed: { type: 'number', default: 0.005 } }, // vitesse réglable
+        init: function () {
+          this.y = 10; // Position initiale en Y
+        },
+        tick: function (time, delta) {
+          this.y -= this.data.speed * delta;
+          if (this.y <= -10) { // Quand atteint le bas
+            this.y = 10;      // Remonte en haut
+          }
+
+          this.el.setAttribute('position', `0 ${this.y} 0`);
+
+          // Fondu d'opacité proche des extrêmes
+          const fadeZone = 2.0;
+          let opacity = 1;
+          if (this.y > 10 - fadeZone) {
+            opacity = 1 - (this.y - (10 - fadeZone)) / fadeZone;
+          } else if (this.y < -10 + fadeZone) {
+            opacity = 1 - ((-10 + fadeZone) - this.y) / fadeZone;
+          }
+          this.el.children.forEach(child => {
+            child.setAttribute('material', 'opacity', opacity);
+          });
+        }
+      });
+
+      document.querySelector('#screens').setAttribute('vertical-scroll-fade', 'speed: 0.002');
 
       // Gestion volume audio fade suivant l'angle caméra-écran
       AFRAME.registerComponent('video-audio-fade', {
