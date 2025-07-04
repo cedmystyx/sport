@@ -130,10 +130,11 @@
       v1.play();
       v2.play();
 
-      // Défilement lent + fade in/out
+      // Défilement lent + fade in/out lent (2-5 secondes)
       AFRAME.registerComponent('scroll-fade', {
         schema: {
-          speed: {type: 'number', default: 0.001}
+          speed: {type: 'number', default: 0.0005},
+          fadeHeight: {type: 'number', default: 5}
         },
         init: function () {
           this.initialY = this.el.object3D.position.y;
@@ -141,21 +142,23 @@
         tick: function (time, delta) {
           const pos = this.el.object3D.position;
           pos.y -= this.data.speed * delta;
-          if (pos.y < -5) {
-            pos.y = this.initialY + 5;
+          if (pos.y < -this.data.fadeHeight) {
+            pos.y = this.initialY + this.data.fadeHeight;
           }
-          // Fade
-          const opacity = 1 - Math.abs(pos.y - this.initialY) / 5;
+          // Calcul fade lent (2 à 5 sec selon vitesse)
+          const distanceFromCenter = Math.abs(pos.y - this.initialY);
+          let opacity = 1 - (distanceFromCenter / this.data.fadeHeight);
+          opacity = Math.max(0, Math.min(1, opacity));
           this.el.setAttribute('material', 'opacity', opacity);
           this.el.setAttribute('material', 'transparent', true);
         }
       });
 
       document.querySelectorAll('a-curvedimage').forEach((el) => {
-        el.setAttribute('scroll-fade', 'speed: 0.0005');
+        el.setAttribute('scroll-fade', 'speed: 0.0005; fadeHeight: 5');
       });
 
-      // Volume audio fade selon l’angle caméra-écran
+      // Volume audio fade selon angle caméra-écran
       AFRAME.registerComponent('video-audio-fade', {
         tick: function () {
           const camera = document.querySelector('[camera]').object3D;
