@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>PingPong Vidéos pivotées + Pilier avec Rotation + Texte</title>
+  <title>PingPong VR - Texte animé</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-curvedimage-component/dist/aframe-curvedimage-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
@@ -59,7 +59,7 @@
     <button id="startBtn">Entrer dans la scène</button>
   </div>
 
-  <!-- Scène A-Frame cachée au départ -->
+  <!-- Scène A-Frame -->
   <a-scene physics="gravity: -9.8" background="color: #000000" style="display:none">
 
     <!-- Pilier unicolor -->
@@ -71,17 +71,17 @@
       static-body>
     </a-cylinder>
 
-    <!-- Joueur dynamique -->
+    <!-- Joueur -->
     <a-entity id="player" position="0 1.5 0"
               camera look-controls wasd-controls="acceleration: 50"
               dynamic-body="shape: capsule; mass: 80; linearDamping: 0.9; angularDamping: 1">
     </a-entity>
 
-    <!-- Vidéos HTML -->
+    <!-- Vidéos -->
     <video id="vid1" src="video/ping.mp4" loop crossorigin="anonymous" playsinline muted></video>
     <video id="vid2" src="video/pong.mp4" loop crossorigin="anonymous" playsinline muted></video>
 
-    <!-- Écrans tournants autour du joueur -->
+    <!-- Écrans tournants -->
     <a-entity id="screens" rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 60000; easing: linear">
       <!-- Vidéo 1 -->
       <a-curvedimage id="screen1"
@@ -106,15 +106,15 @@
       </a-curvedimage>
     </a-entity>
 
-    <!-- Texte derrière les vidéos -->
+    <!-- Texte animé derrière le joueur -->
     <a-text
       value="Lycée Louis de Cormontaigne - Ping Pong\n\nINTRODUCTION\n\nLe tennis de table, appelé aussi ping-pong, est un sport de raquette opposant deux ou quatre joueurs autour d'une table. Le tennis de table est une activité de loisir, mais c'est également un sport olympique depuis 1988.\n\nIl existe plusieurs dénominations de ce sport à travers le monde : ping pang qiu (乒乓球, pīng pāng qiú, « balle ping-pang »), en république populaire de Chine et république de Chine (Taïwan), ou également en Chine zhuo qiu (桌球, zhuō qiú, « balle de table »), qui se prononce au Japon takkyū (卓球?). Le mot ping-pong proviendrait de la marque commerciale sous laquelle le jeu est produit aux États-Unis au début du XXe siècle. Le terme « ping-pong » est plutôt utilisé pour désigner le jeu de loisirs, alors que « tennis de table » est utilisé pour désigner la pratique sportive. Un pratiquant de ce sport, y compris en compétition, s'appelle un « pongiste »."
       align="center"
       width="8"
       color="#ffffff"
       position="0 1 -6"
-      material="opacity: 1; transparent: true"
-      animation__fade="property: material.opacity; from:1; to:0; dir:alternate; dur:5000; loop:true; easing:easeInOutSine">
+      material="opacity: 0; transparent: true"
+      animation__fade="property: material.opacity; from: 0; to: 1; dir: alternate; dur: 4000; loop: true; easing: easeInOutSine">
     </a-text>
 
     <script>
@@ -123,7 +123,7 @@
       v1.play();
       v2.play();
 
-      // Fade audio suivant angle caméra-écran
+      // Fade audio suivant angle caméra
       AFRAME.registerComponent('video-audio-fade', {
         tick: function () {
           const camera = document.querySelector('[camera]').object3D;
